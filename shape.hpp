@@ -12,6 +12,7 @@ protected:
 
     float area;
     glm::vec2 position;
+    glm::vec2 resultantForce;
 
 public:
 
@@ -19,6 +20,7 @@ public:
     virtual const glm::vec2 getPosition() const;
     virtual void setPosition(const glm::vec2 newPos);
     virtual inline void move(const glm::vec2 vec);
+    virtual inline void setResultantForce(const glm::vec2 vec);
 
 };
 

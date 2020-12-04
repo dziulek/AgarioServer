@@ -19,3 +19,8 @@ void shapes::Shape::move(const glm::vec2 vec){
 
     this->position = glm::vec2(position.x + vec.x, position.y + vec.y);
 }
+
+void shapes::Shape::setResultantForce(const glm::vec2 vec){
+
+    this->resultantForce = vec;
+}

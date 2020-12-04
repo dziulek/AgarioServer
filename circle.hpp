@@ -18,6 +18,7 @@ public:
     }
 
     void setRadius(const float newR);
+    float static inline getDistance(const Circle & a, const Circle & b);
 
 private:
 
