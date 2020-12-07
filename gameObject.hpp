@@ -2,6 +2,7 @@
 #define GAME_OBJECT_HPP
 
 #include "shape.hpp"
+#include "circle.hpp"
 #include <glm.hpp>
 #include <vector>
 
@@ -9,19 +10,23 @@ namespace agario{
 
 class GameObject {
 
-private:
+private:    
 
-    std::vector<shapes::Shape *> parts;
-    glm::vec2 middlePoint;
+    std::vector<shapes::Circle *> sparkles;
+    bool compoundAvailable = true;
+
+
+    void setAlmostResultantForces(const glm::vec2 cursorPos);
+    void calculateFinalResultantForces(const glm::vec2 cursorPos);
 
 public:
 
-    virtual void setPosition(const glm::vec2 newPos);
-    virtual void move(const glm::vec2 vec);
-    virtual void giveMass(const glm::vec2 direction);
-    virtual void addMass(const float mass);
-    virtual void bombAction();
-    virtual void divideObject();
+    void setPosition(const glm::vec2 newPos);
+    void move(const glm::vec2 cursorPos, const float time);
+    void giveMass(const glm::vec2 direction);
+    void addMass(const float mass);
+    void bombAction();
+    void divideObject();
 };
 
 }

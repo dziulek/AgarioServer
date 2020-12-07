@@ -5,27 +5,33 @@
 #include <glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace shapes{
+namespace agario{
 
-class Circle : Shape {
+    namespace shapes{
 
-public:
+    class Circle : Shape {
 
-    Circle();
-    Circle(const unsigned int r,const glm::vec2 center) : radius(r){
-        
-        this->position = center;
-    }
+    public:
 
-    void setRadius(const float newR);
-    float static inline getDistance(const Circle & a, const Circle & b);
+        Circle();
+        Circle(const unsigned int r,const glm::vec2 center) : radius(r){
+            
+            this->position = center;
+        }
 
-private:
+        void setRadius(const float newR);
+        float static inline getDistance(const Circle & a, const Circle & b);
+        static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Circle & s1, const Circle & s2);
+    
+    private:
 
-    float radius;
+        float radius;
 
-};
+    };
 
+    } 
 }
+
+
 
 #endif

@@ -1,26 +1,41 @@
 #include "shape.hpp"
 
-const float shapes::Shape::getArea() const{
+namespace agario{
+    namespace shapes{
+
+        const float Shape::getArea() const{
     
-    return this->area;
-}
+            return this->area;
+        }
 
-const glm::vec2 shapes::Shape::getPosition() const{
+        const glm::vec2 Shape::getPosition() const{
 
-    return this->position;
-}
+            return this->position;
+        }
 
-void shapes::Shape::setPosition(const glm::vec2 newPos){
+        void Shape::setPosition(const glm::vec2 newPos){
 
-    this->position = newPos;
-}
+            this->position = newPos;
+        }
 
-void shapes::Shape::move(const glm::vec2 vec){
+        void Shape::move(const glm::vec2 vec){
 
-    this->position = glm::vec2(position.x + vec.x, position.y + vec.y);
-}
+            this->position = glm::vec2(position.x + vec.x, position.y + vec.y);
+        }
 
-void shapes::Shape::setResultantForce(const glm::vec2 vec){
+        void Shape::setResultantForce(const glm::vec2 vec){
 
-    this->resultantForce = vec;
-}
+            this->resultantForce = vec;
+        }
+
+        glm::vec2 Shape::getResultantForce(){
+            return this->resultantForce;
+        }
+
+        std::pair<glm::vec2, glm::vec2> Shape::setForcesBetweenTwoShapes(const Shape & s1, const Shape & s2){
+            //implemented in inherited classes
+        }   
+    }//shapes namespace
+}//agario namespace
+
+
