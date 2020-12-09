@@ -9,8 +9,10 @@ void GameObject::setPosition(const glm::vec2 newPos){
 }
 
 void GameObject::move(const glm::vec2 cursorPos, const float time){
-    //calculate forces between all pairs, including cursor position
+
+    //calculates forces between all pairs, including cursor position
     setAlmostResultantForces(cursorPos);
+    //
     calculateFinalResultantForces(cursorPos);
     
     

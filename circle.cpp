@@ -27,6 +27,7 @@ std::pair<glm::vec2, glm::vec2> Circle::retForcesBetweenTwoShapes(const Circle &
     }
     else {
         //gravity forces
+        
     }
 
     }
