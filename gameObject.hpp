@@ -3,6 +3,7 @@
 
 #include "shape.hpp"
 #include "circle.hpp"
+#include "constants.hpp"
 #include <glm.hpp>
 #include <vector>
 
@@ -16,10 +17,13 @@ private:
     bool compoundAvailable = true;
 
 
-    void setAlmostResultantForces(const glm::vec2 cursorPos);
+    void setAlmostFinalResultantForces(const glm::vec2 cursorPos);
     void calculateFinalResultantForces(const glm::vec2 cursorPos);
 
 public:
+
+    size_t getSparklesSize(){ return this->sparkles.size();}
+    shapes::Circle & operator[](unsigned int i);
 
     void setPosition(const glm::vec2 newPos);
     void move(const glm::vec2 cursorPos, const float time);

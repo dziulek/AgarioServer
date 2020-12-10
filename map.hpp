@@ -10,6 +10,12 @@ namespace agario{
 
 class Map{
 
+private:
+
+    virtual glm::vec2 findPlaceForBomb();
+    virtual glm::vec2 findPlaceForMini();
+    virtual glm::vec2 findPlaceForNewPlayer();
+
 protected:
 
     std::vector<GameObject *> gameObj;
@@ -18,17 +24,10 @@ protected:
 
 public:
     
-    void addGameObject(GameObject & gameObject){
-        this->gameObj.push_back(&gameObject);
-    }
-    void addBomb(shapes::Bomb & bomb){
-        this->bombs.push_back(&bomb);
-    }
-    void addMini(shapes::Mini & mini){
-        this->minis.push_back(&mini);
-    }
-
-
+    virtual void addGameObject(GameObject & gameObject);
+    virtual void addBomb();
+    virtual void addMini(shapes::Mini & mini);
+    
 };
 
 }

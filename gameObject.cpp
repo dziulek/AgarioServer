@@ -4,6 +4,11 @@ namespace agario{
 
 using namespace shapes;
 
+shapes::Circle & GameObject::operator[](unsigned int i){
+
+    return *this->sparkles[i];
+}
+
 void GameObject::setPosition(const glm::vec2 newPos){
 
 }
@@ -11,7 +16,7 @@ void GameObject::setPosition(const glm::vec2 newPos){
 void GameObject::move(const glm::vec2 cursorPos, const float time){
 
     //calculates forces between all pairs, including cursor position
-    setAlmostResultantForces(cursorPos);
+    setAlmostFinalResultantForces(cursorPos);
     //
     calculateFinalResultantForces(cursorPos);
     
@@ -43,8 +48,16 @@ void GameObject::divideObject(){
     compoundAvailable = false;
 }
 
-void GameObject::setAlmostResultantForces(){
+void GameObject::setAlmostFinalResultantForces(const glm::vec2 cursorPos){
 
+    glm::vec2 out_f;
+
+    for(int i = 0; i < sparkles.size(); i++){
+
+        out_f = OUT_FORCE_VALUE * glm::normalize(cursorPos - sparkles[i]->getPosition);
+        sparkles[i]->setResultantForce(out_f);
+
+    }
 
 }
 

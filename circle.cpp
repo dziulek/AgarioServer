@@ -23,7 +23,7 @@ std::pair<glm::vec2, glm::vec2> Circle::retForcesBetweenTwoShapes(const Circle &
 
     if(r < s1.radius + s2.radius){
         //circles must be separated
-
+        
     }
     else {
         //gravity forces
