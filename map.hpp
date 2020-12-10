@@ -8,25 +8,21 @@
 
 namespace agario{
 
+using namespace shapes;
+
 class Map{
 
-private:
+protected:
 
     virtual glm::vec2 findPlaceForBomb();
     virtual glm::vec2 findPlaceForMini();
     virtual glm::vec2 findPlaceForNewPlayer();
 
-protected:
-
-    std::vector<GameObject *> gameObj;
-    std::vector<shapes::Bomb *> bombs;
-    std::vector<const shapes::Mini *> minis;
-
 public:
     
-    virtual void addGameObject(GameObject & gameObject);
-    virtual void addBomb();
-    virtual void addMini(shapes::Mini & mini);
+    virtual void addGameObject(GameObject & gameObject) = 0;
+    virtual void addBomb() = 0;
+    virtual void addMini() = 0;
     
 };
 

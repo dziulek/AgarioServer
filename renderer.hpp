@@ -2,6 +2,8 @@
 #define RENDERER_HPP
 
 #include "map.hpp"
+#include "testMap.hpp"
+#include "classicMap.hpp"
 #include "gameObject.hpp"
 
 namespace agario{
@@ -10,8 +12,9 @@ class Renderer{
 
 public:
 
-    virtual void drawGameObject(const GameObject & gameObject);
-    virtual void drawMap(const Map & map);
+    virtual void drawGameObject(GameObject & gameObject);
+    virtual void drawMap(TestMap & map);
+    virtual void drawMap(ClassicMap & classicMap);
 
 };
 

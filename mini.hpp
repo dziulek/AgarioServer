@@ -5,13 +5,15 @@
 
 namespace agario{
 
-    namespace shapes{
+namespace shapes{
 
-    class Mini : Circle{
+class Mini : public Circle{
+    
 
-    };
 
-    }
+};
+
+}
 
 }
 

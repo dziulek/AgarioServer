@@ -20,12 +20,12 @@ protected:
 public:
 
     virtual const float getArea() const;
-    virtual const glm::vec2 getPosition() const;
-    virtual void setPosition(const glm::vec2 newPos);
+    const glm::vec2 getPosition() const;
+    void setPosition(const glm::vec2 newPos);
     virtual inline void move(const glm::vec2 vec);
     virtual inline void setResultantForce(const glm::vec2 vec);
     virtual inline glm::vec2 getResultantForce();
-    virtual static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Shape & s1, const Shape & s2);
+    static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Shape & s1, const Shape & s2);
 
 };
 

@@ -5,7 +5,7 @@
 namespace agario{
     namespace shapes{
 
-    class Bomb : Shape{
+    class Bomb : public Shape{
 
     private:
         int nOfIdents;
