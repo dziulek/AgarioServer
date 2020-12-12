@@ -1,8 +1,7 @@
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm/glm.hpp"
 #include <utility>
 
 namespace agario{
@@ -22,10 +21,10 @@ public:
     virtual const float getArea() const;
     const glm::vec2 getPosition() const;
     void setPosition(const glm::vec2 newPos);
-    virtual inline void move(const glm::vec2 vec);
-    virtual inline void setResultantForce(const glm::vec2 vec);
-    virtual inline glm::vec2 getResultantForce();
-    static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Shape & s1, const Shape & s2);
+    virtual void move(const glm::vec2 vec);
+    virtual void setResultantForce(const glm::vec2 vec);
+    virtual glm::vec2 getResultantForce();
+    //static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Shape & s1, const Shape & s2);
 
 };
 

@@ -1,10 +1,9 @@
 #ifndef GAME_OBJECT_HPP
 #define GAME_OBJECT_HPP
 
-#include "shape.hpp"
-#include "circle.hpp"
+#include "./shapes/circle.hpp"
 #include "constants.hpp"
-#include <glm.hpp>
+#include "glm/glm.hpp"
 #include <vector>
 
 namespace agario{

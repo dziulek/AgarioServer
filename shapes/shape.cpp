@@ -32,9 +32,9 @@ namespace agario{
             return this->resultantForce;
         }
 
-        std::pair<glm::vec2, glm::vec2> Shape::setForcesBetweenTwoShapes(const Shape & s1, const Shape & s2){
-            //implemented in inherited classes
-        }   
+        // std::pair<glm::vec2, glm::vec2> Shape::retForcesBetweenTwoShapes(const Shape & s1, const Shape & s2){
+        //     //default calculation based only center of mass
+        // }   
     }//shapes namespace
 }//agario namespace
 

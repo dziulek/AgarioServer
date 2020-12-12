@@ -54,14 +54,14 @@ void GameObject::setAlmostFinalResultantForces(const glm::vec2 cursorPos){
 
     for(int i = 0; i < sparkles.size(); i++){
 
-        out_f = OUT_FORCE_VALUE * glm::normalize(cursorPos - sparkles[i]->getPosition);
+        out_f = OUT_FORCE_VALUE * glm::normalize(cursorPos - sparkles[i]->getPosition());
         sparkles[i]->setResultantForce(out_f);
 
     }
 
 }
 
-void GameObject::calculateFinalResultantForces(){
+void GameObject::calculateFinalResultantForces(const glm::vec2 cursorPos){
 
 
 }

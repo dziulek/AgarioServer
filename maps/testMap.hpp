@@ -2,7 +2,6 @@
 #define TESTMAP_HPP
 
 #include "map.hpp"
-#include "shape.hpp"
 #include <vector>
 
 namespace agario{

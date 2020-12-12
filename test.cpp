@@ -1,29 +1,36 @@
-// #include "map.hpp"
-// #include "renderer.hpp"
-// #include "SFMLRenderer.hpp"
+#include "./maps/map.hpp"
+#include "SFMLRenderer.hpp"
+#include "game.hpp"
 #include <vector>
 #include <iostream>
 
-class A{
-
-public:
-
-    void fun(){
-        std::cout<<"i am base"<<std::endl;
-    }
-};
-
-class B : public A{
-
-    int a = 5;
-
-};
+using namespace agario;
 
 int main(){
+    
+    Game game;
+    SFMLRenderer rend(game);
+    
 
-    A a;
-    B b;
-    b.fun();    
+    while(rend.getWindow()->isOpen()){
+
+        sf::Event event;
+        while(rend.getWindow()->pollEvent(event)){
+            if(event.type == sf::Event::Closed){
+                rend.getWindow()->close();
+            }
+
+            rend.keyCallback(event);
+        }
+
+
+        rend.getWindow()->clear();
+        rend.drawMap(game.getMap());
+
+        rend.getWindow()->display();
+        rend.getWindow()->setFramerateLimit(60);
+    
+    }
     
     return 0;
 }

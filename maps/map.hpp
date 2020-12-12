@@ -1,9 +1,9 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-#include "gameObject.hpp"
-#include "mini.hpp"
-#include "bomb.hpp"
+#include "../gameObject.hpp"
+#include "./shapes/mini.hpp"
+#include "./shapes/bomb.hpp"
 #include <vector>
 
 namespace agario{

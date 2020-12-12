@@ -2,8 +2,7 @@
 #define CIRCLE_HPP
 
 #include "shape.hpp"
-#include <glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm/glm.hpp"
 
 namespace agario{
 
@@ -13,7 +12,7 @@ namespace agario{
 
     public:
 
-        Circle();
+        Circle(){}
         Circle(const unsigned int r,const glm::vec2 center) : radius(r){
             
             this->position = center;

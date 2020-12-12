@@ -1,14 +1,14 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include "map.hpp"
-#include "testMap.hpp"
-#include "classicMap.hpp"
+#include "./maps/testMap.hpp"
+#include "./maps/classicMap.hpp"
 #include "gameObject.hpp"
 
 namespace agario{
 
 class Renderer{
+
 
 public:
 
