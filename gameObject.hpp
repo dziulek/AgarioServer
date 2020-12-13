@@ -8,18 +8,28 @@
 
 namespace agario{
 
+using namespace shapes;
+
 class GameObject {
 
 private:    
 
     std::vector<shapes::Circle *> sparkles;
+    glm::vec2  * cursorPosition;
     bool compoundAvailable = true;
 
 
-    void setAlmostFinalResultantForces(const glm::vec2 cursorPos);
-    void calculateFinalResultantForces(const glm::vec2 cursorPos);
+    void setAlmostFinalResultantForces();
+    void calculateFinalResultantForces();
 
 public:
+
+    GameObject(){
+        sparkles.clear();
+
+        shapes::Circle * c = new Circle(MIN_RADIUS);
+        sparkles.push_back(c);
+    }
 
     size_t getSparklesSize(){ return this->sparkles.size();}
     shapes::Circle & operator[](unsigned int i);

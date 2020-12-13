@@ -1,4 +1,5 @@
 #include "SFMLRenderer.hpp"
+#include <cmath>
 #include <iostream>
 
 
@@ -64,7 +65,8 @@ void SFMLRenderer::drawMap(TestMap & map){
     std::vector<Bomb *>::iterator itb = map.getBombIterator().begin();
 
     for(itb; itb != map.getBombIterator().end(); itb++){
-
+        
+        drawBomb(**itb);
     }
     //draw minis
     std::vector<const Mini *>::iterator itm = map.getMiniIterator().begin();
@@ -82,6 +84,46 @@ void SFMLRenderer::drawMap(TestMap & map){
 
 }
 
+void SFMLRenderer::drawBomb(Bomb & bomb){
+
+    this->window->setView(*this->view);
+
+    int idents = bomb.getNOfIdents();
+
+    sf::VertexArray vertices(sf::TriangleFan, idents * 2 + 2);
+
+    vertices[0] = sf::Vertex(sf::Vector2f(bomb.getPosition().x, bomb.getPosition().y));
+
+    float phi = 2 * PI / float(idents);
+    float currAngle = 0;
+    float radius = bomb.getRadius();
+    float xCoord, yCoord;
+
+    for(int i = 1; i <  vertices.getVertexCount(); i += 2){
+        
+        xCoord = cos(currAngle) * radius;
+        yCoord = sin(currAngle) * radius;
+        vertices[i] = sf::Vertex(sf::Vector2f(xCoord, yCoord));
+        currAngle += phi;
+    }
+
+    currAngle = phi / 2;
+    radius *= 0.9;
+    for(int i = 2; i < vertices.getVertexCount(); i +=2){
+
+        xCoord = cos(currAngle) * radius;
+        yCoord = sin(currAngle) * radius;
+        vertices[i] = sf::Vertex(sf::Vector2f(xCoord, yCoord));
+        currAngle += phi;
+    }
+
+    for(int i = 0; i < vertices.getVertexCount(); i++){
+        vertices[i].color = sf::Color(0,255, 0, 255);
+    }
+
+    this->window->draw(vertices);
+}
+
 void SFMLRenderer::drawMap(ClassicMap & classicMap){
 
 }
@@ -92,15 +134,13 @@ void SFMLRenderer::keyCallback(sf::Event event){
 
         if(this->view->getSize().x < 1.2 * game->getMap().width)
             this->view->zoom(1.1);
-        //std::cout<<this->view->getSize().x<<" "<< this->view->getSize().y<<std::endl;
+            
     }
     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
         
         if(this->view->getSize().x > game->getMap().cellWidth * 10)
         this->view->zoom(0.9);
         
-        //std::cout<<this->view->getSize().x<<" "<< this->view->getSize().y<<std::endl;
-
     }
     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
 
@@ -133,7 +173,9 @@ void SFMLRenderer::keyCallback(sf::Event event){
         float x_per = float(event.size.width)/windowSize.x;
         float y_per = float(event.size.height)/windowSize.y;
 
-        this->view->setSize(sf::Vector2f(viewSize.x * x_per, viewSize.y * y_per));
+        float newRatio = float(event.size.height) / float(event.size.width);
+
+        this->view->setSize(sf::Vector2f(viewSize.x, viewSize.x * newRatio));
         this->view->setCenter(center);
 
     }

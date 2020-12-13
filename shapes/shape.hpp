@@ -22,8 +22,8 @@ public:
     const glm::vec2 getPosition() const;
     void setPosition(const glm::vec2 newPos);
     virtual void move(const glm::vec2 vec);
-    virtual void setResultantForce(const glm::vec2 vec);
-    virtual glm::vec2 getResultantForce();
+    void setResultantForce(const glm::vec2 vec);
+    glm::vec2 getResultantForce() const;
     //static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Shape & s1, const Shape & s2);
 
 };

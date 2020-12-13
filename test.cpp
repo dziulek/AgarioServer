@@ -9,6 +9,10 @@ using namespace agario;
 int main(){
     
     Game game;
+
+    GameObject gameObject;
+    game.getMap().addGameObject(gameObject);
+
     SFMLRenderer rend(game);
     
 
@@ -31,6 +35,8 @@ int main(){
         rend.getWindow()->setFramerateLimit(60);
     
     }
-    
+
+
+
     return 0;
 }

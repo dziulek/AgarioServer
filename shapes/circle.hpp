@@ -2,6 +2,7 @@
 #define CIRCLE_HPP
 
 #include "shape.hpp"
+#include "constants.hpp"
 #include "glm/glm.hpp"
 
 namespace agario{
@@ -12,13 +13,14 @@ namespace agario{
 
     public:
 
-        Circle(){}
-        Circle(const unsigned int r,const glm::vec2 center) : radius(r){
-            
-            this->position = center;
+        Circle(){
+            radius = MIN_RADIUS;
+            area = PI * radius * radius;
+            resultantForce = {0, 0};
         }
+        Circle(float r) : radius(r){}
 
-        void setRadius(const float newR);
+        void setRadius(float newR);
         float getRadius(){ return radius;}
         float static inline getDistance(const Circle & a, const Circle & b);
         static std::pair<glm::vec2, glm::vec2> retForcesBetweenTwoShapes(const Circle & s1, const Circle & s2);

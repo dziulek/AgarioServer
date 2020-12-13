@@ -28,7 +28,7 @@ namespace agario{
             this->resultantForce = vec;
         }
 
-        glm::vec2 Shape::getResultantForce(){
+        glm::vec2 Shape::getResultantForce() const{
             return this->resultantForce;
         }
 

@@ -31,7 +31,6 @@ public:
         view->setSize(sf::Vector2f(1.2 * game->getMap().width, 1.2 * game->getMap().height));
         view->setCenter(sf::Vector2f(game->getMap().width/2.0f, game->getMap().height/2.0f));
         view->setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
-
         
     }
 
@@ -46,6 +45,7 @@ public:
     void drawMap(TestMap & map) override;
     void drawMap(ClassicMap & map) override;
     void drawGameObject(GameObject & gameObject);
+    void drawBomb(Bomb & bomb);
     void keyCallback(sf::Event event);
 
 };
