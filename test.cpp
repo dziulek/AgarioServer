@@ -36,7 +36,7 @@ int main(){
     
     }
 
-
+    int * a = new int(4);
 
     return 0;
 }
