@@ -33,6 +33,7 @@ public:
     void move() override;
     void setPosition() override;
 
+    float bombAction();
     float getTotalArea();
 };
 

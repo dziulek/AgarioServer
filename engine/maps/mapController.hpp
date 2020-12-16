@@ -16,6 +16,9 @@ private:
 
 public:
 
+    MapController(Map * map){
+        this->map = map; 
+    }
     virtual void update() = 0;
     Map * getMap();
 

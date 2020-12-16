@@ -6,7 +6,12 @@ using namespace shapes;
 
 void MapBombController::update(){
 
+    
+}
 
+void MapBombController::initMap(){
+
+    
 }
 
 }

@@ -25,7 +25,11 @@ const float BOMB_RADIUS = 25;
 const float DIVIDE_FORCE = 40;
 
 const int MAX_MINIS_ON_MAP = 10000;
+const int MAX_MISSING_MINIS = 100;
 const int MAX_BOMB_ON_MAP = 20;
+
+const int DEFAULT_MAP_WIDTH = 3000;
+const int DEFAULT_MAP_HEIGHT = 7000;
 
 }//namespace agario
 

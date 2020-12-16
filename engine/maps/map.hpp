@@ -32,6 +32,9 @@ public:
     void addController(MapController * controller);
     void removeController(MapController * controller);
     
+
+    friend class MapMiniController;
+    friend class MapBombController;
 };
 
 }

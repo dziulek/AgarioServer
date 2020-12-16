@@ -20,9 +20,9 @@ private:
 
 public:
 
-    Player(const glm::vec2 pos) : PlayerObject(pos){
+    Player(const glm::vec2 pos, std::string nickname) : PlayerObject(pos){
 
-        
+        nick = nickname;
     }
 
 };

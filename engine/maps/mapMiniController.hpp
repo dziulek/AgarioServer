@@ -3,6 +3,9 @@
 
 #include "mapController.hpp"
 #include "map.hpp"
+#include "allshapes.hpp"
+#include <string>
+#include <memory>
 
 namespace agario{
 
@@ -10,7 +13,18 @@ using namespace shapes;
 
 class MapMiniController : public MapController{
 
+private:
+
+    void initMap();
+    float distribution(const std::string name);
+    void cullDeadMinis();
+
 public:
+
+    MapMiniController(Map * map) : MapController(map){
+
+        initMap();
+    }
 
     void update() override;
 };

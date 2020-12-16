@@ -9,7 +9,16 @@ using namespace shapes;
 
 class MapBombController : public MapController{
 
+private:
+
+    void initMap();
+
 public:
+
+    MapBombController(Map * map) : MapController(map){
+
+        initMap();
+    }
 
     void update() override;
 
