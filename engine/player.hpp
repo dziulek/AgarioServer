@@ -2,6 +2,7 @@
 #define PLAYER_HPP
 
 #include "playerObject.hpp"
+#include "glm/glm.hpp"
 #include <vector>
 #include <string>
 
@@ -19,6 +20,8 @@ private:
     int highestPosition;
 
 public:
+
+    glm::vec2 mousePosiiton;
 
     Player(const glm::vec2 pos, std::string nickname) : PlayerObject(pos){
 

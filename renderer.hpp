@@ -1,20 +1,22 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include "./maps/testMap.hpp"
-#include "./maps/classicMap.hpp"
+#include "game.hpp"
 #include "gameObject.hpp"
 
 namespace agario{
 
 class Renderer{
 
+private:
+
+    Game * game;
 
 public:
 
-    virtual void drawGameObject(GameObject & gameObject);
-    virtual void drawMap(TestMap & map);
-    virtual void drawMap(ClassicMap & classicMap);
+    virtual void drawGameObject(GameObject & gameObject) = 0;
+    virtual void drawMap(const Map * map) = 0;
+    Game * getGame(){return this->game;}
 
 };
 

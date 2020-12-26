@@ -1,12 +1,13 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-#include "../shapes/shape.hpp"
-#include "../allshapes.hpp"
-#include "../playerObject.hpp"
-#include "../bomb.hpp"
-#include "mapController.hpp"
+#include "engine/shapes/shape.hpp"
+#include "engine/allshapes.hpp"
+#include "engine/playerObject.hpp"
+#include "engine/bomb.hpp"
+#include "engine/maps/mapController.hpp"
 #include <vector>
+#include <memory>
 
 namespace agario{
 
@@ -19,11 +20,11 @@ private:
     float width;
     float height;
 
-    std::vector<std::vector<std::vector<const Mini *>>> minis;
-    std::vector<Bomb *> bombs;
-    std::vector<PlayerObject *> playerObjects;
+    std::vector<std::vector<std::vector<std::unique_ptr<const Mini *>>>> minis;
+    std::vector<std::unique_ptr<Bomb *>> bombs;
+    std::vector<std::unique_ptr<PlayerObject *>> playerObjects;
 
-    std::vector<MapController *> controllers;
+    std::vector<std::unique_ptr<MapController *>> controllers;
 
 public:
     

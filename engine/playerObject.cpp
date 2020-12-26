@@ -10,6 +10,7 @@ void PlayerObject::divideGameObject(){
 
 void PlayerObject::addMass(){
 
+    
 }
 
 void PlayerObject::move(){

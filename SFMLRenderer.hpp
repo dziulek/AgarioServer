@@ -2,11 +2,9 @@
 #define SFML_RENDERER_HPP
 
 #include "renderer.hpp"
-#include "./maps/testMap.hpp"
-#include "./maps/classicMap.hpp"
-#include "game.hpp"
+#include "maps/map.hpp"
+#include "engine/game.hpp"
 #include <SFML/Graphics.hpp>
-#include "game.hpp"
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
@@ -42,11 +40,12 @@ public:
     sf::RenderWindow * getWindow(){ return this->window;}
     sf::View * getView(){ return this->view;}
 
-    void drawMap(TestMap & map) override;
-    void drawMap(ClassicMap & map) override;
+    void drawMap(const Map * map) override;
     void drawGameObject(GameObject & gameObject);
     void drawBomb(Bomb & bomb);
     void keyCallback(sf::Event event);
+
+    friend class callbackObserver;
 
 };
 
