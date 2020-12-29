@@ -10,13 +10,9 @@ using namespace shapes;
 
 class MouseObserver : public CallbackObserver{
 
-private:
-
-    SFMLRenderer * renderer;
-
 public: 
 
-    void update() override;
+    void update(Player * player) override;
 
 };
 

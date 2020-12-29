@@ -18,7 +18,7 @@ protected:
 public:
 
     virtual const float getArea() const;
-    virtual const glm::vec2 getPosition() const = 0;
+    virtual glm::vec2 getPosition() const = 0;
     virtual void calculateArea() = 0;
 
 };

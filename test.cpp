@@ -1,4 +1,3 @@
-#include "./maps/map.hpp"
 #include "SFMLRenderer.hpp"
 #include "game.hpp"
 #include <vector>
@@ -7,11 +6,10 @@
 using namespace agario;
 
 int main(){
-    
+    std::cout<<"ale";
     Game game;
-
-    GameObject gameObject;
-    game.getMap().addGameObject(gameObject);
+    game.addPlayer();
+    
 
     SFMLRenderer rend(game);
     
@@ -23,20 +21,15 @@ int main(){
             if(event.type == sf::Event::Closed){
                 rend.getWindow()->close();
             }
-
-            rend.keyCallback(event);
         }
 
+        rend.drawMap();
 
-        rend.getWindow()->clear();
-        rend.drawMap(game.getMap());
 
         rend.getWindow()->display();
         rend.getWindow()->setFramerateLimit(60);
     
     }
-
-    int * a = new int(4);
 
     return 0;
 }

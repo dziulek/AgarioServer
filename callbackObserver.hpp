@@ -1,7 +1,6 @@
 #ifndef CALLBACK_OBSERVER
 #define CALLBACK_OBSERVER
 
-#include "shapes/shape.hpp"
 #include "SFMLRenderer.hpp"
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -13,13 +12,13 @@ using namespace shapes;
 
 class CallbackObserver{
 
-private: 
+protected: 
 
     SFMLRenderer * renderer;
 
 public:
 
-    virtual void update() = 0;
+    virtual void update(Player * player) = 0;
     SFMLRenderer * getRenderer(){ return this->renderer;}
 
 };

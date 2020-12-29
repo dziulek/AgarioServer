@@ -1,11 +1,10 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-#include "engine/shapes/shape.hpp"
-#include "engine/allshapes.hpp"
-#include "engine/playerObject.hpp"
-#include "engine/bomb.hpp"
-#include "engine/maps/mapController.hpp"
+#include "../shapes/allshapes.hpp"
+#include "../playerObject.hpp"
+#include "../bomb.hpp"
+// #include "mapController.hpp"
 #include <vector>
 #include <memory>
 
@@ -17,25 +16,24 @@ class Map{
 
 private:
 
-    float width;
-    float height;
+    std::vector<std::vector<std::vector<std::unique_ptr<const Mini>>>> minis;
+    std::vector<std::unique_ptr<Bomb>> bombs;
+    std::vector<PlayerObject *> playerObjects;
 
-    std::vector<std::vector<std::vector<std::unique_ptr<const Mini *>>>> minis;
-    std::vector<std::unique_ptr<Bomb *>> bombs;
-    std::vector<std::unique_ptr<PlayerObject *>> playerObjects;
-
-    std::vector<std::unique_ptr<MapController *>> controllers;
+    // std::vector<std::unique_ptr<MapController>> controllers;
 
 public:
     
+    float width;
+    float height;
 
     void addPlayerObject(PlayerObject * po);
-    void addController(MapController * controller);
-    void removeController(MapController * controller);
+    // void addController(MapController & controller);
+    // void removeController(MapController & controller);
     
 
-    friend class MapMiniController;
-    friend class MapBombController;
+    // friend class MapMiniController;
+    // friend class MapBombController;
 };
 
 }

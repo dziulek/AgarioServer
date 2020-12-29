@@ -2,7 +2,7 @@
 #define PLAYER_OBJECT_HPP
 
 #include "shapes/shape.hpp"
-#include "allshapes.hpp"
+#include "shapes/allshapes.hpp"
 #include "gameObject.hpp"
 #include <vector>
 
@@ -14,27 +14,30 @@ class PlayerObject : public GameObject{
 
 private:
 
-    std::vector<MoveableCircle *> blobs;
+    std::vector<agario::shapes::MoveableCircle *> blobs;
     float totalArea;
 
 public:
 
     PlayerObject(const glm::vec2 pos){
         
-        MoveableCircle * mc = new MoveableCircle(pos, MIN_PLAYER_RADIUS);
+        agario::shapes::MoveableCircle * mc = new agario::shapes::MoveableCircle(pos, MIN_PLAYER_RADIUS);
 
         blobs.push_back(mc);
 
         totalArea = mc->getRadius();
     }
 
-    void divideGameObject() override;
-    void addMass() override;
-    void move() override;
-    void setPosition() override;
+    agario::shapes::MoveableCircle & operator[](int t);
+
+    void divideObject() override;
+    void addMass(const float mass) override;
+    void move(const float dTime) override;
+    void setPosition(const glm::vec2 pos) override;
 
     float bombAction();
     float getTotalArea();
+    int getSize();
 };
 
 }

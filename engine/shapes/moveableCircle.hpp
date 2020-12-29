@@ -2,7 +2,7 @@
 #define MOVABLE_CIRCLE_HPP
 
 #include "circle.hpp"
-#include "glm/glm.hpp"
+#include "../glm/glm.hpp"
 #include <utility>
 #include <cmath>
 

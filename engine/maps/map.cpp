@@ -6,18 +6,18 @@ using namespace shapes;
 
 void Map::addPlayerObject(PlayerObject * po){
 
-    PlayerObject * copy = po;
-    playerObjects.push_back(copy);
+    this->playerObjects.push_back(po);
 }
 
-void Map::addController(MapController * controller){
+// void Map::addController(MapController & controller){
 
-    this->controllers.push_back(controller);
-}
+//     // this->controllers.emplace_back(std::make_unique<MapController>(controller));
+//     int nothing;
+// }
 
-void Map::removeController(MapController * controller){
+// void Map::removeController(MapController & controller){
 
-    controller = nullptr;
-}
+//     int nothing;
+// }
 
 }

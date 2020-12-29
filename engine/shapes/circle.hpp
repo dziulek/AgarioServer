@@ -3,7 +3,7 @@
 
 #include "shape.hpp"
 #include "constants.hpp"
-#include "glm/glm.hpp"
+#include "../glm/glm.hpp"
 
 namespace agario{
 
@@ -22,12 +22,12 @@ public:
         radius = MIN_PLAYER_RADIUS;
         area = PI * radius * radius;
     }
-    Circle(float r, const glm::vec2 pos) : radius(r), centerPosition(pos){
+    Circle(float r, glm::vec2 pos) : radius(r), centerPosition(pos){
 
         area = PI * radius * radius;
     }
 
-    const glm::vec2 getPosition() const override;
+    glm::vec2 getPosition() const override;
     void calculateArea() override;
     void setRadius(const float newR);
     const float getRadius() const;

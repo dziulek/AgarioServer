@@ -25,6 +25,11 @@ void Circle::calculateArea(){
     this->area = PI * radius * radius;
 }
 
+glm::vec2 Circle::getPosition() const{
+    
+    return this->centerPosition;
+}
+
 }
 
 }

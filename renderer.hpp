@@ -1,7 +1,7 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include "game.hpp"
+#include "engine/game.hpp"
 #include "gameObject.hpp"
 
 namespace agario{
@@ -14,8 +14,8 @@ private:
 
 public:
 
-    virtual void drawGameObject(GameObject & gameObject) = 0;
-    virtual void drawMap(const Map * map) = 0;
+    // virtual void drawGameObject(GameObject & gameObject) = 0;
+    virtual void drawMap() = 0;
     Game * getGame(){return this->game;}
 
 };

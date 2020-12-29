@@ -8,6 +8,8 @@ namespace agario{
 
 using namespace shapes;
 
+class Map;
+
 class MapController{
 
 private:
