@@ -41,9 +41,9 @@ int PlayerObject::getSize(){
     return this->blobs.size();
 }
 
-agario::shapes::MoveableCircle & PlayerObject::operator[](int t){
+MoveableCircle & PlayerObject::operator[](int t){
 
-    return *blobs[t];
+    return *blobs[t].get();
 }
 
 }

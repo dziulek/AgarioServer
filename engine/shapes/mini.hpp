@@ -16,7 +16,7 @@ public:
         centerPosition = pos;
         radius = MINI_RADIUS;
     }
-
+    virtual ~Mini(){}
 };
 
 }

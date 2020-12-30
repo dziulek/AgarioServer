@@ -4,7 +4,6 @@
 #include "./shapes/circle.hpp"
 #include "constants.hpp"
 #include "glm/glm.hpp"
-#include <vector>
 
 namespace agario{
 

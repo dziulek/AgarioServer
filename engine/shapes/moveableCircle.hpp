@@ -23,7 +23,8 @@ public:
     MoveableCircle(){
         Circle();
     }
-    MoveableCircle(const glm::vec2 pos, const float radius) : Circle(radius, pos){}
+    MoveableCircle(glm::vec2 pos, const float radius) : Circle(radius, pos){}
+    virtual ~MoveableCircle(){}
 
     const glm::vec2 getVelocity() const;
     void setVelocity(const glm::vec2 v);

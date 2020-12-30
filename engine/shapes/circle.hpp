@@ -26,6 +26,7 @@ public:
 
         area = PI * radius * radius;
     }
+    virtual ~Circle(){}
 
     glm::vec2 getPosition() const override;
     void calculateArea() override;

@@ -27,6 +27,11 @@ public:
     float width;
     float height;
 
+    Map(){
+        width = 1000.0f;
+        height = 600.0f;
+    }
+
     void addPlayerObject(PlayerObject * po);
     // void addController(MapController & controller);
     // void removeController(MapController & controller);

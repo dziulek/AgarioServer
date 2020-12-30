@@ -9,6 +9,7 @@ using namespace agario::shapes;
 
 void SFMLRenderer::drawMap(){
 
+    this->window->setView(*view);
     //draw only borders
     sf::VertexArray borders(sf::LineStrip, 5);
     borders[0] = sf::Vertex(sf::Vector2f(0.0f, 0.0f));
@@ -17,7 +18,8 @@ void SFMLRenderer::drawMap(){
     borders[3] = sf::Vertex(sf::Vector2f(game->getMap()->width, 0.0f));
     borders[4] = sf::Vertex(sf::Vector2f(0.0f, 0.0f));
 
-    window->draw(borders);    
+    window->draw(borders);
+   
 }
 
 // void SFMLRenderer::drawMap(Map & map){

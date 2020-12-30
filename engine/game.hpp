@@ -19,6 +19,12 @@ private:
 
 public:
 
+    Game(){
+        this->map = new Map;
+    }
+    ~Game(){
+        delete map;
+    }
     Map * getMap(){ return map;}
     void addPlayer();
     glm::vec2 & getPlayerMousePosition(Player * p){ p->mousePosition;}

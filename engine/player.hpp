@@ -23,10 +23,12 @@ public:
 
     glm::vec2 mousePosition;
 
-    Player(const glm::vec2 pos, std::string nickname) : PlayerObject(pos){
+    Player(glm::vec2 pos, std::string nickname) : PlayerObject(pos){
 
+        // std::cout<<"g"<<std::endl;
         nick = nickname;
     }
+    virtual ~Player(){}
 
 };
 

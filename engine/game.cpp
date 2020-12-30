@@ -15,8 +15,7 @@ void Game::mainLoop(const float dTime){
 
 void Game::addPlayer(){
 
-    //choose starting coordinates
-    players.emplace_back(std::unique_ptr<Player>(new Player(glm::vec2(map->width, map->height), "test")));
+    players.push_back(std::unique_ptr<Player>(new Player(glm::vec2(map->width, map->height), "test")));
 }
 
 }
