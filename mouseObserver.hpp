@@ -12,6 +12,10 @@ class MouseObserver : public CallbackObserver{
 
 public: 
 
+    MouseObserver(SFMLRenderer * rend) : CallbackObserver(rend){
+
+        
+    }
     void update(Player * player) override;
 
 };

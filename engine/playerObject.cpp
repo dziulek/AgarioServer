@@ -15,6 +15,8 @@ void PlayerObject::addMass(const float mass){
 
 void PlayerObject::move(const float dTime){
 
+    setVelocities();
+
     for(auto & mc : blobs){
 
         mc->move(dTime);
@@ -44,6 +46,18 @@ int PlayerObject::getSize(){
 MoveableCircle & PlayerObject::operator[](int t){
 
     return *blobs[t].get();
+}
+
+void PlayerObject::setVelocities(){
+
+    for(auto & b : blobs){
+
+        glm::vec2 v = glm::normalize(mousePosition - b.get()->getPosition());
+
+        v *= b.get()->calculateVelocityMod();
+
+        b.get()->setVelocity(v);
+    }
 }
 
 }

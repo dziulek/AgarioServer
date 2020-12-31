@@ -16,7 +16,7 @@ private:
 
     glm::vec2 velocity;
     void calculateVelocity();
-    inline float calculateVelocityMod() const;
+    
 
 public:
 
@@ -25,7 +25,8 @@ public:
     }
     MoveableCircle(glm::vec2 pos, const float radius) : Circle(radius, pos){}
     virtual ~MoveableCircle(){}
-
+    
+    inline float calculateVelocityMod() const;
     const glm::vec2 getVelocity() const;
     void setVelocity(const glm::vec2 v);
     void move(const float dTime);

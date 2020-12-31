@@ -20,6 +20,20 @@ void SFMLRenderer::drawMap(){
 
     window->draw(borders);
    
+   //draw players
+   for(int i = 0; i < this->game->getnOfPlayers(); i++){
+
+       for(int j = 0; j < game->getPlayer(i).getSize(); j++){
+           
+           
+           sf::CircleShape blob(game->getPlayer(i)[j].getRadius());
+           blob.setFillColor(sf::Color(255,0,0,127));
+
+           blob.setPosition(sf::Vector2f(game->getPlayer(i)[j].getPosition().x,
+                            game->getPlayer(i)[j].getPosition().y));
+            window->draw(blob);
+       }
+   }
 }
 
 // void SFMLRenderer::drawMap(Map & map){

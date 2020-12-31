@@ -21,11 +21,8 @@ private:
 
 public:
 
-    glm::vec2 mousePosition;
-
     Player(glm::vec2 pos, std::string nickname) : PlayerObject(pos){
-
-        // std::cout<<"g"<<std::endl;
+        
         nick = nickname;
     }
     virtual ~Player(){}

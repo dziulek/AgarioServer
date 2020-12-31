@@ -44,6 +44,7 @@ public:
     // void drawGameObject(GameObject & gameObject);
     // void drawBomb(Bomb & bomb);
     // void keyCallback(sf::Event event);
+    // void addCallback(CallbackObserver * callback);
     Game * getGame(){ return this->game;}
 
     friend class callbackObserver;

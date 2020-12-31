@@ -1,5 +1,6 @@
 #include "SFMLRenderer.hpp"
 #include "game.hpp"
+#include "mouseObserver.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -54,6 +55,7 @@ int main(){
     // vec.push_back(std::move(pointer));
 
     SFMLRenderer rend(game);
+    MouseObserver mo(&rend);
     
 
     while(rend.getWindow()->isOpen()){
@@ -64,8 +66,11 @@ int main(){
                 rend.getWindow()->close();
             }
         }
-
+        rend.getWindow()->clear();
+        
         rend.drawMap();
+        mo.update(&rend.getGame()->getPlayer(0));
+        game.mainLoop(1.0f/30);
 
 
         rend.getWindow()->display();

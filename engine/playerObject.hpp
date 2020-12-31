@@ -18,14 +18,17 @@ private:
     std::vector<std::unique_ptr<MoveableCircle>> blobs;
     float totalArea;
 
+    void setVelocities();
+
 public:
 
-    PlayerObject(glm::vec2 pos){
-        // std::cout<<"playerObject"<<std::endl;
-        // std::unique_ptr<MoveableCircle> mc = std::make_unique<MoveableCircle>(pos, MIN_PLAYER_RADIUS);
-        // blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, MIN_PLAYER_RADIUS)));
+    glm::vec2 mousePosition;
 
-        // totalArea = blobs[0].get()->getArea();
+    PlayerObject(glm::vec2 pos){
+
+        blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, MIN_PLAYER_RADIUS)));
+
+        totalArea = blobs[0].get()->getArea();
     }
     virtual ~PlayerObject(){}
 

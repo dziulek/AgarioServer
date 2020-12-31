@@ -18,6 +18,7 @@ protected:
 
 public:
 
+    CallbackObserver(SFMLRenderer *rend) : renderer(rend){}
     virtual void update(Player * player) = 0;
     SFMLRenderer * getRenderer(){ return this->renderer;}
 
