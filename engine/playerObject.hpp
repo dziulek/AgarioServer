@@ -3,6 +3,7 @@
 
 #include "shapes/allshapes.hpp"
 #include "gameObject.hpp"
+#include "maps/map.hpp"
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -28,7 +29,7 @@ public:
 
         blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, MIN_PLAYER_RADIUS)));
 
-        totalArea = blobs[0].get()->getArea();
+        totalArea = blobs.back().get()->getArea();
     }
     virtual ~PlayerObject(){}
 
@@ -36,6 +37,7 @@ public:
 
     void divideObject() override;
     void addMass(const float mass) override;
+    void addMass(const float mass, int mcIndex);
     void move(const float dTime) override;
     void setPosition(const glm::vec2 pos) override;
 

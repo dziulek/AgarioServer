@@ -37,9 +37,11 @@ std::pair<glm::vec2, glm::vec2> MoveableCircle::calculateGravityVelocities(const
     return {v1, v2};
 }
 
-float MoveableCircle::calculateVelocityMod() const{
-    
-    return 40.4 * pow(this->getArea(), -0.439);
+void MoveableCircle::addMass(const float mass){
+
+    this->area += mass;
+    float r = this->getRadiusFromArea();
+    this->radius = r;
 }
 
 }

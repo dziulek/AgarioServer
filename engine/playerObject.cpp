@@ -60,4 +60,9 @@ void PlayerObject::setVelocities(){
     }
 }
 
+void PlayerObject::addMass(const float mass, int mcIndex){
+
+    blobs[mcIndex].get()->addMass(mass);
+}
+
 }

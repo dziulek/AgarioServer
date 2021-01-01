@@ -16,6 +16,7 @@ void Game::mainLoop(const float dTime){
 void Game::addPlayer(){
 
     players.push_back(std::unique_ptr<Player>(new Player(glm::vec2(map->width/2, map->height/2), "test")));
+    map->addPlayerObject(players.back().get());
     nOfPlayers++;
 }
 

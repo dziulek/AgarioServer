@@ -24,7 +24,7 @@ public:
     SFMLRenderer(Game & g){
         
         game = &g;
-        window = new sf::RenderWindow(sf::VideoMode(1000, 500), "Agario");
+        window = new sf::RenderWindow(sf::VideoMode(600, 600), "Agario");
         view = new sf::View();
         view->setSize(sf::Vector2f(1.2 * game->getMap()->width, 1.2 * game->getMap()->height));
         view->setCenter(sf::Vector2f(game->getMap()->width/2.0f, game->getMap()->height/2.0f));

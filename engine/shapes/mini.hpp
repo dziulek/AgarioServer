@@ -13,8 +13,10 @@ class Mini : public Circle{
 public:
 
     Mini(const glm::vec2 pos){
+        
         centerPosition = pos;
         radius = MINI_RADIUS;
+        calculateArea();
     }
     virtual ~Mini(){}
 };

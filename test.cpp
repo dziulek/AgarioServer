@@ -1,9 +1,13 @@
 #include "SFMLRenderer.hpp"
-#include "game.hpp"
+#include "engine/game.hpp"
 #include "mouseObserver.hpp"
+#include "engine/maps/mapMiniController.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <cstdlib>
+#include <ctime>
+
 
 using namespace agario;
 
@@ -46,6 +50,7 @@ public:
 
 
 int main(){
+    srand(time(NULL));
 
     Game game;
     game.addPlayer();
@@ -56,6 +61,7 @@ int main(){
 
     SFMLRenderer rend(game);
     MouseObserver mo(&rend);
+    MapMiniController cont(game.getMap());
     
 
     while(rend.getWindow()->isOpen()){
@@ -68,6 +74,7 @@ int main(){
         }
         rend.getWindow()->clear();
         
+        cont.update();
         rend.drawMap();
         mo.update(&rend.getGame()->getPlayer(0));
         game.mainLoop(1.0f/30);

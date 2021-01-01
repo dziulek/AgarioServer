@@ -19,19 +19,44 @@ void SFMLRenderer::drawMap(){
     borders[4] = sf::Vertex(sf::Vector2f(0.0f, 0.0f));
 
     window->draw(borders);
+
+    //draw minis
+    sf::CircleShape mm(MINI_RADIUS);
+    mm.setOrigin(MINI_RADIUS, MINI_RADIUS);
+    for(auto & i : game->getMap()->minis){
+
+        for(auto & j : i){
+
+            for(auto & k : j){
+
+                if(k.get() == nullptr){
+                    std::cout<<"nie"<<std::endl;
+                    continue;
+                }
+                mm.setPosition({k.get()->getPosition().x, k.get()->getPosition().y});
+                window->draw(mm);
+            }
+        }
+    }
+    //draw bombs
    
    //draw players
    for(int i = 0; i < this->game->getnOfPlayers(); i++){
 
        for(int j = 0; j < game->getPlayer(i).getSize(); j++){
            
-           
-           sf::CircleShape blob(game->getPlayer(i)[j].getRadius());
+           float r = game->getPlayer(i)[j].getRadius();
+           sf::CircleShape blob(r);
            blob.setFillColor(sf::Color(255,0,0,127));
+           blob.setOrigin(sf::Vector2f(r,r));
 
            blob.setPosition(sf::Vector2f(game->getPlayer(i)[j].getPosition().x,
                             game->getPlayer(i)[j].getPosition().y));
             window->draw(blob);
+
+            // sf::VertexArray line(sf::Lines, 2);
+            // line[0] = blob.getPosition();
+            // line[1] = 
        }
    }
 }

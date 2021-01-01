@@ -4,29 +4,30 @@
 #include "../shapes/shape.hpp"
 #include "map.hpp"
 
-namespace agario{
+// namespace agario{
 
-using namespace shapes;
+// using namespace shapes;
 
-class Map;
+// class Map;
 
-class MapController{
+// class MapController{
 
-private:
+// protected:
 
-    Map * map;
+//     Map * map;
 
-public:
+// public:
 
-    MapController(Map * map){
-        this->map = map; 
-    }
-    virtual void update() = 0;
-    Map * getMap();
+//     MapController(Map * map){
+//         this->map = map; 
+//         // this->map->addController(this);
+//     }
+//     virtual void update() = 0;
+//     Map * getMap();
 
-};
+// };
 
-}
+// }
 
 
 

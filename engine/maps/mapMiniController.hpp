@@ -1,11 +1,13 @@
 #ifndef MAP_MINI_CONTROLLER_HPP
 #define MAP_MINI_CONTROLLER_HPP
 
-#include "mapController.hpp"
+// #include "mapController.hpp"
 #include "map.hpp"
 #include "../shapes/allshapes.hpp"
 #include <string>
 #include <memory>
+#include <cstdlib>
+#include <ctime>
 
 namespace agario{
 

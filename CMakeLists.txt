@@ -12,8 +12,8 @@ include_directories(${PROJECT_SOURCE_DIR})
 file(GLOB HEADER_SHAPES ${PROJECT_SOURCE_DIR}/engine/shapes/*.hpp)
 file(GLOB SOURCE_SHAPES ${PROJECT_SOURCE_DIR}/engine/shapes/*.cpp)
 
-file(GLOB HEADER_MAPS ${PROJECT_SOURCE_DIR}/engine/maps/map.hpp)
-file(GLOB SOURCE_MAPS ${PROJECT_SOURCE_DIR}/engine/maps/map.cpp)
+file(GLOB HEADER_MAPS ${PROJECT_SOURCE_DIR}/engine/maps/*.hpp)
+file(GLOB SOURCE_MAPS ${PROJECT_SOURCE_DIR}/engine/maps/*.cpp)
 
 file(GLOB HEADER_ENGINE ${PROJECT_SOURCE_DIR}/engine/*.hpp)
 file(GLOB SOURCE_ENGINE ${PROJECT_SOURCE_DIR}/engine/*.cpp)
