@@ -23,7 +23,7 @@ void MapMiniController::update(){
             float x = distribution("uniform") * this->getMap()->width;
             float y = distribution("uniform") * this->getMap()->height;
             //[optional] check for collision with another mini
-
+            //not necessary
             //add to the map
             this->getMap()->minis[int(y / fieldWidth)][int(x / fieldWidth)].push_back(std::unique_ptr<Mini>(new Mini({x, y})));
             
@@ -47,8 +47,7 @@ void MapMiniController::initMap(){
         float x = distribution("uniform") * this->getMap()->width;
         float y = distribution("uniform") * this->getMap()->height;
         //check for collision with another mini
-        // std::cout<<x<<" "<<y<<" "<<i<<std::endl;
-
+        //not necessary
         //add to the map
         this->getMap()->minis[int(y / fieldWidth)][int(x / fieldWidth)].push_back(std::unique_ptr<Mini>(new Mini({x, y})));
     }
@@ -65,11 +64,9 @@ void MapMiniController::cullDeadMinis(){
             //x coordinates
             int lowerBoundx = floor(((*p)[i].getPosition().x - (*p)[i].getRadius()) / fieldWidth); 
             int upperBoundx = ceil(((*p)[i].getPosition().x + (*p)[i].getRadius()) / fieldWidth);
-
+            //y coordinates
             int lowerBoundy = floor(((*p)[i].getPosition().y - (*p)[i].getRadius()) / fieldWidth);
             int upperBoundy = ceil(((*p)[i].getPosition().y + (*p)[i].getRadius()) / fieldWidth);
-
-            std::cout<<lowerBoundx<<" "<<upperBoundx<<" "<<lowerBoundy<<" "<<upperBoundy<<std::endl;
 
             for(int j = lowerBoundx; j < upperBoundx; j++){
                 
@@ -84,8 +81,7 @@ void MapMiniController::cullDeadMinis(){
                             mc = std::move(map->minis[k][j].back());
                             map->minis[k][j].pop_back();
                             map->nOfMinis--;
-                            
-                            std::cout<<mass<<std::endl;
+
                             (*p)[i].addMass(mass);
                         }       
                     }

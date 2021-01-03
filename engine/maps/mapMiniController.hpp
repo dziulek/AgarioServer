@@ -6,8 +6,6 @@
 #include "../shapes/allshapes.hpp"
 #include <string>
 #include <memory>
-#include <cstdlib>
-#include <ctime>
 
 namespace agario{
 
