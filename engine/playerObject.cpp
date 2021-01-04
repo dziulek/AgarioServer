@@ -65,4 +65,12 @@ void PlayerObject::addMass(const float mass, int mcIndex){
     blobs[mcIndex].get()->addMass(mass);
 }
 
+void PlayerObject::deleteIthElement(int i){
+
+    blobs[i].reset();
+    blobs[i] = std::move(blobs.back());
+
+    blobs.pop_back();
+}
+
 }

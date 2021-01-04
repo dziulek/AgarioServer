@@ -2,6 +2,7 @@
 #include "engine/game.hpp"
 #include "mouseObserver.hpp"
 #include "engine/maps/mapMiniController.hpp"
+#include "engine/maps/mapCrashController.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -54,6 +55,7 @@ int main(){
 
     Game game;
     game.addPlayer();
+    game.addPlayer();
     
     // std::unique_ptr<B> pointer = std::make_unique<B>(4,5,6);
     // std::vector<std::unique_ptr<B>> vec;
@@ -62,6 +64,7 @@ int main(){
     SFMLRenderer rend(game);
     MouseObserver mo(&rend);
     MapMiniController cont(game.getMap());
+    MapCrashController crash(game.getMap());
     
 
     while(rend.getWindow()->isOpen()){
@@ -75,6 +78,7 @@ int main(){
         rend.getWindow()->clear();
         
         cont.update();
+        crash.update();
         rend.drawMap();
         mo.update(&rend.getGame()->getPlayer(0));
         game.mainLoop(1.0f/30);

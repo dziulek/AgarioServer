@@ -14,7 +14,7 @@ class MapCrashController : public MapController{
 
 private:
 
-    void crashCalculate(std::unique_ptr<MoveableCircle> & b1, std::unique_ptr<MoveableCircle> & b2);
+    bool crashCalculate(MoveableCircle & b1, MoveableCircle & b2);
 
 public:
 

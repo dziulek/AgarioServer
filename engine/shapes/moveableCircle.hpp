@@ -14,7 +14,7 @@ class MoveableCircle : public Circle{
 
 private:
 
-    glm::vec2 velocity;
+    glm::vec2 velocity = {0,0};
     void calculateVelocity();
     
 

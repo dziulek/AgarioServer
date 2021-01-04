@@ -29,6 +29,7 @@ public:
     int getnOfPlayers(){ return nOfPlayers;}
     Player & getPlayer(int index){ return *players[index].get();}
     Player & getPlayer(std::string ipaddr);
+
     void addPlayer();
     glm::vec2 & getPlayerMousePosition(Player * p){ p->mousePosition;}
     void setPlayerMousePosition(Player * p, glm::vec2 pos){p->mousePosition = pos;}

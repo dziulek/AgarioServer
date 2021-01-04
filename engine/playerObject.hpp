@@ -35,6 +35,10 @@ public:
 
     MoveableCircle & operator[](int t);
 
+    std::vector<std::unique_ptr<MoveableCircle>>::iterator getBlobs(){ return blobs.begin(); }
+
+    void deleteIthElement(int i);
+
     void divideObject() override;
     void addMass(const float mass) override;
     void addMass(const float mass, int mcIndex);
