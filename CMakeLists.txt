@@ -18,6 +18,9 @@ file(GLOB SOURCE_MAPS ${PROJECT_SOURCE_DIR}/engine/maps/*.cpp)
 file(GLOB HEADER_ENGINE ${PROJECT_SOURCE_DIR}/engine/*.hpp)
 file(GLOB SOURCE_ENGINE ${PROJECT_SOURCE_DIR}/engine/*.cpp)
 
+file(GLOB HEADER_NETWORK ${PROJECT_SOURCE_DIR}/network/*.hpp)
+file(GLOB SOURCE_NETWORK ${PROJECT_SOURCE_DIR}/network/*.cpp)
+
 file(GLOB HEADER_MAIN *.hpp)
 file(GLOB SOURCE_MAIN *.cpp)
 
@@ -34,4 +37,4 @@ message("${HEADERS}")
 add_executable("${PROJECT_NAME}" ${SOURCE} ${HEADERS})
 
 target_link_libraries(Agario glm)
-target_link_libraries(Agario -lsfml-graphics -lsfml-window -lsfml-system)
+target_link_libraries(Agario -lsfml-graphics -lsfml-window -lsfml-system -pthread)
