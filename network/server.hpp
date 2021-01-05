@@ -8,10 +8,16 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <vector>
+#include <utility>
+#include <cmath>
+#include <iostream>
 
 class Server{
 
-    
+private:
+
+    std::vector<
 };
 
 

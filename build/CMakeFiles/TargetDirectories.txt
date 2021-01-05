@@ -1,0 +1,5 @@
+/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/rebuild_cache.dir
+/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/edit_cache.dir
+/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir
+/home/piotr/Dokumenty/myProjects/sk2project/build/engine/glm/CMakeFiles/rebuild_cache.dir
+/home/piotr/Dokumenty/myProjects/sk2project/build/engine/glm/CMakeFiles/edit_cache.dir

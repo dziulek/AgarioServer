@@ -10,10 +10,25 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <pthread.h>
+#include <vector>
 
 #define PORT_NUMBER "1234"
 
 unsigned int currNumberOfClients = 0;
+
+#define MAX 100
+
+struct shared_data{
+
+    std::vector<int> sock_clients; 
+    char message[MAX];
+};
+
+shared_data data;
+
+pthread_mutex_t message_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t listener_writer_mutex = PTHREAD_COND_INITIALIZER;
 
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -24,7 +39,67 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void * testFunction(void * argsxd){
 
+    long client = (long)argsxd;
+
+    char local_copy[MAX];
+    
+    while(1){
+
+        pthread_mutex_lock(&message_mutex);
+        int fun = read(client, local_copy, MAX);
+        pthread_mutex_unlock(&message_mutex);
+        if(fun == -1){
+
+            fprintf(stderr, "reading from client: %s\n", gai_strerror(fun));
+            exit(-1);
+        }
+        if(fun == 0){
+
+            fprintf(stdout, "client breaks the connection\n");
+            break;
+        }
+        fprintf(stdout, "%s\n", local_copy);
+    }
+
+    pthread_exit(NULL);
+}
+
+void * handleClient(void * clientSockfd){
+
+    long client_sockfd = (long)clientSockfd;
+
+    pthread_t listener;
+
+    int listener_id = pthread_create(&listener, NULL, testFunction, clientSockfd);
+
+    if(listener_id){
+
+        fprintf(stderr, "creating a new thread: %s\n", gai_strerror(listener_id));
+    }
+
+    char local_buf[MAX];
+
+    while(strcmp(local_buf, "close_connection")){
+        
+        bzero(local_buf, MAX);
+        scanf("%s", local_buf);
+
+        pthread_mutex_lock(&message_mutex);
+        int fun = write(client_sockfd, local_buf, MAX);
+        pthread_mutex_unlock(&message_mutex);
+
+        if(fun == -1){
+
+            fprintf(stderr, "write to client: %s\n", gai_strerror(fun));
+            exit(-1);
+        }
+    }
+    fprintf(stdout, "client disconnected: %d\n", (int)client_sockfd);
+
+    pthread_exit(&listener);
+}
 
 int main(int argc, char *argv[]){
 
@@ -35,6 +110,7 @@ int main(int argc, char *argv[]){
     int opt_value = 1;
     char s[INET_ADDRSTRLEN];
 
+    
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -70,7 +146,7 @@ int main(int argc, char *argv[]){
 
     freeaddrinfo(serverInfo);
 
-    while(1){
+    std::vector<int> threads;
 
         struct sockaddr_storage *  clientAddr = new sockaddr_storage;
         socklen_t addrSize = sizeof(*clientAddr); 
@@ -82,9 +158,21 @@ int main(int argc, char *argv[]){
         }
 
         inet_ntop(clientAddr->ss_family, get_in_addr((struct sockaddr *)clientAddr), s, sizeof(s));
-        fprintf(stdout, "got connection from %s\n", s);
-        close(client_sockfd);
-    }
+        fprintf(stdout, "log server: got connection from %s\n", s);
+
+        data.sock_clients.push_back(client_sockfd);
+
+        pthread_t clientThread;
+        int pthread_id = pthread_create(&clientThread, NULL, handleClient, (void *)client_sockfd);
+
+        if(pthread_id){
+            fprintf(stderr, "creating new thread: %s\n", gai_strerror(pthread_id));
+            return -1;
+        }
+
+        threads.push_back(pthread_id);
+
+    pthread_join(clientThread, NULL);
 
     return 0;
 }
