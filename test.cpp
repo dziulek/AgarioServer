@@ -8,6 +8,7 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
+#include "network/server.hpp"
 
 
 using namespace agario;
@@ -51,42 +52,13 @@ public:
 
 
 int main(){
-    srand(time(NULL));
 
-    Game game;
-    game.addPlayer();
-    game.addPlayer();
-    
-    // std::unique_ptr<B> pointer = std::make_unique<B>(4,5,6);
-    // std::vector<std::unique_ptr<B>> vec;
-    // vec.push_back(std::move(pointer));
+    Server server;
 
-    SFMLRenderer rend(game);
-    MouseObserver mo(&rend);
-    MapMiniController cont(game.getMap());
-    MapCrashController crash(game.getMap());
-    
+    int status = server.mainLogic();
 
-    while(rend.getWindow()->isOpen()){
-
-        sf::Event event;
-        while(rend.getWindow()->pollEvent(event)){
-            if(event.type == sf::Event::Closed){
-                rend.getWindow()->close();
-            }
-        }
-        rend.getWindow()->clear();
-        
-        cont.update();
-        crash.update();
-        rend.drawMap();
-        mo.update(&rend.getGame()->getPlayer(0));
-        game.mainLoop(1.0f/30);
-
-
-        rend.getWindow()->display();
-        rend.getWindow()->setFramerateLimit(60);
-    
+    if(status == -1){
+        return -1;
     }
 
     return 0;

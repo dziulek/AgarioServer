@@ -18,6 +18,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Agario.dir/engine/shapes/regularPolygon.cpp.o"
   "CMakeFiles/Agario.dir/engine/shapes/shape.cpp.o"
   "CMakeFiles/Agario.dir/mouseObserver.cpp.o"
+  "CMakeFiles/Agario.dir/network/client.cpp.o"
+  "CMakeFiles/Agario.dir/network/server.cpp.o"
   "CMakeFiles/Agario.dir/renderer.cpp.o"
   "CMakeFiles/Agario.dir/test.cpp.o"
 )

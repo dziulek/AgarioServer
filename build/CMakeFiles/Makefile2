@@ -113,12 +113,12 @@ engine/glm/clean:
 CMakeFiles/Agario.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20 "Built target Agario"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 "Built target Agario"
 .PHONY : CMakeFiles/Agario.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Agario.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles 20
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles 22
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Agario.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles 0
 .PHONY : CMakeFiles/Agario.dir/rule

@@ -601,6 +601,60 @@ mouseObserver.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/mouseObserver.cpp.s
 .PHONY : mouseObserver.cpp.s
 
+network/client.o: network/client.cpp.o
+
+.PHONY : network/client.o
+
+# target to build an object file
+network/client.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/network/client.cpp.o
+.PHONY : network/client.cpp.o
+
+network/client.i: network/client.cpp.i
+
+.PHONY : network/client.i
+
+# target to preprocess a source file
+network/client.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/network/client.cpp.i
+.PHONY : network/client.cpp.i
+
+network/client.s: network/client.cpp.s
+
+.PHONY : network/client.s
+
+# target to generate assembly for a file
+network/client.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/network/client.cpp.s
+.PHONY : network/client.cpp.s
+
+network/server.o: network/server.cpp.o
+
+.PHONY : network/server.o
+
+# target to build an object file
+network/server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/network/server.cpp.o
+.PHONY : network/server.cpp.o
+
+network/server.i: network/server.cpp.i
+
+.PHONY : network/server.i
+
+# target to preprocess a source file
+network/server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/network/server.cpp.i
+.PHONY : network/server.cpp.i
+
+network/server.s: network/server.cpp.s
+
+.PHONY : network/server.s
+
+# target to generate assembly for a file
+network/server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Agario.dir/build.make CMakeFiles/Agario.dir/network/server.cpp.s
+.PHONY : network/server.cpp.s
+
 renderer.o: renderer.cpp.o
 
 .PHONY : renderer.o
@@ -715,6 +769,12 @@ help:
 	@echo "... mouseObserver.o"
 	@echo "... mouseObserver.i"
 	@echo "... mouseObserver.s"
+	@echo "... network/client.o"
+	@echo "... network/client.i"
+	@echo "... network/client.s"
+	@echo "... network/server.o"
+	@echo "... network/server.i"
+	@echo "... network/server.s"
 	@echo "... renderer.o"
 	@echo "... renderer.i"
 	@echo "... renderer.s"

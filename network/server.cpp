@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-int Server::setUpServer(const std::string portNumber = ""){
+int Server::setUpServer(){
 
     int status;
 
@@ -39,7 +39,7 @@ int Server::setUpServer(const std::string portNumber = ""){
     freeaddrinfo(serverInfo);
 }
 
-int Server::addNewClient(int sockfd, const char * ip_addr, struct sockaddr_storage s){
+int Server::addNewClient(int sockfd, char * ip_addr, struct sockaddr_storage * s){
 
     clients.push_back(std::unique_ptr<Client>(new Client(ip_addr, sockfd, s)));
 
@@ -56,16 +56,32 @@ int Server::disconnectClient(int sockfd){
 
 void Server::createNewGame(){
 
+    games.push_back(std::unique_ptr<agario::Game>(new agario::Game()));
 }
 
-void Server::deleteGame(agario::Game * game){
+void Server::deleteGame(std::unique_ptr<agario::Game> & game){
 
+    game.reset();
+    game = std::move(games.back());
+    games.pop_back();
+}
 
+void Server::deleteGame(int gameIndex){
+
+    games[gameIndex].reset();
+    games[gameIndex] = std::move(games.back());
+    games.pop_back();
 }
 
 void Server::deleteEmptyGames(){
 
+    for(auto & g : games){
 
+        if(g.get()->getnOfPlayers() == 0){
+
+            deleteGame(g);
+        }
+    }
 }
 
 void Server::sendDataToClients(){
@@ -87,20 +103,33 @@ int Server::sendDataToClient(Client * client){
 
 int Server::mainLogic(){
 
+    int status = pthread_create(&this->server_thread, NULL,  (THREADFUNCPTR) &Server::serverInfoRoutine, this);
+
+    if(status){
+
+        fprintf(stderr, "creating server thread: %s", gai_strerror(status));
+        return -1;
+    }
+
     struct sockaddr_storage client_addr;
     socklen_t str_size = sizeof(client_addr);
     int client_sockfd = accept(this->sockfd, (struct sockaddr *)&client_addr, &str_size);
 
-    if(client_sockfd){
+    if(client_sockfd == -1){
 
         fprintf(stderr, "accept client: %s\n", gai_strerror(client_sockfd));
         return -1;
     }
+    char s[INET_ADDRSTRLEN];
+    inet_ntop(client_addr.ss_family, get_in_addr((struct sockaddr *)&client_addr), s, sizeof(s));
+    status = addNewClient(client_sockfd, s, &client_addr);
 
-    int status = addNewClient(client_sockfd, (char *)get_in_addr((struct sockaddr *)&client_addr), client_addr);
-    int status = this->sendDataToClient(clients[0].get());
+    while(1){
 
-    disconnectClient(clients[0].get()->getSockfd());
+        listenOnSocket((void *)client_sockfd);
+    }
+
+    pthread_join(this->server_thread, NULL);
     closeServer();
 }
 
@@ -116,4 +145,75 @@ void * Server::get_in_addr(struct sockaddr *sa){
 void Server::closeServer(){
 
     close(this->sockfd);
+}
+
+void Server::findGameForNewClient(Client * client){
+
+    bool added = false;
+    for(auto & g : games){
+
+        if(g.get()->getnOfPlayers() < 5){
+
+            g.get()->addPlayer();
+            added = true;
+            break;
+        }
+        
+    }
+
+    if(added = false){
+
+        this->createNewGame();
+
+        games.back().get()->addPlayer();
+    }
+}
+
+void Server::interpretData(void * data){
+
+
+}
+
+void * Server::listenOnSocket(void * client_socketfd){
+
+    bool client_is_there = 1;
+
+    struct recvDataFormat recvData;
+
+    while(client_is_there){
+
+        int n = read((long)client_socketfd, (void *)&recvData, 8);
+
+        //update client state
+        fprintf(stdout, "x coordinate: %d, y coordinate: %d\n", recvData.mouse_coordinates[0], recvData.mouse_coordinates[1]);
+    }
+}
+
+void * Server::serverInfoRoutine(void * args){
+
+    int terminate = true;
+    std::string s;
+
+    while(terminate){
+
+        std::cin>>s;
+        
+        if(s == "clients")
+        {
+            fprintf(stdout, "current number of clients connected: %d\n", (int)clients.size());
+        }
+        else if(s == "games")
+        {
+            fprintf(stdout, "number of games running: %d\n", (int)games.size());
+        }
+        if(s == "closeServer:4rfvbgt5"){
+
+            for(auto & c : clients){
+                
+                pthread_exit(&c.get()->getThreadId());
+                close(c.get()->getSockfd());
+            }
+            break;
+        }
+    }
 }

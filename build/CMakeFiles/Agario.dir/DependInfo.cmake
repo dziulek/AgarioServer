@@ -21,6 +21,8 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/piotr/Dokumenty/myProjects/sk2project/engine/shapes/regularPolygon.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/engine/shapes/regularPolygon.cpp.o"
   "/home/piotr/Dokumenty/myProjects/sk2project/engine/shapes/shape.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/engine/shapes/shape.cpp.o"
   "/home/piotr/Dokumenty/myProjects/sk2project/mouseObserver.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/mouseObserver.cpp.o"
+  "/home/piotr/Dokumenty/myProjects/sk2project/network/client.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/network/client.cpp.o"
+  "/home/piotr/Dokumenty/myProjects/sk2project/network/server.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/network/server.cpp.o"
   "/home/piotr/Dokumenty/myProjects/sk2project/renderer.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/renderer.cpp.o"
   "/home/piotr/Dokumenty/myProjects/sk2project/test.cpp" "/home/piotr/Dokumenty/myProjects/sk2project/build/CMakeFiles/Agario.dir/test.cpp.o"
   )
