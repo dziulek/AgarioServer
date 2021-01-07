@@ -14,6 +14,7 @@ class Player : public PlayerObject{
 
 private:
 
+    char state;
     std::string nick = "";
     float mass;
     float highestScore;
@@ -26,6 +27,7 @@ public:
         nick = nickname;
     }
     virtual ~Player(){}
+    char getState(){ return state;}
 
 };
 

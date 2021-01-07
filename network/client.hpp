@@ -1,6 +1,8 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
+#include "../engine/agario_engine.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -24,6 +26,9 @@ private:
     char ip_addr[INET_ADDRSTRLEN];
     int sockfd;
     struct sockaddr_storage * myInfo;
+    agario::Player * player;
+    agario::Game * game;
+    bool disconnect = false;
 
     pthread_t thread_id;
 
@@ -41,6 +46,12 @@ public:
     void * getInfo(){ return &this->myInfo;}
     void setThreadId(pthread_t thread_id){ thread_id = thread_id;}
     pthread_t & getThreadId(){ return this->thread_id;}
+    
+    void setPlayer(agario::Player * player){ this->player = player;}
+    agario::Player * getPlayer(){ return this->player;}
+    agario::Game * getGame(){ return this->game;}
+    void setDisconnect(){ this->disconnect = true;}
+    bool getDisconnect(){ return this->disconnect;}
 };
 
 #endif

@@ -22,17 +22,42 @@
 
 char buf[MAX];
 
+bool stop_sending_data = false;
+
+pthread_mutex_t stop_sending_data_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+struct sendDataFormat{
+
+    char state;
+    bool w_action;
+    bool divide_action;
+    int mouse_coordinates[2];
+};
+
 struct sockaddr_in sa;
 
 void * send_data(void * args){
 
     long server_sockfd = (long)args;
 
-    while(1){
+    sendDataFormat sendData;
 
+    bzero(&sendData, sizeof(sendData));
+
+    while(stop_sending_data == false){
         sf::Vector2i mouse_position = sf::Mouse::getPosition();
 
-        write(server_sockfd, &mouse_position, 8);
+        //state
+
+        //w_action
+
+        //divide_action
+
+        //mouse coordinates
+        sendData.mouse_coordinates[0] = mouse_position.x;
+        sendData.mouse_coordinates[1] = mouse_position.y;
+
+        // write(server_sockfd, &sendData, sizeof(sendData));
     }
 }
 
@@ -68,17 +93,23 @@ int main(int argc, char ** argv){
 
         int status = pthread_create(&main_thread, NULL, send_data, (void *)sockfd);
 
+        std::cout<< "after creating thread\n";
         std::string s;
-        while(true){
+        while(1){
 
             std::cin>>s;
+            if(s == "siemano"){
+                fprintf(stdout, "simeano\n");
+            }
             if(s == "close"){
-                std::cout<<"close soon"<<std::endl;
-                pthread_exit(&main_thread);
+
+                pthread_mutex_lock(&stop_sending_data_mutex);
+                    stop_sending_data = true;
+                pthread_mutex_unlock(&stop_sending_data_mutex);
                 break;
             }
         }
-
+        std::cout<<"waiting for thread"<< std::endl;
         pthread_join(main_thread, NULL);
 
         close(sockfd);
