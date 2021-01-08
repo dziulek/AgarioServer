@@ -11,12 +11,20 @@ void Map::addPlayerObject(PlayerObject * po){
 
 void Map::addController(MapController * controller){
 
-    controllers.push_back(controller);
+    this->controllers.push_back(controller);
 }
 
 void Map::removeController(MapController * controller){
 
     
+}
+
+void Map::notify(){
+    
+    for(auto & c : controllers){
+
+        c->update();
+    }
 }
 
 }

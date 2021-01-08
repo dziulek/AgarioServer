@@ -19,7 +19,7 @@ private:
     std::vector<std::unique_ptr<MoveableCircle>> blobs;
     float totalArea;
 
-    void setVelocities();
+    
 
 public:
 
@@ -35,10 +35,12 @@ public:
 
     MoveableCircle & operator[](int t);
 
-    std::vector<std::unique_ptr<MoveableCircle>>::iterator getBlobs(){ return blobs.begin(); }
+    std::vector<std::unique_ptr<MoveableCircle>> * getBlobs(){ return &blobs; }
 
     void deleteIthElement(int i);
 
+    void setVelocities();
+    
     void divideObject() override;
     void addMass(const float mass) override;
     void addMass(const float mass, int mcIndex);

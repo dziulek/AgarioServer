@@ -2,6 +2,7 @@
 #define GAME_HPP
 
 #include "maps/map.hpp"
+#include "maps/mapMiniController.hpp"
 #include "player.hpp"
 #include "glm/glm.hpp"
 #include <vector>
@@ -24,6 +25,7 @@ public:
     }
     ~Game(){
         delete map;
+
     }
     Map * getMap(){ return map;}
     int getnOfPlayers(){ return nOfPlayers;}

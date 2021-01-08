@@ -4,7 +4,7 @@
 #include "../shapes/allshapes.hpp"
 #include "../playerObject.hpp"
 #include "../bomb.hpp"
-// #include "mapController.hpp"
+#include "mapController.hpp"
 #include <vector>
 #include <memory>
 
@@ -35,39 +35,41 @@ public:
     Map(){
         width = 100.0f;
         height = 100.0f;
+
     }
 
     void addPlayerObject(PlayerObject * po);
     void addController(MapController * controller);
     void removeController(MapController * controller);
+    void notify();
     
 
-    // friend class MapMiniController;
+    friend class MapMiniController;
     // friend class MapBombController;
 };
 
 }
 
-namespace agario{
+// namespace agario{
 
-using namespace shapes;
+// using namespace shapes;
 
-class MapController{
+// class MapController{
 
-protected:
+// protected:
 
-    Map * map;
+//     Map * map;
 
-public:
+// public:
 
-    MapController(Map * map){
-        this->map = map; 
-        this->map->addController(this);
-    }
-    virtual void update() = 0;
-    Map * getMap();
+//     MapController(Map * map){
+//         this->map = map; 
+//         this->map->addController(this);
+//     }
+//     virtual void update() = 0;
+//     Map * getMap();
 
-};
+// };
 
-}
+// }
 #endif

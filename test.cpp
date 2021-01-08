@@ -3,6 +3,7 @@
 #include "mouseObserver.hpp"
 #include "engine/maps/mapMiniController.hpp"
 #include "engine/maps/mapCrashController.hpp"
+#include "engine/maps/mapPlayerMovement.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -15,12 +16,40 @@ using namespace agario;
 
 int main(){
 
-    Server server;
+    Game game;
 
-    int status = server.mainLogic();
+    game.addPlayer();
 
-    if(status == -1){
-        return -1;
+    SFMLRenderer rend(game);
+    MouseObserver mouse(&rend);
+
+    MapMiniController mini_cont(game.getMap());
+
+    MapPlayerMovement player_movement(game.getMap());
+
+    game.getMap()->addController(&mini_cont);
+    game.getMap()->addController(&player_movement);
+
+    while(rend.getWindow()->isOpen()){
+
+        sf::Event event;
+        while (rend.getWindow()->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                rend.getWindow()->close();
+        }
+
+        mouse.update(&game.getPlayer(0));
+
+        rend.getWindow()->clear();
+
+        game.mainLoop(1.0f / 30);
+
+        rend.drawMap();
+
+        rend.getWindow()->display();
+
+        rend.getWindow()->setFramerateLimit(60);
     }
 
     return 0;

@@ -15,8 +15,6 @@ void PlayerObject::addMass(const float mass){
 
 void PlayerObject::move(const float dTime){
 
-    setVelocities();
-
     for(auto & mc : blobs){
 
         mc->move(dTime);

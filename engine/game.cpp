@@ -7,6 +7,12 @@ using namespace shapes;
 
 void Game::mainLoop(const float dTime){
 
+    for(auto & playerobject : map->playerObjects){
+
+        playerobject->setVelocities();
+    }
+    map->notify();
+    
     //move players
     for(int i = 0; i < 1; i++){
         players[i].get()->move(dTime);
