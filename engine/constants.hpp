@@ -15,6 +15,9 @@ const float WINDOW_HEIGHT = 1000;
 
 
 //physics
+
+const float PLUS_INFINITY = 10e9;
+const float MINUS_INFINITY = -10e9;
 const float PI = 3.14159265359;
 const float GRAVITY_CONST = 6;
 const float OUT_FORCE_VALUE = 20;

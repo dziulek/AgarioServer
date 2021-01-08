@@ -16,6 +16,8 @@ using namespace agario;
 
 int main(){
 
+    srand(time(NULL));
+
     Game game;
 
     game.addPlayer();

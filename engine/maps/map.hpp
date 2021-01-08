@@ -41,6 +41,9 @@ public:
     void addPlayerObject(PlayerObject * po);
     void addController(MapController * controller);
     void removeController(MapController * controller);
+
+    glm::vec2 findPositionForNewPlayer();
+
     void notify();
     
 
