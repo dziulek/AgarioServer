@@ -93,11 +93,14 @@ void * Server::sendDataToClients(void * args){
 
     for(auto & c : clients){
 
-        // int status = sendDataToClient(c.get());
+        if(c.get() != nullptr && c.get()->getDisconnect() == false){
+            
+            int status = sendDataToClient(c.get());
 
-        // if(status < 0){
-
-        // }
+            if(status == -1){
+                fprintf(stdout, "client disconnected: %s\n", c->getIp_addr());
+            }
+        }
     }
 
     pthread_mutex_unlock(&send_data_mutex);
@@ -110,6 +113,7 @@ void * Server::sendDataThread(void * args){
         sendDataToClients(NULL);
     }
 
+    fprintf(stdout, "exiting from send data thread\n");
     pthread_exit(NULL);
 }
 
@@ -120,11 +124,11 @@ void Server::fillDataToClient(Client * client, sendDataFormat & sendData){
     sendData.state = client->getPlayer()->getState();
     
     //player coordinates
-    for(int i = 0; i < client->getPlayer()->getSize(); i++){
+    // for(int i = 0; i < client->getPlayer()->getSize(); i++){
 
-        sendData.player_coordinates[i][0] = (*client->getPlayer())[i].getPosition().x;
-        sendData.player_coordinates[i][1] = (*client->getPlayer())[i].getPosition().y;
-    }
+    //     sendData.player_coordinates[i][0] = (*client->getPlayer())[i].getPosition().x;
+    //     sendData.player_coordinates[i][1] = (*client->getPlayer())[i].getPosition().y;
+    // }
     //other players coordinates
 
     //minis coordinates
@@ -138,14 +142,20 @@ void Server::fillDataToClient(Client * client, sendDataFormat & sendData){
 
 int Server::sendDataToClient(Client * client){
 
-    sendDataFormat sendData;
-    fillDataToClient(client, sendData);
+    // sendDataFormat sendData;
+    // fillDataToClient(client, sendData); //causes error
 
-    int status = write(client->getSockfd(), (void *)&sendData, sizeof(sendData));
+    // int status = write(client->getSockfd(), (void *)&sendData, sizeof(sendData));
+    //for simple test
+    char buf[1];
+    buf[0] = 'c';
+    int status = write(client->getSockfd(), buf, sizeof(buf));
 
     if(status == -1){
 
-        fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(status));
+        fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(errno));
+        client->setDisconnect();
+        return -1;
     }
 
 }
@@ -207,6 +217,8 @@ int Server::mainLogic(){
 
         pthread_join(c.get()->getThreadId(), NULL);
     }
+    fprintf(stdout, "exiting from main thread\n");
+
     closeServer();
 }
 
@@ -253,29 +265,33 @@ void Server::interpretData(recvDataFormat * data){
 
 }
 
-void * Server::listenOnSocket(void * client){
-
-    Client * c = (Client *)client;
-    bool client_is_there = 1;
+int  Server::listenOnSocket(Client * client){
 
     struct recvDataFormat recvData;
 
-    while(c->getDisconnect() == false){
+        // int n = read((long)c->getSockfd(), (void *)&recvData, sizeof(recvData));
 
-        int n = read((long)c->getSockfd(), (void *)&recvData, sizeof(recvData));
+        //for simple client test
+        char buf[100];
+        int n = read((long)client->getSockfd(), buf, 1);
+
+        // std::cout<<buf<<std::endl;
 
         if(n == 0){
             //closed socket
-             break;
+            client->setDisconnect();
+
+            return 0;
         }
         //update client state
         //fprintf(stdout, "x coordinate: %d, y coordinate: %d\n", recvData.mouse_coordinates[0], recvData.mouse_coordinates[1]);
 
-        c->getGame()->setPlayerMousePosition(c->getPlayer(), {
-            recvData.mouse_coordinates[0],
-            recvData.mouse_coordinates[1]
-        });
-    }
+        // c->getGame()->setPlayerMousePosition(c->getPlayer(), {
+        //     recvData.mouse_coordinates[0],
+        //     recvData.mouse_coordinates[1]
+        // });
+
+        return n;
 }
 
 void * Server::serverInfoRoutine(void * args){
@@ -298,9 +314,14 @@ void * Server::serverInfoRoutine(void * args){
         else if(s == "port"){
             fprintf(stdout, "server is running on %s port\n", this->portNumber);
         }
+        else if(s == "cullClients"){
+
+            cullDisconnectedClients();
+            fprintf(stdout, "deleting disconnected clients\n");
+        }
         if(s == "closeServer:4rfvbgt5"){
 
-            close_server = true;
+            this->close_server = true;
 
             for(auto & c : clients){
                 
@@ -310,17 +331,27 @@ void * Server::serverInfoRoutine(void * args){
             break;
         }
     }
+
+    fprintf(stdout, "exiting from infoServerRoutine thread\n");
+    pthread_exit(NULL);
 }
 
-void * clientThread(void * server_client_struct){
+void Server::sig_pipe_signal_handler(int signum){
 
-    server_client * sc = (server_client *)server_client_struct;
-    
-    Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
+    fprintf(stdout, "client disconnected\n");
+}
 
-    while(client->getDisconnect() == false){
+void Server::cullDisconnectedClients(){
 
-        // listenOnSocket(client);
+    std::vector<std::unique_ptr<Client>>::iterator it;
+    for(it = clients.begin(); it != clients.end(); it++){
+
+        if(it->get()->getDisconnect() == true){
+
+            it->reset();
+            *it = std::move(clients.back());
+            clients.pop_back();
+            it--;
+        }
     }
-    pthread_exit(NULL);
 }

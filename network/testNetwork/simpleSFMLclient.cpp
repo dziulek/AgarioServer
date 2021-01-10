@@ -17,14 +17,22 @@
 #include <pthread.h>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 #define MAX 100
 
 char buf[MAX];
 
+#define WAIT 0
+#define PLAY 1
+#define START_SHAPES 50
+
+int player_state = WAIT;
+
 bool stop_sending_data = false;
 
 pthread_mutex_t stop_sending_data_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t game_state = PTHREAD_MUTEX_INITIALIZER;
 
 struct sendDataFormat{
 
@@ -45,7 +53,7 @@ void * send_data(void * args){
     bzero(&sendData, sizeof(sendData));
 
     while(stop_sending_data == false){
-        sf::Vector2i mouse_position = sf::Mouse::getPosition();
+        // sf::Vector2i mouse_position = sf::Mouse::getPosition();
 
         //state
 
@@ -54,65 +62,224 @@ void * send_data(void * args){
         //divide_action
 
         //mouse coordinates
-        sendData.mouse_coordinates[0] = mouse_position.x;
-        sendData.mouse_coordinates[1] = mouse_position.y;
+        // sendData.mouse_coordinates[0] = mouse_position.x;
+        // sendData.mouse_coordinates[1] = mouse_position.y;
 
         // write(server_sockfd, &sendData, sizeof(sendData));
+
+        char buf[1];
+        buf[0] = 'p';
+        int status = write(server_sockfd, buf, 1);
+
+        if(status == -1){
+            fprintf(stderr, "sending data to server: %s\n", gai_strerror(errno));
+            pthread_exit(NULL);
+        }
+    }
+}
+
+void * handleConnection(void * args){
+
+    long server_sockfd = (long)args;
+
+    pthread_t send_thread;
+    int status = pthread_create(&send_thread, NULL, send_data, (void *)server_sockfd);
+
+    if(status){
+
+        fprintf(stderr, "create send data thread: %s\n", gai_strerror(errno));
+        pthread_exit(NULL);
+    }
+
+
+
+    while(stop_sending_data == false){
+        
+        char buf[1];
+        int status = read(server_sockfd, buf, 1);
+
+        // fprintf(stdout, "%s", buf);
+        if(status == 0){
+
+            //socket closed
+            fprintf(stdout, "server socket closed\n");
+            break;
+        }
+    }
+
+    pthread_join(send_thread, NULL);
+}
+
+void drawStartScreen(sf::RenderWindow & window, sf::View & view, sf::Text & text){
+
+    window.setView(view);
+
+    text.setPosition(sf::Vector2f(view.getSize().x/2.0f, view.getSize().y/2.0f));
+    text.setOrigin(text.getLocalBounds().width/2, text.getLocalBounds().height/2);
+
+    window.draw(text);
+}
+
+void drawMesh(sf::RenderWindow & window, sf::View & view){
+
+    window.setView(view);
+
+    float xsize = view.getSize().x;
+    float ysize = view.getSize().y;
+
+    float xmin = view.getCenter().x - 5 - xsize / 2;
+    float xmax = view.getCenter().x + 5 + xsize / 2;
+    float ymin = view.getCenter().y - 5 - ysize / 2;
+    float ymax = view.getCenter().y + 5 + ysize / 2;
+
+    sf::Vertex vertical_line[2] = {
+        sf::Vertex(sf::Vector2f(xmin, ymin)),
+        sf::Vertex(sf::Vector2f(xmin, ymax))
+    };
+
+    for(float i = floor(xmin/10) * 10; i < xmax; i+=10.0f){
+
+        window.draw(vertical_line, 2, sf::Lines);
+        
+        vertical_line[0].position.x += 10;
+        vertical_line[1].position.x += 10;
+    }
+
+    sf::Vertex horizontal_line[2] = {
+        sf::Vertex(sf::Vector2f(xmin, ymin)),
+        sf::Vertex(sf::Vector2f(xmax, ymin))
+    };
+
+    for(float i = floor(ymin/10) * 10; i < ymax; i+=10){
+
+        window.draw(horizontal_line, 2, sf::Lines);
+
+        horizontal_line[0].position.y += 10;
+        horizontal_line[1].position.y += 10;
     }
 }
 
 int main(int argc, char ** argv){
 
+    srand(time(NULL));
+
     if(argc < 3){
         printf("zad1_klient <ip_address> <port_number>\n");
     }
     else{
-        //printf("%s\n", argv[1]);
-        //printf("%s\n", argv[2]);
-        memset(&sa, 0, sizeof(sa));
-        sa.sin_family = AF_INET;
-        sa.sin_port = htons(atoi(argv[2]));
 
-        if(inet_pton(AF_INET, argv[1] , &(sa.sin_addr))<=0){
-            printf("Błąd przy podawaniu adresu\n");
+        // memset(&sa, 0, sizeof(sa));
+        // sa.sin_family = AF_INET;
+        // sa.sin_port = htons(atoi(argv[2]));
+
+        // if(inet_pton(AF_INET, argv[1] , &(sa.sin_addr))<=0){
+        //     printf("Błąd przy podawaniu adresu\n");
+        //     return -1;
+        // }
+
+        // int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        // if(sockfd == 0){
+        //     printf("Błąd tworzenia uchwytu\n");
+        //     return -1;
+        // }
+
+        // if(connect(sockfd, (struct sockaddr *)&sa, sizeof(sa))<0){
+        //     printf("Błąd łączenia z serwerem\n");
+        //     return -1;
+        // }
+
+        // pthread_t main_thread;
+
+        // int status = pthread_create(&main_thread, NULL, handleConnection, (void *)sockfd);
+
+        // std::string s;
+        // while(1){
+
+        //     std::cin>>s;
+        //     if(s == "siemano"){
+        //         fprintf(stdout, "siemano\n");
+        //     }
+        //     if(s == "close"){
+
+        //         pthread_mutex_lock(&stop_sending_data_mutex);
+        //             stop_sending_data = true;
+        //         pthread_mutex_unlock(&stop_sending_data_mutex);
+        //         break;
+        //     }
+        // }
+
+        sf::RenderWindow window(sf::VideoMode(900, 600), "Agario!");
+        sf::View main_view;
+        main_view.setSize(window.getSize().x, window.getSize().y);
+        main_view.setCenter(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
+        main_view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.0f, 1.0f));
+
+        window.setView(main_view);
+
+        sf::Font font;
+        if(!font.loadFromFile("eastman/EastmanTrial-Black.otf")){
+            fprintf(stderr, "could not load font\n");
             return -1;
         }
 
-        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if(sockfd == 0){
-            printf("Błąd tworzenia uchwytu\n");
-            return -1;
-        }
+        sf::Text text;
+        text.setFont(font);
 
-        if(connect(sockfd, (struct sockaddr *)&sa, sizeof(sa))<0){
-            printf("Błąd łączenia z serwerem\n");
-            return -1;
-        }
+        text.setString("click SPACE to play");
+        text.setCharacterSize(50);
+        text.setFillColor(sf::Color::Blue);
 
-        pthread_t main_thread;
+        while (window.isOpen())
+        {
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                if(event.type == sf::Event::Closed)
+                    window.close();
 
-        int status = pthread_create(&main_thread, NULL, send_data, (void *)sockfd);
+                if(event.type == sf::Event::Resized){
 
-        std::cout<< "after creating thread\n";
-        std::string s;
-        while(1){
+                    sf::Vector2f center = main_view.getCenter();
 
-            std::cin>>s;
-            if(s == "siemano"){
-                fprintf(stdout, "simeano\n");
+                    sf::Vector2f viewSize = main_view.getSize();
+
+                    sf::Vector2f windowSize = static_cast<sf::Vector2f>(window.getSize());
+
+                    float x_per = float(event.size.width)/windowSize.x;
+                    float y_per = float(event.size.height)/windowSize.y;
+
+                    float newRatio = float(event.size.height) / float(event.size.width);
+
+                    main_view.setSize(viewSize.x, viewSize.x * newRatio);
+                    main_view.setCenter(center);
+                }
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+
+                    player_state = PLAY;
+                }
             }
-            if(s == "close"){
 
-                pthread_mutex_lock(&stop_sending_data_mutex);
-                    stop_sending_data = true;
-                pthread_mutex_unlock(&stop_sending_data_mutex);
-                break;
+            window.clear();
+
+            if(player_state == WAIT){
+
+                drawStartScreen(window, main_view, text);
             }
-        }
-        std::cout<<"waiting for thread"<< std::endl;
-        pthread_join(main_thread, NULL);
+            else if(player_state == PLAY){
 
-        close(sockfd);
+                drawMesh(window, main_view);
+            }
+
+
+            window.display();
+        }
+
+
+
+        // pthread_join(main_thread, NULL);
+
+        // close(sockfd);
     }
 
     return 0;

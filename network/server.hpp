@@ -79,14 +79,19 @@ private:
     void findGameForNewClient(Client * client);
     void interpretData(recvDataFormat * data);
 
+    static void sig_pipe_signal_handler(int signum);
+
     void * serverInfoRoutine(void * args);
     void fillDataToClient(Client * client, sendDataFormat & sendData);
     void * sendDataThread(void * args);
+    void cullDisconnectedClients();
     
 public:
 
     Server(){
         
+        signal(SIGPIPE, sig_pipe_signal_handler);
+
         strcpy(this->portNumber, std::string("1234").c_str());
         int status = setUpServer();
         if(status < 0){
@@ -109,7 +114,7 @@ public:
     void deleteGame(int gameIndex);
     void deleteEmptyGames();
     void * sendDataToClients(void * args);
-    void * listenOnSocket(void * client);
+    int listenOnSocket(Client * client);
     friend void * clientThread(void * server_client);
 
     int mainLogic();
