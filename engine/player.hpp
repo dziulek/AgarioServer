@@ -25,6 +25,7 @@ public:
     Player(glm::vec2 pos, std::string nickname) : PlayerObject(pos){
         
         nick = nickname;
+        state = 'p';
     }
     virtual ~Player(){}
     char getState(){ return state;}

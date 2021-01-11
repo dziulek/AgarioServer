@@ -41,9 +41,13 @@ int Server::setUpServer(){
 
 Client * Server::addNewClient(int sockfd, char * ip_addr, struct sockaddr_storage * s){
 
+    pthread_mutex_lock(&client_creation_mutex);
+
     std::unique_ptr<Client> new_client = std::unique_ptr<Client>(new Client(ip_addr, sockfd, s));
     clients.push_back(std::move(new_client));
     findGameForNewClient(clients.back().get());
+
+    pthread_mutex_unlock(&client_creation_mutex);
 
     fprintf(stdout, "log: new client, ip = %s, socket descriptor = %d\n", ip_addr, sockfd);
 
@@ -89,8 +93,6 @@ void Server::deleteEmptyGames(){
 
 void * Server::sendDataToClients(void * args){
 
-    pthread_mutex_lock(&send_data_mutex);
-
     for(auto & c : clients){
 
         if(c.get() != nullptr && c.get()->getDisconnect() == false){
@@ -102,28 +104,33 @@ void * Server::sendDataToClients(void * args){
             }
         }
     }
-
-    pthread_mutex_unlock(&send_data_mutex);
 }
 
 void * Server::sendDataThread(void * args){
 
-    while(close_server == false){
+    
 
+    while(close_server == false){
+        
+        pthread_mutex_lock(&client_creation_mutex);
+        
         sendDataToClients(NULL);
+
+        pthread_mutex_unlock(&client_creation_mutex);
     }
+
 
     fprintf(stdout, "exiting from send data thread\n");
     pthread_exit(NULL);
 }
 
-void Server::fillDataToClient(Client * client, sendDataFormat & sendData){
+void Server::fillDataToClient(Client * client, std::vector<char> & data){
 
-    bzero(&sendData, sizeof(sendData));
-    //check state
-    sendData.state = client->getPlayer()->getState();
-    
-    //player coordinates
+    data.push_back(client->getPlayer()->getState());
+    // data.push_back(client->getGame()->getMap()->width);
+    // data.push_back(client->getGame()->getMap()->height);
+    // data.back() = htonl(data.back());
+        //player coordinates
     // for(int i = 0; i < client->getPlayer()->getSize(); i++){
 
     //     sendData.player_coordinates[i][0] = (*client->getPlayer())[i].getPosition().x;
@@ -142,14 +149,18 @@ void Server::fillDataToClient(Client * client, sendDataFormat & sendData){
 
 int Server::sendDataToClient(Client * client){
 
-    // sendDataFormat sendData;
-    // fillDataToClient(client, sendData); //causes error
+    // std::vector<char> buf;
+    // fillDataToClient(client, buf);
 
-    // int status = write(client->getSockfd(), (void *)&sendData, sizeof(sendData));
+
+
+    int status = write(client->getSockfd(), (void *)&send_buf, 1);
     //for simple test
-    char buf[1];
-    buf[0] = 'c';
-    int status = write(client->getSockfd(), buf, sizeof(buf));
+    // char buf[1];
+    // buf[0] = 'c';
+    // int status = write(client->getSockfd(), buf, sizeof(buf));
+
+    // std::cout<<status<<std::endl;
 
     if(status == -1){
 
@@ -245,18 +256,20 @@ void Server::findGameForNewClient(Client * client){
 
             agario::Player * p = g.get()->addPlayer();
             client->setPlayer(p);
+            client->setGame(g.get());
             added = true;
             break;
         }
         
     }
 
-    if(added = false){
+    if(added == false){
 
         this->createNewGame();
 
         agario::Player * p = games.back().get()->addPlayer();
         client->setPlayer(p);
+        client->setGame(games.back().get());
     }
 }
 
@@ -354,4 +367,9 @@ void Server::cullDisconnectedClients(){
             it--;
         }
     }
+}
+
+void Server::serializeFloat(const float f, char * buf, int ind){
+
+    
 }

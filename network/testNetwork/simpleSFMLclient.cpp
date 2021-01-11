@@ -27,12 +27,19 @@ char buf[MAX];
 #define PLAY 1
 #define START_SHAPES 50
 
+struct game_state{
+
+    float state;
+    float window_width;
+    float window_height;
+}current_game_state;
+
 int player_state = WAIT;
 
 bool stop_sending_data = false;
 
 pthread_mutex_t stop_sending_data_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t game_state = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t game_state_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct sendDataFormat{
 
@@ -78,6 +85,17 @@ void * send_data(void * args){
     }
 }
 
+void interpretData(char * data, int size){
+
+    pthread_mutex_lock(&game_state_mutex);
+
+    current_game_state.state = data[0];
+    // current_game_state.window_width = data[1];
+    // current_game_state.window_height = data[2];
+
+    pthread_mutex_unlock(&game_state_mutex);
+}
+
 void * handleConnection(void * args){
 
     long server_sockfd = (long)args;
@@ -95,16 +113,23 @@ void * handleConnection(void * args){
 
     while(stop_sending_data == false){
         
-        char buf[1];
-        int status = read(server_sockfd, buf, 1);
+        char data[100];
+        int status = read(server_sockfd, data, sizeof(data));
 
-        // fprintf(stdout, "%s", buf);
         if(status == 0){
 
             //socket closed
             fprintf(stdout, "server socket closed\n");
             break;
         }
+        if(status == -1){
+
+            fprintf(stdout, "cannot read data\n");
+            break;
+        }
+        // std::cout<<status<<std::endl;
+        interpretData(data, status);//interprets recv data and actualize game state structure
+
     }
 
     pthread_join(send_thread, NULL);
@@ -159,6 +184,18 @@ void drawMesh(sf::RenderWindow & window, sf::View & view){
     }
 }
 
+void drawGameView(sf::RenderWindow & window, sf::View view){
+
+    pthread_mutex_lock(&game_state_mutex);
+    std::cout<<(char)current_game_state.state<<std::endl;
+
+    // std::cout<<"map width: "<<current_game_state.window_width<<std::endl;
+    // std::cout<<"map height: "<<current_game_state.window_height<<std::endl;
+
+    pthread_mutex_unlock(&game_state_mutex);
+}
+
+
 int main(int argc, char ** argv){
 
     srand(time(NULL));
@@ -168,45 +205,29 @@ int main(int argc, char ** argv){
     }
     else{
 
-        // memset(&sa, 0, sizeof(sa));
-        // sa.sin_family = AF_INET;
-        // sa.sin_port = htons(atoi(argv[2]));
+        memset(&sa, 0, sizeof(sa));
+        sa.sin_family = AF_INET;
+        sa.sin_port = htons(atoi(argv[2]));
 
-        // if(inet_pton(AF_INET, argv[1] , &(sa.sin_addr))<=0){
-        //     printf("Błąd przy podawaniu adresu\n");
-        //     return -1;
-        // }
+        if(inet_pton(AF_INET, argv[1] , &(sa.sin_addr))<=0){
+            printf("Błąd przy podawaniu adresu\n");
+            return -1;
+        }
 
-        // int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        // if(sockfd == 0){
-        //     printf("Błąd tworzenia uchwytu\n");
-        //     return -1;
-        // }
+        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if(sockfd == 0){
+            printf("Błąd tworzenia uchwytu\n");
+            return -1;
+        }
 
-        // if(connect(sockfd, (struct sockaddr *)&sa, sizeof(sa))<0){
-        //     printf("Błąd łączenia z serwerem\n");
-        //     return -1;
-        // }
+        if(connect(sockfd, (struct sockaddr *)&sa, sizeof(sa))<0){
+            printf("Błąd łączenia z serwerem\n");
+            return -1;
+        }
 
-        // pthread_t main_thread;
+        pthread_t main_thread;
 
-        // int status = pthread_create(&main_thread, NULL, handleConnection, (void *)sockfd);
-
-        // std::string s;
-        // while(1){
-
-        //     std::cin>>s;
-        //     if(s == "siemano"){
-        //         fprintf(stdout, "siemano\n");
-        //     }
-        //     if(s == "close"){
-
-        //         pthread_mutex_lock(&stop_sending_data_mutex);
-        //             stop_sending_data = true;
-        //         pthread_mutex_unlock(&stop_sending_data_mutex);
-        //         break;
-        //     }
-        // }
+        int status = pthread_create(&main_thread, NULL, handleConnection, (void *)sockfd);
 
         sf::RenderWindow window(sf::VideoMode(900, 600), "Agario!");
         sf::View main_view;
@@ -237,7 +258,7 @@ int main(int argc, char ** argv){
                 if(event.type == sf::Event::Closed)
                     window.close();
 
-                if(event.type == sf::Event::Resized){
+                if(event.type == sf::Event::Resized){//fix need
 
                     sf::Vector2f center = main_view.getCenter();
 
@@ -269,17 +290,32 @@ int main(int argc, char ** argv){
             else if(player_state == PLAY){
 
                 drawMesh(window, main_view);
+                drawGameView(window, main_view);
             }
 
 
             window.display();
         }
 
+        std::string s;
+        while(1){
 
+            std::cin>>s;
+            if(s == "siemano"){
+                fprintf(stdout, "siemano\n");
+            }
+            if(s == "close"){
 
-        // pthread_join(main_thread, NULL);
+                pthread_mutex_lock(&stop_sending_data_mutex);
+                    stop_sending_data = true;
+                pthread_mutex_unlock(&stop_sending_data_mutex);
+                break;
+            }
+        }
 
-        // close(sockfd);
+        pthread_join(main_thread, NULL);
+
+        close(sockfd);
     }
 
     return 0;
