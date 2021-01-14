@@ -5,6 +5,7 @@
 #include "threadFunctions.hpp"
 #include "client.hpp"
 #include "constants.hpp"
+#include "sendDataFormat.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +88,7 @@ private:
     static void sig_pipe_signal_handler(int signum);
 
     void * serverInfoRoutine(void * args);
-    void fillDataToClient(Client * client, std::vector<char> & sendData);
+    void fillDataToClient(Client * client, SendDataFormat & data);
     void * sendDataThread(void * args);
     void cullDisconnectedClients();
     

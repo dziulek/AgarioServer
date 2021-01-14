@@ -1,7 +1,7 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-#include "../shapes/allshapes.hpp"
+#include "../allshapes.hpp"
 #include "../playerObject.hpp"
 #include "../bomb.hpp"
 // #include "mapController.hpp"

@@ -124,18 +124,14 @@ void * Server::sendDataThread(void * args){
     pthread_exit(NULL);
 }
 
-void Server::fillDataToClient(Client * client, std::vector<char> & data){
+void Server::fillDataToClient(Client * client, SendDataFormat & data){
 
-    data.push_back(client->getPlayer()->getState());
-    // data.push_back(client->getGame()->getMap()->width);
-    // data.push_back(client->getGame()->getMap()->height);
-    // data.back() = htonl(data.back());
-        //player coordinates
-    // for(int i = 0; i < client->getPlayer()->getSize(); i++){
-
-    //     sendData.player_coordinates[i][0] = (*client->getPlayer())[i].getPosition().x;
-    //     sendData.player_coordinates[i][1] = (*client->getPlayer())[i].getPosition().y;
-    // }
+    data.clearBuf();
+    data.appendChar('m');
+    data.appendFloat(client->getGame()->getMap()->width);
+    data.appendFloat(client->getGame()->getMap()->height);
+    //player coordinates
+    data.appendPlayer(client->getPlayer());
     //other players coordinates
 
     //minis coordinates
@@ -149,18 +145,12 @@ void Server::fillDataToClient(Client * client, std::vector<char> & data){
 
 int Server::sendDataToClient(Client * client){
 
-    // std::vector<char> buf;
-    // fillDataToClient(client, buf);
+    SendDataFormat data;
+    fillDataToClient(client, data);
 
 
 
-    int status = write(client->getSockfd(), (void *)&send_buf, 1);
-    //for simple test
-    // char buf[1];
-    // buf[0] = 'c';
-    // int status = write(client->getSockfd(), buf, sizeof(buf));
-
-    // std::cout<<status<<std::endl;
+    int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
 
     if(status == -1){
 
@@ -285,10 +275,10 @@ int  Server::listenOnSocket(Client * client){
         // int n = read((long)c->getSockfd(), (void *)&recvData, sizeof(recvData));
 
         //for simple client test
-        char buf[100];
-        int n = read((long)client->getSockfd(), buf, 1);
+        SendDataFormat data;
+        int n = read((long)client->getSockfd(), data.getBuf(), MAX_LEN_BUFER);
 
-        // std::cout<<buf<<std::endl;
+        data.printBuf();
 
         if(n == 0){
             //closed socket

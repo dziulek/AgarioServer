@@ -2,6 +2,8 @@
 #include "SFML/Window.hpp"
 #include "SFML/System.hpp"
 
+#include "../sendDataFormat.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -109,12 +111,12 @@ void * handleConnection(void * args){
         pthread_exit(NULL);
     }
 
-
+    SendDataFormat data;
 
     while(stop_sending_data == false){
         
-        char data[100];
-        int status = read(server_sockfd, data, sizeof(data));
+        data.clearBuf();
+        int status = read(server_sockfd, data.getBuf(), MAX_LEN_BUFER);
 
         if(status == 0){
 
@@ -127,8 +129,7 @@ void * handleConnection(void * args){
             fprintf(stdout, "cannot read data\n");
             break;
         }
-        // std::cout<<status<<std::endl;
-        interpretData(data, status);//interprets recv data and actualize game state structure
+        data.printBuf();
 
     }
 
@@ -187,7 +188,6 @@ void drawMesh(sf::RenderWindow & window, sf::View & view){
 void drawGameView(sf::RenderWindow & window, sf::View view){
 
     pthread_mutex_lock(&game_state_mutex);
-    std::cout<<(char)current_game_state.state<<std::endl;
 
     // std::cout<<"map width: "<<current_game_state.window_width<<std::endl;
     // std::cout<<"map height: "<<current_game_state.window_height<<std::endl;
