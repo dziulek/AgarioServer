@@ -19,13 +19,35 @@ void Game::mainLoop(const float dTime){
     }
 }
 
-Player * Game::addPlayer(){
+Player * Game::addPlayer(std::string nickname = ""){
 
-    players.push_back(std::unique_ptr<Player>(new Player(map->findPositionForNewPlayer(), "test")));
+    players.push_back(std::unique_ptr<Player>(new Player(map->findPositionForNewPlayer(), nickname)));
     map->addPlayerObject(players.back().get());
     nOfPlayers++;
 
     return this->players.back().get();
+}
+
+void Game::deletePlayer(Player * player){
+
+    player = nullptr;
+
+    cullDeadPlayers();
+}
+
+void Game::cullDeadPlayers(){
+
+    for(int i = 0; i < players.size(); i++){
+
+        if(players[i].get() == nullptr){
+
+            players[i].reset();
+            players[i] = std::move(players.back());
+            players.pop_back();
+
+            i--;
+        }
+    }
 }
 
 }

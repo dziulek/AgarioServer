@@ -24,6 +24,7 @@ public:
         this->map = new Map;
     }
     ~Game(){
+
         delete map;
 
     }
@@ -32,10 +33,13 @@ public:
     Player & getPlayer(int index){ return *players[index].get();}
     Player & getPlayer(std::string ipaddr);
 
-    Player * addPlayer();
+    Player * addPlayer(std::string nickaname = "");
+    void deletePlayer(Player * player);
     glm::vec2 & getPlayerMousePosition(Player * p){ p->mousePosition;}
     void setPlayerMousePosition(Player * p, glm::vec2 pos){p->mousePosition = pos;}
     void mainLoop(const float dTime);
+
+    void cullDeadPlayers();
 };
 
 }
