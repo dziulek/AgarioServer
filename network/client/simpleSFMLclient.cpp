@@ -43,43 +43,48 @@ bool stop_sending_data = false;
 pthread_mutex_t stop_sending_data_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t game_state_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+struct sendDataFormat{
+
+    char state;
+    bool w_action;
+    bool divide_action;
+    int mouse_coordinates[2];
+};
+
 struct sockaddr_in sa;
 
 void * send_data(void * args){
 
     long server_sockfd = (long)args;
 
-    clientInfo cinfo;
+    sendDataFormat sendData;
 
-    SendDataFormat data_out;
+    bzero(&sendData, sizeof(sendData));
 
     while(stop_sending_data == false){
-        
-        data_out.clearBuf();
-        // state
+        // sf::Vector2i mouse_position = sf::Mouse::getPosition();
 
-        // w_action
+        //state
 
-        // divide_action
+        //w_action
 
-        // mouse coordinates
-        sf::Vector2i mouse_position = sf::Mouse::getPosition();
-        cinfo.mousePosition = {static_cast<float>(mouse_position.x), static_cast<float>(mouse_position.y)};
-        
-        data_out.appendChar(MOUSE);
-        data_out.appendFloat(mouse_position.x);
-        data_out.appendFloat(mouse_position.y);
+        //divide_action
 
-        data_out.printBuf();
+        //mouse coordinates
+        // sendData.mouse_coordinates[0] = mouse_position.x;
+        // sendData.mouse_coordinates[1] = mouse_position.y;
 
-        // int status = write(server_sockfd, data_out.getBuf(), sizeof(data_out.getBuf()));
+        // write(server_sockfd, &sendData, sizeof(sendData));
 
-        // if(status == -1){
-        //     fprintf(stderr, "sending data to server: %s\n", gai_strerror(errno));
-        //     break;
-        // }
+        char buf[1];
+        buf[0] = 'p';
+        int status = write(server_sockfd, buf, 1);
+
+        if(status == -1){
+            fprintf(stderr, "sending data to server: %s\n", gai_strerror(errno));
+            pthread_exit(NULL);
+        }
     }
-    pthread_exit(NULL);
 }
 
 void interpretData(char * data, int size){
@@ -106,12 +111,12 @@ void * handleConnection(void * args){
         pthread_exit(NULL);
     }
 
+    SendDataFormat data;
+
     while(stop_sending_data == false){
-
-        char data[1000];
-        bzero(data, sizeof(data));
-
-        int status = read(server_sockfd, data, 1000);
+        
+        data.clearBuf();
+        int status = read(server_sockfd, data.getBuf(), MAX_LEN_BUFER);
 
         if(status == 0){
 
@@ -124,12 +129,11 @@ void * handleConnection(void * args){
             fprintf(stdout, "cannot read data\n");
             break;
         }
-        fprintf(stdout, "%s\n", data);
+        data.printBuf();
 
     }
 
     pthread_join(send_thread, NULL);
-    pthread_exit(NULL);
 }
 
 void drawStartScreen(sf::RenderWindow & window, sf::View & view, sf::Text & text){

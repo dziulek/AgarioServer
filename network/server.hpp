@@ -5,7 +5,7 @@
 #include "threadFunctions.hpp"
 #include "client.hpp"
 #include "constants.hpp"
-#include "sendDataFormat.hpp"
+#include "dataFormatServer.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +23,8 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <ctime>
+#include <chrono>
 
 class Server;
 
@@ -70,10 +72,9 @@ private:
 
     bool close_server = false;
 
-    char send_buf[100000];
-
     pthread_t server_thread;
     pthread_t send_thread;
+    pthread_t game_thread;
     pthread_mutex_t send_data_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_t client_creation_mutex;
 
@@ -88,9 +89,11 @@ private:
     static void sig_pipe_signal_handler(int signum);
 
     void * serverInfoRoutine(void * args);
-    void fillDataToClient(Client * client, SendDataFormat & data);
+    void fillDataToClient(Client * client, DataFormatServer & data);
     void * sendDataThread(void * args);
     void cullDisconnectedClients();
+
+    void gameLoop(const float dTime);
     
 public:
 
@@ -123,6 +126,9 @@ public:
     void * sendDataToClients(void * args);
     int listenOnSocket(Client * client);
     friend void * clientThread(void * server_client);
+    friend void * gameThread(void * server);
+
+    const std::time_t getServerTime();
 
     int mainLogic();
 };

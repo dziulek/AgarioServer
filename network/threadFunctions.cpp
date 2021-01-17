@@ -19,3 +19,16 @@ void * clientThread(void * server_client_struct){
     std::cout<<"exiting from client thread"<<std::endl;
     pthread_exit(NULL);
 }
+
+void * gameThread(void * srv){
+
+    Server * server = (Server *)srv;
+
+    while(server->close_server == false){
+
+        server->gameLoop(1.0f / 30);
+    }
+
+    fprintf(stdout, "exit from game thread\n");
+    pthread_exit(NULL);
+}

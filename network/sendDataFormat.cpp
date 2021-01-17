@@ -55,7 +55,7 @@ int SendDataFormat::getLen(){
 }
 
 float SendDataFormat::getFloat(int index){
-
+    
     if(buf[index] != SEPARATOR) return 0.0f;
 
     float out;
@@ -65,45 +65,43 @@ float SendDataFormat::getFloat(int index){
 
         if(this->buf[index] == SEPARATOR){
 
-            while(index < strlen(buf) && buf[index] != SEPARATOR)
-                index++;
+            while(++index < strlen(buf) && buf[index] != SEPARATOR);
 
             if(index == strlen(buf)){
                 //error
             }
 
             else {
-                
                 int len = index - cp_index - 1;
                 char local[len];
+                bzero(local, sizeof(local));
 
                 memcpy(local, this->buf + cp_index + 1, len);
-                
-                return (float)atof(local);
+
+                out = (float)atof(local);
+                return out;
             }
         }
     }
     return 0.0f;
 }
 
-void SendDataFormat::appendPlayer(agario::Player * player){
+char SendDataFormat::getChar(int index){
 
-    this->appendChar(PLAYER);
+    if(index < 0 || index > 1 + strlen(this->buf))
+        return '\0';
 
-    this->appendChar(NICKNAME);
-
-    this->appendString("Unnamed cell");
-
-    this->appendChar(COORDINATES);
-
-    for(int i = 0; i < player->getSize(); i++){
-
-        this->appendFloat((*player)[i].getPosition().x);
-        this->appendFloat((*player)[i].getPosition().y);
-    }
-
-    this->appendSeparator();
+    return this->buf[index + 1];
 }
+
+bool SendDataFormat::getBool(int index){
+
+    if(index < 0 || index > 1 + strlen(this->buf))
+        return 0;
+
+    return this->buf[index + 1] == '1' ? true : false;
+}
+
 
 void SendDataFormat::appendMouseCoordinates(float x, float y){
 
@@ -119,7 +117,7 @@ int SendDataFormat::getNextIndexSeparator(int currInd){
     if(currInd < 0 || currInd > strlen(this->buf))
         return -1;
 
-    while(currInd < strlen(this->buf) && ++currInd != SEPARATOR);
+    while(++currInd < strlen(this->buf) && buf[currInd] != SEPARATOR);
 
     return currInd;
 }

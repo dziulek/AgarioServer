@@ -7,19 +7,19 @@ using namespace shapes;
 
 void Game::mainLoop(const float dTime){
 
-    for(auto & playerobject : map->playerObjects){
+    for(auto & player : players){
 
-        playerobject->setVelocities();
+        player->setVelocities();
     }
     map->notify();
     
-    //move players
-    for(int i = 0; i < 1; i++){
-        players[i].get()->move(dTime);
-    }
+    // //move players
+    // for(int i = 0; i < 1; i++){
+    //     players[i].get()->move(dTime);
+    // }
 }
 
-Player * Game::addPlayer(std::string nickname = ""){
+Player * Game::addPlayer(std::string nickname){
 
     players.push_back(std::unique_ptr<Player>(new Player(map->findPositionForNewPlayer(), nickname)));
     map->addPlayerObject(players.back().get());

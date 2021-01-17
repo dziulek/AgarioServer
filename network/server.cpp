@@ -124,16 +124,17 @@ void * Server::sendDataThread(void * args){
     pthread_exit(NULL);
 }
 
-void Server::fillDataToClient(Client * client, SendDataFormat & data){
+void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.clearBuf();
-    data.appendChar('m');
+
+    data.appendChar(MAP);
+
     data.appendFloat(client->getGame()->getMap()->width);
     data.appendFloat(client->getGame()->getMap()->height);
     //player coordinates
-    data.appendPlayer(client->getPlayer());
+    // data.appendPlayer(client->getPlayer());
     //other players coordinates
-
     //minis coordinates
     // for(int i = 0; i < std::min(100, client->getGame()->getMap()->nOfMinis); i++){
 
@@ -145,19 +146,19 @@ void Server::fillDataToClient(Client * client, SendDataFormat & data){
 
 int Server::sendDataToClient(Client * client){
 
-    SendDataFormat data;
-    fillDataToClient(client, data);
+    // DataFormatServer data;
+    // fillDataToClient(client, data);
 
 
 
-    int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
+    // int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
 
-    if(status == -1){
+    // if(status == -1){
 
-        fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(errno));
-        client->setDisconnect();
-        return -1;
-    }
+    //     fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(errno));
+    //     client->setDisconnect();
+    //     return -1;
+    // }
 
 }
 
@@ -177,6 +178,13 @@ int Server::mainLogic(){
 
         fprintf(stderr, "creating send data thread: %s", gai_strerror(status));
         return -1;
+    }
+    
+    status = pthread_create(&this->game_thread, NULL, gameThread, (void *)this);
+
+    if(status){
+
+        fprintf(stderr, "creating game thread: %s", gai_strerror(status));
     }
 
     struct sockaddr_storage client_addr;
@@ -213,6 +221,7 @@ int Server::mainLogic(){
 
     pthread_join(this->server_thread, NULL);
     pthread_join(this->send_thread, NULL);
+    pthread_join(this->game_thread, NULL);
 
     for(auto & c : clients){
 
@@ -257,9 +266,14 @@ void Server::findGameForNewClient(Client * client){
 
         this->createNewGame();
 
+        std::cout<<"after game creation"<<std::endl;
+
         agario::Player * p = games.back().get()->addPlayer();
         client->setPlayer(p);
+        std::cout<<"siemano"<<std::endl;
         client->setGame(games.back().get());
+
+        
     }
 }
 
@@ -270,15 +284,9 @@ void Server::interpretData(recvDataFormat * data){
 
 int  Server::listenOnSocket(Client * client){
 
-    struct recvDataFormat recvData;
+        DataFormatServer data_in;
 
-        // int n = read((long)c->getSockfd(), (void *)&recvData, sizeof(recvData));
-
-        //for simple client test
-        SendDataFormat data;
-        int n = read((long)client->getSockfd(), data.getBuf(), MAX_LEN_BUFER);
-
-        data.printBuf();
+        int n = read((long)client->getSockfd(), data_in.getBuf(), MAX_LEN_BUFER);
 
         if(n == 0){
             //closed socket
@@ -287,12 +295,16 @@ int  Server::listenOnSocket(Client * client){
             return 0;
         }
         //update client state
-        //fprintf(stdout, "x coordinate: %d, y coordinate: %d\n", recvData.mouse_coordinates[0], recvData.mouse_coordinates[1]);
+        clientInfo cinfo;
+        data_in.extractClientInfo(cinfo);
 
-        // c->getGame()->setPlayerMousePosition(c->getPlayer(), {
-        //     recvData.mouse_coordinates[0],
-        //     recvData.mouse_coordinates[1]
-        // });
+        std::cout<<cinfo.mousePosition.x<< " " << cinfo.mousePosition.y<<std::endl;
+        //mouse position
+        client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
+        //divide action
+
+        //w action
+
 
         return n;
 }
@@ -321,6 +333,12 @@ void * Server::serverInfoRoutine(void * args){
 
             cullDisconnectedClients();
             fprintf(stdout, "deleting disconnected clients\n");
+        }
+        else if(s == "time"){
+            
+            std::time_t time = this->getServerTime();
+
+            std::cout<<std::ctime(&time)<<std::endl;
         }
         if(s == "closeServer:4rfvbgt5"){
 
@@ -359,7 +377,16 @@ void Server::cullDisconnectedClients(){
     }
 }
 
-void Server::serializeFloat(const float f, char * buf, int ind){
+void Server::gameLoop(const float dTime){
 
-    
+    for(auto & g : games){
+
+        if(g.get() != nullptr)
+            g.get()->mainLoop(dTime); 
+    }
+}
+
+const std::time_t Server::getServerTime(){
+
+    return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 }

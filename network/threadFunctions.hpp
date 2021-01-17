@@ -7,4 +7,6 @@
 
 void * clientThread(void * server_client);
 
+void * gameThread(void * srv);
+
 #endif
