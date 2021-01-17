@@ -64,9 +64,16 @@ void MapMiniController::cullDeadMinis(){
             //x coordinates
             int lowerBoundx = floor(((*p)[i].getPosition().x - (*p)[i].getRadius()) / fieldWidth); 
             int upperBoundx = ceil(((*p)[i].getPosition().x + (*p)[i].getRadius()) / fieldWidth);
+
+            lowerBoundx = std::max(0, lowerBoundx);
+            upperBoundx = std::min(upperBoundx, (int)map->minis[0].size() - 1);
+
             //y coordinates
             int lowerBoundy = floor(((*p)[i].getPosition().y - (*p)[i].getRadius()) / fieldWidth);
             int upperBoundy = ceil(((*p)[i].getPosition().y + (*p)[i].getRadius()) / fieldWidth);
+
+            lowerBoundy = std::max(0, lowerBoundy);
+            upperBoundy = std::min(upperBoundy, (int)map->minis.size() - 1);
 
             for(int j = lowerBoundx; j < upperBoundx; j++){
                 

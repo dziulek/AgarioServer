@@ -10,8 +10,8 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 
 
-file(GLOB HEADER_NETWORK ${PROJECT_SOURCE_DIR}/network/*.hpp)
-file(GLOB SOURCE_NETWORK ${PROJECT_SOURCE_DIR}/network/*.cpp)
+#file(GLOB HEADER_NETWORK ${PROJECT_SOURCE_DIR}/network/*.hpp)
+#file(GLOB SOURCE_NETWORK ${PROJECT_SOURCE_DIR}/network/*.cpp)
 
 file(GLOB HEADER_MAIN *.hpp)
 file(GLOB SOURCE_MAIN *.cpp)

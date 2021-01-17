@@ -29,6 +29,8 @@ public:
     }
     virtual ~Player(){}
     char getState(){ return state;}
+    void setState(char s){this->state = s;}
+    std::pair<glm::vec2, glm::vec2> getView();
 
 };
 
