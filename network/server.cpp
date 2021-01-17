@@ -41,9 +41,13 @@ int Server::setUpServer(){
 
 Client * Server::addNewClient(int sockfd, char * ip_addr, struct sockaddr_storage * s){
 
+    pthread_mutex_lock(&client_creation_mutex);
+
     std::unique_ptr<Client> new_client = std::unique_ptr<Client>(new Client(ip_addr, sockfd, s));
     clients.push_back(std::move(new_client));
     findGameForNewClient(clients.back().get());
+
+    pthread_mutex_unlock(&client_creation_mutex);
 
     fprintf(stdout, "log: new client, ip = %s, socket descriptor = %d\n", ip_addr, sockfd);
 
@@ -89,42 +93,45 @@ void Server::deleteEmptyGames(){
 
 void * Server::sendDataToClients(void * args){
 
-    pthread_mutex_lock(&send_data_mutex);
-
     for(auto & c : clients){
 
-        // int status = sendDataToClient(c.get());
+        if(c.get() != nullptr && c.get()->getDisconnect() == false){
+            
+            int status = sendDataToClient(c.get());
 
-        // if(status < 0){
-
-        // }
+            if(status == -1){
+                fprintf(stdout, "client disconnected: %s\n", c->getIp_addr());
+            }
+        }
     }
-
-    pthread_mutex_unlock(&send_data_mutex);
 }
 
 void * Server::sendDataThread(void * args){
 
-    while(close_server == false){
+    
 
+    while(close_server == false){
+        
+        pthread_mutex_lock(&client_creation_mutex);
+        
         sendDataToClients(NULL);
+
+        pthread_mutex_unlock(&client_creation_mutex);
     }
 
+
+    fprintf(stdout, "exiting from send data thread\n");
     pthread_exit(NULL);
 }
 
-void Server::fillDataToClient(Client * client, sendDataFormat & sendData){
+void Server::fillDataToClient(Client * client, SendDataFormat & data){
 
-    bzero(&sendData, sizeof(sendData));
-    //check state
-    sendData.state = client->getPlayer()->getState();
-    
+    data.clearBuf();
+    data.appendChar('m');
+    data.appendFloat(client->getGame()->getMap()->width);
+    data.appendFloat(client->getGame()->getMap()->height);
     //player coordinates
-    for(int i = 0; i < client->getPlayer()->getSize(); i++){
-
-        sendData.player_coordinates[i][0] = (*client->getPlayer())[i].getPosition().x;
-        sendData.player_coordinates[i][1] = (*client->getPlayer())[i].getPosition().y;
-    }
+    data.appendPlayer(client->getPlayer());
     //other players coordinates
 
     //minis coordinates
@@ -138,14 +145,18 @@ void Server::fillDataToClient(Client * client, sendDataFormat & sendData){
 
 int Server::sendDataToClient(Client * client){
 
-    sendDataFormat sendData;
-    fillDataToClient(client, sendData);
+    SendDataFormat data;
+    fillDataToClient(client, data);
 
-    int status = write(client->getSockfd(), (void *)&sendData, sizeof(sendData));
+
+
+    int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
 
     if(status == -1){
 
-        fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(status));
+        fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(errno));
+        client->setDisconnect();
+        return -1;
     }
 
 }
@@ -207,6 +218,8 @@ int Server::mainLogic(){
 
         pthread_join(c.get()->getThreadId(), NULL);
     }
+    fprintf(stdout, "exiting from main thread\n");
+
     closeServer();
 }
 
@@ -233,18 +246,20 @@ void Server::findGameForNewClient(Client * client){
 
             agario::Player * p = g.get()->addPlayer();
             client->setPlayer(p);
+            client->setGame(g.get());
             added = true;
             break;
         }
         
     }
 
-    if(added = false){
+    if(added == false){
 
         this->createNewGame();
 
         agario::Player * p = games.back().get()->addPlayer();
         client->setPlayer(p);
+        client->setGame(games.back().get());
     }
 }
 
@@ -253,29 +268,33 @@ void Server::interpretData(recvDataFormat * data){
 
 }
 
-void * Server::listenOnSocket(void * client){
-
-    Client * c = (Client *)client;
-    bool client_is_there = 1;
+int  Server::listenOnSocket(Client * client){
 
     struct recvDataFormat recvData;
 
-    while(c->getDisconnect() == false){
+        // int n = read((long)c->getSockfd(), (void *)&recvData, sizeof(recvData));
 
-        int n = read((long)c->getSockfd(), (void *)&recvData, sizeof(recvData));
+        //for simple client test
+        SendDataFormat data;
+        int n = read((long)client->getSockfd(), data.getBuf(), MAX_LEN_BUFER);
+
+        data.printBuf();
 
         if(n == 0){
             //closed socket
-             break;
+            client->setDisconnect();
+
+            return 0;
         }
         //update client state
         //fprintf(stdout, "x coordinate: %d, y coordinate: %d\n", recvData.mouse_coordinates[0], recvData.mouse_coordinates[1]);
 
-        c->getGame()->setPlayerMousePosition(c->getPlayer(), {
-            recvData.mouse_coordinates[0],
-            recvData.mouse_coordinates[1]
-        });
-    }
+        // c->getGame()->setPlayerMousePosition(c->getPlayer(), {
+        //     recvData.mouse_coordinates[0],
+        //     recvData.mouse_coordinates[1]
+        // });
+
+        return n;
 }
 
 void * Server::serverInfoRoutine(void * args){
@@ -298,9 +317,14 @@ void * Server::serverInfoRoutine(void * args){
         else if(s == "port"){
             fprintf(stdout, "server is running on %s port\n", this->portNumber);
         }
+        else if(s == "cullClients"){
+
+            cullDisconnectedClients();
+            fprintf(stdout, "deleting disconnected clients\n");
+        }
         if(s == "closeServer:4rfvbgt5"){
 
-            close_server = true;
+            this->close_server = true;
 
             for(auto & c : clients){
                 
@@ -310,17 +334,32 @@ void * Server::serverInfoRoutine(void * args){
             break;
         }
     }
+
+    fprintf(stdout, "exiting from infoServerRoutine thread\n");
+    pthread_exit(NULL);
 }
 
-void * clientThread(void * server_client_struct){
+void Server::sig_pipe_signal_handler(int signum){
 
-    server_client * sc = (server_client *)server_client_struct;
-    
-    Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
+    fprintf(stdout, "client disconnected\n");
+}
 
-    while(client->getDisconnect() == false){
+void Server::cullDisconnectedClients(){
 
-        // listenOnSocket(client);
+    std::vector<std::unique_ptr<Client>>::iterator it;
+    for(it = clients.begin(); it != clients.end(); it++){
+
+        if(it->get()->getDisconnect() == true){
+
+            it->reset();
+            *it = std::move(clients.back());
+            clients.pop_back();
+            it--;
+        }
     }
-    pthread_exit(NULL);
+}
+
+void Server::serializeFloat(const float f, char * buf, int ind){
+
+    
 }

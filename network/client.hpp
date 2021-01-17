@@ -49,6 +49,7 @@ public:
     
     void setPlayer(agario::Player * player){ this->player = player;}
     agario::Player * getPlayer(){ return this->player;}
+    void setGame(agario::Game * game){ this->game = game;}
     agario::Game * getGame(){ return this->game;}
     void setDisconnect(){ this->disconnect = true;}
     bool getDisconnect(){ return this->disconnect;}

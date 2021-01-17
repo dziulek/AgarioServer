@@ -5,6 +5,7 @@
 #include "threadFunctions.hpp"
 #include "client.hpp"
 #include "constants.hpp"
+#include "sendDataFormat.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,9 +70,12 @@ private:
 
     bool close_server = false;
 
+    char send_buf[100000];
+
     pthread_t server_thread;
     pthread_t send_thread;
     pthread_mutex_t send_data_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t client_creation_mutex;
 
     int setUpServer();
     int sendDataToClient(Client * client);
@@ -79,14 +83,22 @@ private:
     void findGameForNewClient(Client * client);
     void interpretData(recvDataFormat * data);
 
+    static void serializeFloat(const float f, char * buf, int ind);
+
+    static void sig_pipe_signal_handler(int signum);
+
     void * serverInfoRoutine(void * args);
-    void fillDataToClient(Client * client, sendDataFormat & sendData);
+    void fillDataToClient(Client * client, SendDataFormat & data);
     void * sendDataThread(void * args);
+    void cullDisconnectedClients();
     
 public:
 
     Server(){
         
+        signal(SIGPIPE, sig_pipe_signal_handler);
+        client_creation_mutex = PTHREAD_MUTEX_INITIALIZER;
+
         strcpy(this->portNumber, std::string("1234").c_str());
         int status = setUpServer();
         if(status < 0){
@@ -109,7 +121,7 @@ public:
     void deleteGame(int gameIndex);
     void deleteEmptyGames();
     void * sendDataToClients(void * args);
-    void * listenOnSocket(void * client);
+    int listenOnSocket(Client * client);
     friend void * clientThread(void * server_client);
 
     int mainLogic();

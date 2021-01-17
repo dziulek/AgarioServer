@@ -1,7 +1,7 @@
 #ifndef PLAYER_OBJECT_HPP
 #define PLAYER_OBJECT_HPP
 
-#include "shapes/allshapes.hpp"
+#include "allshapes.hpp"
 #include "gameObject.hpp"
 #include "maps/map.hpp"
 #include <vector>

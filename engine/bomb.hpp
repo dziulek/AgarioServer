@@ -1,9 +1,9 @@
 #ifndef BOMB_HPP
 #define BOMB_HPP
 
-#include "engine/gameObject.hpp"
-#include "engine/shapes/allshapes.hpp"
-#include "engine/constants.hpp"
+#include "gameObject.hpp"
+#include "allshapes.hpp"
+#include "constants.hpp"
 
 namespace agario{
 

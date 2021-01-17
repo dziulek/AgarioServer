@@ -3,8 +3,8 @@
 
 // #include "mapController.hpp"
 #include "map.hpp"
-#include "../shapes/allshapes.hpp"
-#include "mapController.hpp"
+
+#include "../allshapes.hpp"
 #include <string>
 #include <memory>
 

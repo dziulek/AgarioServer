@@ -2,7 +2,7 @@
 #define MAP_CRASH_CONTROLLER_HPP
 
 #include "map.hpp"
-#include "../shapes/allshapes.hpp"
+#include "../allshapes.hpp"
 #include <string>
 #include <memory>
 
