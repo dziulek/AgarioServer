@@ -32,7 +32,10 @@ void SendDataFormat::appendChar(char c){
 
 void SendDataFormat::appendString(std::string s){
 
-     char local[s.length()];
+    char local[s.length()];
+
+    for(int i = 0; i < s.length(); i++)
+        local[i] = (char)s[i];
 
     memcpy(this->buf + strlen(buf), local, sizeof(local));
 

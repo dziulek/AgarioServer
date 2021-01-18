@@ -9,7 +9,7 @@
 #include <iostream>
 
 #define SEPARATOR ':'
-#define MAX_LEN_BUFER 1000
+#define MAX_LEN_BUFER 100000
 #define N_CHAR_FLOAT 10
 
 #define PLAYER 'p'
@@ -18,6 +18,7 @@
 #define PLAY_OUT 'o'
 #define NICKNAME 'n'
 #define MAP 'm'
+#define MINIS 'q'
 #define COORDINATES 'c'
 #define MOUSE 'm'
 #define DIVIDE_ACTION 'd'

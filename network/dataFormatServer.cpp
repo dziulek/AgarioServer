@@ -6,7 +6,7 @@ void DataFormatServer::appendPlayer(agario::Player * player){
 
     this->appendChar(NICKNAME);
 
-    this->appendString("Unnamed cell");
+    this->appendString("Unnamed_cell");
 
     this->appendChar(COORDINATES);
 
@@ -15,8 +15,6 @@ void DataFormatServer::appendPlayer(agario::Player * player){
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
     }
-
-    this->appendSeparator();
 }
 
 void DataFormatServer::extractClientInfo(clientInfo & cinfo){
@@ -48,4 +46,27 @@ void DataFormatServer::extractClientInfo(clientInfo & cinfo){
     // b = this->getBool(curr_ind);
 
     // cinfo.w_action = b;
+}
+
+void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player){
+
+    std::pair<std::pair<int, int>, std::pair<int, int>> mini_range = game->getMap()->getMiniRects(
+        player->getView().first, player->getView().second
+    );
+
+    std::cout<<mini_range.first.first<<" "<<mini_range.first.second<<std::endl;
+    std::cout<<mini_range.second.first<<" "<<mini_range.second.second<<std::endl;
+    this->appendChar(MINIS);
+
+    for(int i = mini_range.first.first; i < mini_range.second.first; i++){
+
+        for(int j = mini_range.first.second; i < mini_range.second.second; i++){
+
+            for(auto & m : game->getMap()->minis[j][i]){
+                
+                this->appendFloat(m.get()->getPosition().x);
+                this->appendFloat(m.get()->getPosition().y);
+            }    
+        }
+    }
 }

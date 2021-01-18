@@ -113,8 +113,10 @@ void * Server::sendDataThread(void * args){
     while(close_server == false){
         
         pthread_mutex_lock(&client_creation_mutex);
-        
-        sendDataToClients(NULL);
+        time_t t = time(0);
+
+        if(t % 10 == 0)
+            sendDataToClients(NULL);
 
         pthread_mutex_unlock(&client_creation_mutex);
     }
@@ -132,33 +134,31 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.appendFloat(client->getGame()->getMap()->width);
     data.appendFloat(client->getGame()->getMap()->height);
-    //player coordinates
-    // data.appendPlayer(client->getPlayer());
-    //other players coordinates
-    //minis coordinates
-    // for(int i = 0; i < std::min(100, client->getGame()->getMap()->nOfMinis); i++){
 
-        
-    // }
+    data.appendMinis(client->getGame(), client->getPlayer());
+    //player coordinates
+    data.appendPlayer(client->getPlayer());
+    //other players coordinates
+
 
     //bomb coordinates
 }
 
 int Server::sendDataToClient(Client * client){
 
-    // DataFormatServer data;
-    // fillDataToClient(client, data);
+    std::cout<<"fill"<<std::endl;
+    DataFormatServer data;
+    fillDataToClient(client, data);
+    std::cout<<"after fill"<<std::endl;
 
+    int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
 
+    if(status == -1){
 
-    // int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
-
-    // if(status == -1){
-
-    //     fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(errno));
-    //     client->setDisconnect();
-    //     return -1;
-    // }
+        fprintf(stdout, "cannot send data to client under %s, error: %s\n", client->getIp_addr(), gai_strerror(errno));
+        client->setDisconnect();
+        return -1;
+    }
 
 }
 

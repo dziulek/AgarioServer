@@ -7,6 +7,9 @@
 #include "mapController.hpp"
 #include <vector>
 #include <memory>
+#include <utility>
+#include <cmath>
+#include <stdlib.h>
 
 namespace agario{
 
@@ -43,6 +46,7 @@ public:
     void removeController(MapController * controller);
 
     glm::vec2 findPositionForNewPlayer();
+    std::pair<std::pair<int, int>, std::pair<int, int>> getMiniRects(glm::vec2 lu, glm::vec2 rd);
 
     void notify();
     

@@ -45,6 +45,9 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "iostream": "cpp"
-    }
+        "iostream": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }

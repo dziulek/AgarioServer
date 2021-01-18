@@ -54,9 +54,23 @@ int main(){
     //     rend.getWindow()->setFramerateLimit(60);
     // }
 
-    Server server;
+    Game game;
 
-    server.mainLogic();
+    MapMiniController mcont(game.getMap());
+
+    DataFormatServer data;
+
+    Player * player = game.addPlayer();
+    char * t;
+
+
+    data.appendPlayer(player);
+
+    data.printBuf();
+
+    data.appendMinis(&game, player);
+
+    data.printBuf();
 
     return 0;
 }

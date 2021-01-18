@@ -49,4 +49,17 @@ glm::vec2 Map::findPositionForNewPlayer(){
     return {xPos, yPos};
 }
 
+std::pair<std::pair<int, int>, std::pair<int, int>> Map::getMiniRects(glm::vec2 left_up, glm::vec2 right_down){
+
+    std::pair<int, int> lu, rd;
+
+    lu.first = std::max((int)0, (int)(left_up.x / MINI_WIDTH));
+    lu.second = std::max((int)0, (int)(left_up.y / MINI_WIDTH));
+
+    rd.first = std::min((int)minis[0].size(), (int)ceil(right_down.x / MINI_WIDTH));
+    rd.second = std::min((int)minis.size(), (int)ceil(right_down.y / MINI_WIDTH));
+
+    return {lu, rd};
+}
+
 }
