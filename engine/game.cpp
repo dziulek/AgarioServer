@@ -13,7 +13,7 @@ void Game::mainLoop(const float dTime){
     }
     map->notify();
     
-    // //move players
+    //move players
     // for(int i = 0; i < 1; i++){
     //     players[i].get()->move(dTime);
     // }

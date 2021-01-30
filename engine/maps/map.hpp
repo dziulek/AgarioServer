@@ -22,7 +22,7 @@ class Map{
 
 private:
 
-    std::vector<MapController *> controllers;
+    std::vector<std::unique_ptr<MapController>> controllers;
 
 public:
 
@@ -38,11 +38,14 @@ public:
     Map(){
         width = 100.0f;
         height = 100.0f;
+    }
+
+    ~Map(){
 
     }
 
     void addPlayerObject(PlayerObject * po);
-    void addController(MapController * controller);
+    void addController(std::unique_ptr<MapController> & controller);
     void removeController(MapController * controller);
 
     glm::vec2 findPositionForNewPlayer();
@@ -51,32 +54,9 @@ public:
     void notify();
     
 
-    friend class MapMiniController;
+    // friend class MapMiniController;
     // friend class MapBombController;
 };
 
 }
-
-// namespace agario{
-
-// using namespace shapes;
-
-// class MapController{
-
-// protected:
-
-//     Map * map;
-
-// public:
-
-//     MapController(Map * map){
-//         this->map = map; 
-//         this->map->addController(this);
-//     }
-//     virtual void update() = 0;
-//     Map * getMap();
-
-// };
-
-// }
 #endif

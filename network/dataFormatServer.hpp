@@ -13,6 +13,8 @@ public:
 
     void appendPlayer(agario::Player * player);
 
+    void appendMyPlayer(agario::Player * player);
+
     void appendMinis(agario::Game * game, agario::Player * player);
 
     void extractClientInfo(clientInfo & cinfo);

@@ -25,6 +25,7 @@
 #include <map>
 #include <ctime>
 #include <chrono>
+#include <fcntl.h>
 
 class Server;
 
@@ -76,7 +77,8 @@ private:
     pthread_t send_thread;
     pthread_t game_thread;
     pthread_mutex_t send_data_mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_t client_creation_mutex;
+    pthread_mutex_t client_creation_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t new_player_mutex = PTHREAD_MUTEX_INITIALIZER;
 
     int setUpServer();
     int sendDataToClient(Client * client);
@@ -87,6 +89,7 @@ private:
     static void serializeFloat(const float f, char * buf, int ind);
 
     static void sig_pipe_signal_handler(int signum);
+    static void non_blocking_socket_signal(int signum);
 
     void * serverInfoRoutine(void * args);
     void fillDataToClient(Client * client, DataFormatServer & data);

@@ -3,6 +3,7 @@
 
 #include "maps/map.hpp"
 #include "maps/mapMiniController.hpp"
+#include "maps/mapPlayerMovement.hpp"
 #include "player.hpp"
 #include "glm/glm.hpp"
 #include <vector>
@@ -22,14 +23,17 @@ public:
 
     Game(){
         this->map = new Map;
+        std::unique_ptr<MapController> miniController = std::make_unique<MapMiniController>(this->getMap());
+        this->map->addController(miniController);
+        std::unique_ptr<MapController> playerMovement = std::make_unique<MapPlayerMovement>(this->getMap());
+        this->map->addController(playerMovement);
     }
     ~Game(){
 
         delete map;
-
     }
     Map * getMap(){ return map;}
-    int getnOfPlayers(){ return nOfPlayers;}
+    int getnOfPlayers(){ return players.size();}
     Player & getPlayer(int index){ return *players[index].get();}
     Player & getPlayer(std::string ipaddr);
 

@@ -15,6 +15,41 @@ void DataFormatServer::appendPlayer(agario::Player * player){
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
     }
+
+    this->appendChar(VIEW);
+
+    std::pair<glm::vec2, glm::vec2> view = player->getView();
+
+    this->appendFloat(view.first.x);
+    this->appendFloat(view.first.y);
+    this->appendFloat(view.second.x);
+    this->appendFloat(view.second.y);
+}
+
+void DataFormatServer::appendMyPlayer(agario::Player * player){
+
+    this->appendChar(MYPLAYER);
+
+    this->appendChar(NICKNAME);
+
+    this->appendString("Unnamed_cell");
+
+    this->appendChar(COORDINATES);
+
+    for(int i = 0; i < player->getSize(); i++){
+
+        this->appendFloat((*player)[i].getPosition().x);
+        this->appendFloat((*player)[i].getPosition().y);
+    }
+
+    this->appendChar(VIEW);
+
+    std::pair<glm::vec2, glm::vec2> view = player->getView();
+
+    this->appendFloat(view.first.x);
+    this->appendFloat(view.first.y);
+    this->appendFloat(view.second.x);
+    this->appendFloat(view.second.y);
 }
 
 void DataFormatServer::extractClientInfo(clientInfo & cinfo){

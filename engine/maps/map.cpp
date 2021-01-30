@@ -9,9 +9,9 @@ void Map::addPlayerObject(PlayerObject * po){
     this->playerObjects.push_back(po);
 }
 
-void Map::addController(MapController * controller){
+void Map::addController(std::unique_ptr<MapController> & controller){
 
-    this->controllers.push_back(controller);
+    this->controllers.push_back(std::move(controller));
 }
 
 void Map::removeController(MapController * controller){
@@ -23,7 +23,7 @@ void Map::notify(){
     
     for(auto & c : controllers){
 
-        c->update();
+        c.get()->update();
     }
 }
 

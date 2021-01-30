@@ -13,6 +13,7 @@
 #define N_CHAR_FLOAT 10
 
 #define PLAYER 'p'
+#define MYPLAYER 'u'
 #define STATE 's'
 #define PLAY_IN 'i'
 #define PLAY_OUT 'o'
@@ -23,6 +24,7 @@
 #define MOUSE 'm'
 #define DIVIDE_ACTION 'd'
 #define W_MASS 'w'
+#define VIEW 'v'
 
 
 struct clientInfo{

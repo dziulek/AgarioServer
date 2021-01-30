@@ -15,6 +15,7 @@ int Server::setUpServer(){
     }
 
     sockfd = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
     if((sockfd < 0)){
         fprintf(stderr, "creating socket error: %s\n", gai_strerror(status));
@@ -108,15 +109,12 @@ void * Server::sendDataToClients(void * args){
 
 void * Server::sendDataThread(void * args){
 
-    
-
     while(close_server == false){
         
+        sleep(5);
         pthread_mutex_lock(&client_creation_mutex);
-        time_t t = time(0);
 
-        if(t % 10 == 0)
-            sendDataToClients(NULL);
+        sendDataToClients(NULL);
 
         pthread_mutex_unlock(&client_creation_mutex);
     }
@@ -130,26 +128,23 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.clearBuf();
 
-    data.appendChar(MAP);
-
-    data.appendFloat(client->getGame()->getMap()->width);
-    data.appendFloat(client->getGame()->getMap()->height);
-
     data.appendMinis(client->getGame(), client->getPlayer());
-    //player coordinates
+    // //player coordinates
     data.appendPlayer(client->getPlayer());
     //other players coordinates
-
+    for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
+        if(&client->getGame()->getPlayer(i) != client->getPlayer()){
+            data.appendPlayer(&client->getGame()->getPlayer(i));
+        }
+    }
 
     //bomb coordinates
 }
 
 int Server::sendDataToClient(Client * client){
 
-    std::cout<<"fill"<<std::endl;
     DataFormatServer data;
     fillDataToClient(client, data);
-    std::cout<<"after fill"<<std::endl;
 
     int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
 
@@ -195,8 +190,15 @@ int Server::mainLogic(){
         int client_sockfd = accept(this->sockfd, (struct sockaddr *)&client_addr, &str_size);
         if(client_sockfd == -1){
 
-            fprintf(stderr, "accept client: %s\n", gai_strerror(client_sockfd));
-            return -1;
+            if(errno == EAGAIN || errno == EWOULDBLOCK){
+                continue;
+            }
+            else {
+
+                fprintf(stderr, "accept client: %s\n", gai_strerror(client_sockfd));
+                return -1;
+            }
+
         }
 
         char s[INET_ADDRSTRLEN];
@@ -227,7 +229,7 @@ int Server::mainLogic(){
 
         pthread_join(c.get()->getThreadId(), NULL);
     }
-    fprintf(stdout, "exiting from main thread\n");
+    fprintf(stdout, "exit from main thread\n");
 
     closeServer();
 }
@@ -252,10 +254,12 @@ void Server::findGameForNewClient(Client * client){
     for(auto & g : games){
 
         if(g.get()->getnOfPlayers() < 5){
-
+            
+            pthread_mutex_lock(&new_player_mutex);
             agario::Player * p = g.get()->addPlayer();
             client->setPlayer(p);
             client->setGame(g.get());
+            pthread_mutex_unlock(&new_player_mutex);
             added = true;
             break;
         }
@@ -264,16 +268,15 @@ void Server::findGameForNewClient(Client * client){
 
     if(added == false){
 
+
+        pthread_mutex_lock(&new_player_mutex);
         this->createNewGame();
-
-        std::cout<<"after game creation"<<std::endl;
-
+ 
         agario::Player * p = games.back().get()->addPlayer();
         client->setPlayer(p);
-        std::cout<<"siemano"<<std::endl;
         client->setGame(games.back().get());
+        pthread_mutex_unlock(&new_player_mutex);
 
-        
     }
 }
 
@@ -362,6 +365,10 @@ void Server::sig_pipe_signal_handler(int signum){
     fprintf(stdout, "client disconnected\n");
 }
 
+void Server::non_blocking_socket_signal(int signum){
+    
+}
+
 void Server::cullDisconnectedClients(){
 
     std::vector<std::unique_ptr<Client>>::iterator it;
@@ -382,7 +389,9 @@ void Server::gameLoop(const float dTime){
     for(auto & g : games){
 
         if(g.get() != nullptr)
+            pthread_mutex_lock(&new_player_mutex);
             g.get()->mainLoop(dTime); 
+            pthread_mutex_unlock(&new_player_mutex);
     }
 }
 

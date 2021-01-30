@@ -1,9 +1,6 @@
 #include "SFMLRenderer.hpp"
 #include "engine/game.hpp"
 #include "mouseObserver.hpp"
-#include "engine/maps/mapMiniController.hpp"
-#include "engine/maps/mapCrashController.hpp"
-#include "engine/maps/mapPlayerMovement.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -24,13 +21,6 @@ int main(){
 
     // SFMLRenderer rend(game);
     // MouseObserver mouse(&rend);
-
-    // MapMiniController mini_cont(game.getMap());
-
-    // MapPlayerMovement player_movement(game.getMap());
-
-    // game.getMap()->addController(&mini_cont);
-    // game.getMap()->addController(&player_movement);
 
     // while(rend.getWindow()->isOpen()){
 
@@ -54,23 +44,27 @@ int main(){
     //     rend.getWindow()->setFramerateLimit(60);
     // }
 
-    Game game;
+    // Game game;
 
-    MapMiniController mcont(game.getMap());
+    // MapMiniController mcont(game.getMap());
 
-    DataFormatServer data;
+    // DataFormatServer data;
 
-    Player * player = game.addPlayer();
-    char * t;
+    // Player * player = game.addPlayer();
+    // char * t;
 
 
-    data.appendPlayer(player);
+    // data.appendPlayer(player);
 
-    data.printBuf();
+    // data.printBuf();
 
-    data.appendMinis(&game, player);
+    // data.appendMinis(&game, player);
 
-    data.printBuf();
+    // data.printBuf();
+
+    Server server;
+
+    server.mainLogic();
 
     return 0;
 }

@@ -16,7 +16,7 @@ void * clientThread(void * server_client_struct){
         }
     }
 
-    std::cout<<"exiting from client thread"<<std::endl;
+    std::cout<<"exit from client thread"<<std::endl;
     pthread_exit(NULL);
 }
 
