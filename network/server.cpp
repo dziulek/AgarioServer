@@ -120,7 +120,7 @@ void * Server::sendDataThread(void * args){
     }
 
 
-    fprintf(stdout, "exiting from send data thread\n");
+    fprintf(stdout, "exit from send data thread\n");
     pthread_exit(NULL);
 }
 
@@ -128,15 +128,15 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.clearBuf();
 
-    data.appendMinis(client->getGame(), client->getPlayer());
-    // //player coordinates
-    data.appendPlayer(client->getPlayer());
-    //other players coordinates
+    // data.appendMinis(client->getGame(), client->getPlayer());
+    //player coordinates
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
-        if(&client->getGame()->getPlayer(i) != client->getPlayer()){
-            data.appendPlayer(&client->getGame()->getPlayer(i));
-        }
+
+        data.appendPlayer(&client->getGame()->getPlayer(i));     
     }
+    data.appendChar(PLAYER);
+
+    data.appendView(client->getPlayer());
 
     //bomb coordinates
 }
@@ -356,7 +356,7 @@ void * Server::serverInfoRoutine(void * args){
         }
     }
 
-    fprintf(stdout, "exiting from infoServerRoutine thread\n");
+    fprintf(stdout, "exit from infoServerRoutine thread\n");
     pthread_exit(NULL);
 }
 

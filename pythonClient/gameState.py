@@ -5,11 +5,11 @@ class Player:
     def __init__(self):
         self.nickname = 'Unnamed_cell'
         self.coordinates = np.array([])
-        self.state = 'wait'
+        self.state = False
     def clear(self):
         self.nickname = ''
         self.coordinates = np.array([])
-        self.state = 'wait'
+        self.state = False
 
     def addCoordinate(self, coord):
         self.coordinates = np.append(self.coordinates, coord)
@@ -25,13 +25,13 @@ class GameState:
     def __init__(self):
         self.myPlayer = None
         self.players = []
-        self.map = {}
+        self.map = {'minis' : np.array([])}
         self.view = np.array([])
     
     def clear(self):
         self.myPlayer = None
         self.players = []
-        self.map = {}
+        self.map = {'minis' : np.array([])}
         
     def appendPlayer(self, player):
         self.players.append(copy.deepcopy(player))

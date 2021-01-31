@@ -25,6 +25,7 @@
 #define DIVIDE_ACTION 'd'
 #define W_MASS 'w'
 #define VIEW 'v'
+#define MASS 'r'
 
 
 struct clientInfo{

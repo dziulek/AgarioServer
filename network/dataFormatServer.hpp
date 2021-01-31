@@ -13,7 +13,9 @@ public:
 
     void appendPlayer(agario::Player * player);
 
-    void appendMyPlayer(agario::Player * player);
+    void appendView(agario::Player * player);
+
+    void appendMass(agario::Player * player);
 
     void appendMinis(agario::Game * game, agario::Player * player);
 

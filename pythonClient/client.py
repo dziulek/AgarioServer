@@ -1,5 +1,6 @@
 from gameState import MyInfo, GameState, Player
 import parseData
+import arcade
 
 import socket
 import sys
@@ -20,12 +21,12 @@ def writeToServerRoutine(server_socket):
 
     global closeClient
     global myInfo
-    while closeClient == False:
+    # while closeClient == False:
 
-        buf = parseData.fillMyData(myInfo)
-        server_socket.send(bytearray(buf, 'utf-8'))
+    #     # buf = parseData.fillMyData(myInfo)
+    #     # server_socket.send(bytearray(buf, 'utf-8'))
     
-    closeClient = True
+    # closeClient = True
 
 def handleConnection(server_socket):
 
@@ -44,11 +45,12 @@ def listenOnSocket(server_socket):
     global game
     while closeClient == False:
         buf = server_socket.recv(10000)
-        print(buf)
+        
         if len(buf) == 0:
             closeClient = True
         data = buf.decode()
-
+        
+        game.clear()
         parseData.parse(data, game)
 
 def connectToServer():
@@ -63,9 +65,11 @@ def connectToServer():
 
     print("succesfully connected to server")
 
-    thread = threading.Thread(target=handleConnection, args=(s,), daemon=True)
+    thread = threading.Thread(target=handleConnection, args=(s,), daemon=False)
 
     thread.start()
+
+    thread.join()
 
 def main():
 
@@ -73,7 +77,7 @@ def main():
     global game
     global myInfo
 
-
+    connectToServer()
 
 
 if __name__ == "__main__":
