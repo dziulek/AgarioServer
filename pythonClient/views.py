@@ -76,13 +76,6 @@ class GameView(arcade.View):
         # for mini in game.map['minis']:
 
         # draw bombs
-        # Put the text on the screen.
-        # start_y = 250
-        # start_x = 300
-        # arcade.draw_point(start_x, start_y, arcade.color.BLUE, 5)
-        # arcade.draw_text("Text centered on\na point",
-        #                  start_x, start_y, arcade.color.BLACK, 14, width=200, align="center",
-        #                  anchor_x="center", anchor_y="center")
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """

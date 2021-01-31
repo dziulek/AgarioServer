@@ -63,6 +63,8 @@ def parse(data, game):
             player.clear()
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
+    
+    game.map['minis'] = np.reshape(game.map['minis'], (len(game.map['minis'])//2, 2))
 
 def fillMyData(myInfo):
 
