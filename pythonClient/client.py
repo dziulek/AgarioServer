@@ -44,6 +44,7 @@ def listenOnSocket(server_socket):
     global game
     while closeClient == False:
         buf = server_socket.recv(10000)
+        print(buf)
         if len(buf) == 0:
             closeClient = True
         data = buf.decode()
@@ -72,7 +73,7 @@ def main():
     global game
     global myInfo
 
-    
+
 
 
 if __name__ == "__main__":

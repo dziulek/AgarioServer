@@ -34,6 +34,7 @@ def parse(data, game):
             continue
         elif word == state_dictionary['player']:
             if player != None:
+                player.coordinates = np.reshape(player.coordinates, (len(player.coordinates) // 3, 3))
                 game.appendPlayer(player)
 
             player = gameState.Player()
@@ -84,15 +85,7 @@ def fillMyData(myInfo):
 
 def main():
 
-    me = gameState.MyInfo()
-
-    me.addWAction(0)
-    me.addMousePosition([4,5])
-    me.addDivideAction(0)
-    me.addState('play')
-
-    text = fillMyData(me)
-    print(text)
+    a = False
 
 
 if __name__ == "__main__":

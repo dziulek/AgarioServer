@@ -12,7 +12,7 @@ class Player:
         self.state = 'wait'
 
     def addCoordinate(self, coord):
-        np.append(self.coordinates, coord)
+        self.coordinates = np.append(self.coordinates, coord)
 
     def addNickname(self, nick):
         self.nickname = nick
@@ -50,15 +50,17 @@ class GameState:
 class MyInfo:
     def __init__(self):
         self.attributes = {}
+        self.attributes['waction'] = 0
+        self.attributes['divide'] = 0
 
-    def addWAction(self, var):
-        self.attributes['waction'] = var
+    def addWAction(self):
+        self.attributes['waction'] = 1
     
     def addMousePosition(self, vector):
         self.attributes['mouse'] = copy.deepcopy(vector)
     
-    def addDivideAction(self, var):
-        self.attributes['divide'] = var
+    def addDivideAction(self):
+        self.attributes['divide'] = 1
 
     def addState(self, state):
         self.attributes['state'] = state
