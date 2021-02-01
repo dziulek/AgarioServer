@@ -24,9 +24,15 @@ void * gameThread(void * srv){
 
     Server * server = (Server *)srv;
 
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     while(server->close_server == false){
 
-        server->gameLoop(1.0f / 30);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+        int delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+        begin = std::chrono::steady_clock::now();
+        server->gameLoop(static_cast<float>(delta) * 1e-6);
     }
 
     fprintf(stdout, "exit from game thread\n");

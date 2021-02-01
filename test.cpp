@@ -49,7 +49,7 @@ int main(){
 
     //     rend.getWindow()->display();
 
-    //     rend.getWindow()->setFramerateLimit(60);
+        // rend.getWindow()->setFramerateLimit(60);
     // }
 
     // Game game;
@@ -72,7 +72,7 @@ int main(){
 
     Server server;
 
-    server.mainLogic();
+    server.mainLogic();    
 
     return 0;
 }

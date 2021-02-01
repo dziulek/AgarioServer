@@ -16,6 +16,9 @@ void DataFormatServer::appendPlayer(agario::Player * player){
 
     for(int i = 0; i < player->getSize(); i++){
 
+        // std::cout<< "x: " << (*player)[i].getPosition().x << ", y: " << (*player)[i].getPosition().y <<std::endl;
+        // std::cout << "mass: " << (*player)[i].getArea() <<std::endl;
+
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
         this->appendFloat((*player)[i].getRadius());
@@ -49,27 +52,38 @@ void DataFormatServer::extractClientInfo(clientInfo & cinfo){
 
     int curr_ind = 0;
 
-    c = this->getChar(curr_ind);
+    while(curr_ind < this->getLen() - 1){
 
-    this->printBuf();
+        c = this->getChar(curr_ind);
 
-    curr_ind = this->getNextIndexSeparator(curr_ind);
-    x = this->getFloat(curr_ind);
-    curr_ind = this->getNextIndexSeparator(curr_ind);
-    y = this->getFloat(curr_ind);
+        if(c == MOUSE){
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+            x = this->getFloat(curr_ind);
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+            y = this->getFloat(curr_ind);
+            cinfo.mousePosition = {x, y};
 
-    cinfo.mousePosition = {x, y};
+            c = '-';
+        }
+        else if(c == W_MASS){
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+            char t = this->getChar(curr_ind);
+            cinfo.w_action = (t == '0' ? false : true);
 
-    // curr_ind = this->getNextIndexSeparator(curr_ind);
+            c = '-';
+        }
+        else if(c == DIVIDE_ACTION){
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+            char t = this->getChar(curr_ind);
+            cinfo.divide_action = (t == '0' ? false : true);
 
-    // c = this->getChar(curr_ind);
-    // curr_ind = this->getNextIndexSeparator(curr_ind);
-    // b = this->getBool(curr_ind);
-    // cinfo.divide_action = b;
-    // curr_ind = this->getNextIndexSeparator(curr_ind);
-    // b = this->getBool(curr_ind);
-
-    // cinfo.w_action = b;
+            c = '-';
+        }
+        else if(c == STATE){
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+        }
+        curr_ind = this->getNextIndexSeparator(curr_ind);
+    }
 }
 
 void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player){
@@ -78,8 +92,8 @@ void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player)
         player->getView().first, player->getView().second
     );
 
-    std::cout<<mini_range.first.first<<" "<<mini_range.first.second<<std::endl;
-    std::cout<<mini_range.second.first<<" "<<mini_range.second.second<<std::endl;
+    // std::cout<<mini_range.first.first<<" "<<mini_range.first.second<<std::endl;
+    // std::cout<<mini_range.second.first<<" "<<mini_range.second.second<<std::endl;
     this->appendChar(MINIS);
 
     for(int i = mini_range.first.first; i < mini_range.second.first; i++){
@@ -90,6 +104,7 @@ void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player)
                 
                 this->appendFloat(m.get()->getPosition().x);
                 this->appendFloat(m.get()->getPosition().y);
+                this->appendFloat(m.get()->getRadius());
             }    
         }
     }

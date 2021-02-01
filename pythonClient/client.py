@@ -1,10 +1,11 @@
 from gameState import MyInfo, GameState, Player
-import parseData
+from parseData import parse, fillMyData
 import arcade
 
 import socket
 import sys
 import threading
+import time
 
 closeClient = False
 #play, wait, end
@@ -17,20 +18,26 @@ STATE = {
 myInfo = MyInfo()
 game = GameState()
 
+#locks
+game_lock = threading.Lock()
+myInfo_lock = threading.Lock()
+
 def writeToServerRoutine(server_socket):
 
     global closeClient
     global myInfo
-    # while closeClient == False:
+    while closeClient == False:
 
-    #     # buf = parseData.fillMyData(myInfo)
-    #     # server_socket.send(bytearray(buf, 'utf-8'))
+        buf = fillMyData(myInfo)
+        # print(buf)
+        # time.sleep(3)
+        server_socket.send(bytearray(buf, 'utf-8'))
     
-    # closeClient = True
+    closeClient = True
 
 def handleConnection(server_socket):
 
-    writeThread = threading.Thread(target=writeToServerRoutine, args=(server_socket,), daemon=False)
+    writeThread = threading.Thread(target=writeToServerRoutine, args=(server_socket,), daemon=True)
 
     writeThread.start()
 
@@ -49,9 +56,12 @@ def listenOnSocket(server_socket):
         if len(buf) == 0:
             closeClient = True
         data = buf.decode()
+        # print(data)
         
+        game_lock.acquire()
         game.clear()
-        parseData.parse(data, game)
+        parse(data, game)
+        game_lock.release()
 
 def connectToServer():
 
@@ -65,19 +75,15 @@ def connectToServer():
 
     print("succesfully connected to server")
 
-    thread = threading.Thread(target=handleConnection, args=(s,), daemon=False)
+    thread = threading.Thread(target=handleConnection, args=(s,), daemon=True)
 
     thread.start()
-
-    thread.join()
 
 def main():
 
     global STATE
     global game
     global myInfo
-
-    connectToServer()
 
 
 if __name__ == "__main__":

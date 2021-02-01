@@ -96,7 +96,7 @@ void * Server::sendDataToClients(void * args){
 
     for(auto & c : clients){
 
-        if(c.get() != nullptr && c.get()->getDisconnect() == false){
+        if(c.get() != nullptr && c.get()->getDisconnect() == false && c.get()->getPlayer()->getSize() > 0){
             
             int status = sendDataToClient(c.get());
 
@@ -111,7 +111,7 @@ void * Server::sendDataThread(void * args){
 
     while(close_server == false){
         
-        sleep(5);
+        // sleep(5);
         pthread_mutex_lock(&client_creation_mutex);
 
         sendDataToClients(NULL);
@@ -144,7 +144,11 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 int Server::sendDataToClient(Client * client){
 
     DataFormatServer data;
+    pthread_mutex_lock(&new_player_mutex);
     fillDataToClient(client, data);
+    pthread_mutex_unlock(&new_player_mutex);
+
+    // data.printBuf();
 
     int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
 
@@ -154,6 +158,8 @@ int Server::sendDataToClient(Client * client){
         client->setDisconnect();
         return -1;
     }
+
+    return status;
 
 }
 
@@ -291,19 +297,29 @@ int  Server::listenOnSocket(Client * client){
 
         int n = read((long)client->getSockfd(), data_in.getBuf(), MAX_LEN_BUFER);
 
+        // data_in.printBuf();
         if(n == 0){
             //closed socket
             client->setDisconnect();
 
             return 0;
         }
+
+        // std::cout << data_in.getBuf()<<std::endl;
         //update client state
         clientInfo cinfo;
         data_in.extractClientInfo(cinfo);
 
-        std::cout<<cinfo.mousePosition.x<< " " << cinfo.mousePosition.y<<std::endl;
+        // cinfo.mousePosition = {1, 1};
+
+
+
+        // std::cout<<cinfo.mousePosition.x<< " " << cinfo.mousePosition.y<<std::endl;
+        // std::cout<<cinfo.divide_action << " " << cinfo.w_action << std::endl;
         //mouse position
+        pthread_mutex_lock(&client_creation_mutex);
         client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
+        pthread_mutex_unlock(&client_creation_mutex);
         //divide action
 
         //w action
@@ -387,7 +403,6 @@ void Server::cullDisconnectedClients(){
 void Server::gameLoop(const float dTime){
 
     for(auto & g : games){
-
         if(g.get() != nullptr)
             pthread_mutex_lock(&new_player_mutex);
             g.get()->mainLoop(dTime); 

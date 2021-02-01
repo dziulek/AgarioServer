@@ -24,7 +24,7 @@ private:
 
 public:
 
-    glm::vec2 mousePosition;
+    glm::vec2 mousePosition = {1.0f,1.0f};
 
     PlayerObject(glm::vec2 pos){
 

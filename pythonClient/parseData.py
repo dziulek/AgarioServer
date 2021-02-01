@@ -23,22 +23,28 @@ def parse(data, game):
 
     game.clear()
 
-    player = None
+    player = gameState.Player()
     words = data.split(':')
 
     minis = np.array([])
+    view = np.array([])
+
+    i = 0
 
     current_state = '-'
     for word in words:
         if word == '':
             continue
         elif word == state_dictionary['player']:
-            if player != None:
+            if i > 0:
                 player.coordinates = np.reshape(player.coordinates, (len(player.coordinates) // 3, 3))
+                # for i in range(len(player.coordinates)):
+                #     player.coordinates[i][1] = -player.coordinates[i][1]
                 game.appendPlayer(player)
 
-            player = gameState.Player()
+            player.clear()
             current_state = word
+            i += 1
             continue
         elif word == state_dictionary['minis']:
             current_state = word
@@ -62,15 +68,19 @@ def parse(data, game):
             player.addCoordinate(float(word))
         elif current_state == state_dictionary['minis']:
             np.append(minis, float(word))
-        elif current_state == state_dictionary['player']:
-            player.clear()
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
         elif current_state == state_dictionary['state']:
             player.setState(bool(word))
     
     if minis is not None:
-        game.map['minis'] = np.reshape(minis, (len(game.map['minis'])//2, 2))
+        game.map['minis'] = np.reshape(minis, (len(game.map['minis'])//3, 3))
+        for i in range(len(game.map['minis'])):
+            game.map['minis'][i][1] = -game.map['minis'][i][1]
+
+    # if game.view is not None and len(game.view) == 4:
+    #     game.view[1] = -game.view[1]
+    #     game.view[3] = -game.view[3]
 
 def fillMyData(myInfo):
 
@@ -87,9 +97,9 @@ def fillMyData(myInfo):
     text.append(state_dictionary['state'])
     text.append(str(myInfo.attributes['state']))
 
-    print(text)
+    text = SEPARATOR + SEPARATOR.join(text) + SEPARATOR
 
-    return SEPARATOR.join(text)
+    return text
 
 def main():
 

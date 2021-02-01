@@ -20,6 +20,15 @@ class Player:
     def setState(self, state):
         self.state = state
 
+    def __str__(self):
+
+        text = 'nickname: '
+        text += self.nickname
+        text += ', state: '
+        text += str(self.state)
+        text += ', coordinates:\n'
+        return text
+
 
 class GameState:
     def __init__(self):
@@ -32,6 +41,7 @@ class GameState:
         self.myPlayer = None
         self.players = []
         self.map = {'minis' : np.array([])}
+        self.view = np.array([])
         
     def appendPlayer(self, player):
         self.players.append(copy.deepcopy(player))
@@ -52,6 +62,8 @@ class MyInfo:
         self.attributes = {}
         self.attributes['waction'] = 0
         self.attributes['divide'] = 0
+        self.attributes['mouse'] = [0, 0]
+        self.attributes['state'] = 'wait'
 
     def addWAction(self):
         self.attributes['waction'] = 1

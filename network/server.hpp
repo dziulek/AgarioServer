@@ -26,6 +26,7 @@
 #include <ctime>
 #include <chrono>
 #include <fcntl.h>
+#include <cmath>
 
 class Server;
 

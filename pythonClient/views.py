@@ -1,17 +1,15 @@
 import random
 import arcade
-from client import myInfo, game
+from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer
 from gameState import Player, GameState, MyInfo
 import numpy as np
 
-# --- Constants ---
-SPRITE_SCALING_PLAYER = 0.5
-SPRITE_SCALING_COIN = .25
-COIN_COUNT = 50
 
 SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Agar.io"
+
+GRID_WIDTH = 20
 
 
 class InstructionView(arcade.View):
@@ -47,7 +45,7 @@ class GameView(arcade.View):
         super().__init__()
 
         # Variables that will hold sprite lists
-
+        
         # Set up the player info
 
         # Don't show the mouse cursor
@@ -57,21 +55,72 @@ class GameView(arcade.View):
 
     def setup(self):
         """ Set up the game and initialize the variables. """
-
+        game = None
+        connectToServer()
 
 
     def on_draw(self):
         """ Draw everything """
+        global game
+        
+        game_lock.acquire()
+        if len(game.view) == 4:
+            arcade.set_viewport(game.view[0], game.view[2], game.view[1], game.view[3])
+
+            # print('viewport: ', game.view[0], game.view[1], game.view[2], game.view[3])
+        game_lock.release()
+
         arcade.start_render()
+        
+        left, right, bottom, top = arcade.get_viewport()
+
+        left = (left // GRID_WIDTH * GRID_WIDTH)
+        right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+        bottom = bottom // GRID_WIDTH * GRID_WIDTH
+        top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+
+        hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
+        ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
+
+        y_coord = bottom
+        for i in range(len(hor_points) // 4):
+            hor_points[4 * i] = left
+            hor_points[4 * i + 2] = right
+            hor_points[4 * i + 1] = y_coord
+            hor_points[4 * i + 3] = y_coord
+
+            y_coord += GRID_WIDTH
+
+        x_coord = left
+        for i in range(len(ver_points) // 4):
+            ver_points[4 * i] = x_coord
+            ver_points[4 * i + 1] = bottom
+            ver_points[4 * i + 2] = x_coord
+            ver_points[4 * i + 3] = top
+
+            x_coord += GRID_WIDTH
+        
+        hor_points = np.reshape(hor_points, (len(hor_points) // 2, 2))
+        ver_points = np.reshape(ver_points, (len(ver_points) // 2, 2))
+
+        arcade.draw_lines(hor_points, arcade.color.WHITE_SMOKE, 0.5)
+        arcade.draw_lines(ver_points, arcade.color.WHITE_SMOKE, 0.5)
+
+        # shape_list = arcade.create_isometric_grid_lines(50, 50, 7, 7, arcade.color.WHITE, 0.5)
+
+        # for shape in shape_list:
+        #     arcade.Shape.draw(shape)
         # # draw players
+        game_lock.acquire()
         if game.players is not None:
             for player in game.players:
                 for x, y, radius in player.coordinates:
-                    arcade.draw_circle_filled(x, y, radius, arcade.color.RED)
-                    arcade.draw_text(player.nickname, 
-                            x, y, arcade.color.BLACK, 12, width=200, align="center", font_name='arial',
-                                                   bold=True, anchor_x="center", anchor_y="center")
-        
+                    arcade.draw_circle_filled(x, y, radius, arcade.color.REDWOOD)
+                    # arcade.draw_text(player.nickname, 
+                    #         x, y, arcade.color.BLACK, 12, width=200, align="center", font_name='arial',
+                    #                                bold=True, anchor_x="center", anchor_y="center")
+        game_lock.release()
+    
         # draw minis
         # for mini in game.map['minis']:
 
@@ -79,11 +128,19 @@ class GameView(arcade.View):
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
+        width, height = arcade.Window.get_size(self.window)
+        vx = x - width / 2.0
+        vy = y - height / 2.0
+
         global myInfo
-        myInfo.addMousePosition([x, y])
+        myInfo_lock.acquire()
+        myInfo.addMousePosition([vx, vy])
+        myInfo_lock.release()
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -93,18 +150,16 @@ class GameView(arcade.View):
             myInfo.addWAction()
         elif key == arcade.key.SPACE:
             myInfo.addDivideAction()
-
+        elif key == arcade.key.A:
+            arcade.set_viewport(45, 145, 7, 34)
+        elif key == arcade.key.ESCAPE:
+            arcade.close_window()
+            closeClient = True
         
 
 
 def main():
     """ Main method """
-
-    player = Player()
-    player.addCoordinate([100, 200, 20,400, 100, 50])
-    player.coordinates = np.reshape(player.coordinates, (2, 3))
-    player.addNickname('dziulek')
-    game.appendPlayer(player)
 
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     start_view = InstructionView()
