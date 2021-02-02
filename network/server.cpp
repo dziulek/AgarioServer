@@ -109,9 +109,18 @@ void * Server::sendDataToClients(void * args){
 
 void * Server::sendDataThread(void * args){
 
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     while(close_server == false){
         
-        // sleep(5);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+        int delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+        
+        if(delta * 1e-6 < 1 / this->send_frequency)
+            continue;
+        
+        begin = std::chrono::steady_clock::now();
         pthread_mutex_lock(&client_creation_mutex);
 
         sendDataToClients(NULL);
@@ -295,6 +304,8 @@ int  Server::listenOnSocket(Client * client){
 
         DataFormatServer data_in;
 
+        // data_in.clearBuf();
+        // sleep(0.25);
         int n = read((long)client->getSockfd(), data_in.getBuf(), MAX_LEN_BUFER);
 
         // data_in.printBuf();
@@ -304,8 +315,6 @@ int  Server::listenOnSocket(Client * client){
 
             return 0;
         }
-
-        // std::cout << data_in.getBuf()<<std::endl;
         //update client state
         clientInfo cinfo;
         data_in.extractClientInfo(cinfo);
@@ -319,6 +328,7 @@ int  Server::listenOnSocket(Client * client){
         //mouse position
         pthread_mutex_lock(&client_creation_mutex);
         client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
+        // std::cout<< cinfo.mousePosition.x << " " << cinfo.mousePosition.y << std::endl;
         pthread_mutex_unlock(&client_creation_mutex);
         //divide action
 

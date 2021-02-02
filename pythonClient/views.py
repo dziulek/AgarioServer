@@ -3,6 +3,7 @@ import arcade
 from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer
 from gameState import Player, GameState, MyInfo
 import numpy as np
+import copy
 
 
 SCREEN_WIDTH = 800
@@ -43,84 +44,41 @@ class GameView(arcade.View):
         """ Initializer """
         # Call the parent class initializer
         super().__init__()
+        self.shape_list = None
 
-        # Variables that will hold sprite lists
-        
-        # Set up the player info
+        self.view_left = 0
+        self.view_right = SCREEN_WIDTH - 1
+        self.view_bottom = 0
+        self.view_top = SCREEN_HEIGHT - 1
 
-        # Don't show the mouse cursor
+        self.hor_points = None
+        self.ver_points = None
+
         self.window.set_mouse_visible(True)
 
         arcade.set_background_color(arcade.color.AMAZON)
 
     def setup(self):
         """ Set up the game and initialize the variables. """
-        game = None
+        
         connectToServer()
+
+        self.shape_list = arcade.ShapeElementList()
+        self.hor_points = np.array([])
+        self.ver_points = np.array([])
 
 
     def on_draw(self):
         """ Draw everything """
-        global game
-        
-        game_lock.acquire()
-        if len(game.view) == 4:
-            arcade.set_viewport(game.view[0], game.view[2], game.view[1], game.view[3])
-
-            # print('viewport: ', game.view[0], game.view[1], game.view[2], game.view[3])
-        game_lock.release()
-
         arcade.start_render()
-        
-        left, right, bottom, top = arcade.get_viewport()
-
-        left = (left // GRID_WIDTH * GRID_WIDTH)
-        right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
-        bottom = bottom // GRID_WIDTH * GRID_WIDTH
-        top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
-
-        hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
-        ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
-
-        y_coord = bottom
-        for i in range(len(hor_points) // 4):
-            hor_points[4 * i] = left
-            hor_points[4 * i + 2] = right
-            hor_points[4 * i + 1] = y_coord
-            hor_points[4 * i + 3] = y_coord
-
-            y_coord += GRID_WIDTH
-
-        x_coord = left
-        for i in range(len(ver_points) // 4):
-            ver_points[4 * i] = x_coord
-            ver_points[4 * i + 1] = bottom
-            ver_points[4 * i + 2] = x_coord
-            ver_points[4 * i + 3] = top
-
-            x_coord += GRID_WIDTH
-        
-        hor_points = np.reshape(hor_points, (len(hor_points) // 2, 2))
-        ver_points = np.reshape(ver_points, (len(ver_points) // 2, 2))
-
-        arcade.draw_lines(hor_points, arcade.color.WHITE_SMOKE, 0.5)
-        arcade.draw_lines(ver_points, arcade.color.WHITE_SMOKE, 0.5)
-
-        # shape_list = arcade.create_isometric_grid_lines(50, 50, 7, 7, arcade.color.WHITE, 0.5)
 
         # for shape in shape_list:
         #     arcade.Shape.draw(shape)
         # # draw players
-        game_lock.acquire()
-        if game.players is not None:
-            for player in game.players:
-                for x, y, radius in player.coordinates:
-                    arcade.draw_circle_filled(x, y, radius, arcade.color.REDWOOD)
-                    # arcade.draw_text(player.nickname, 
-                    #         x, y, arcade.color.BLACK, 12, width=200, align="center", font_name='arial',
-                    #                                bold=True, anchor_x="center", anchor_y="center")
-        game_lock.release()
+        self.shape_list.draw()
     
+        arcade.draw_lines(self.hor_points, arcade.color.WHITE_SMOKE, 0.5)
+        arcade.draw_lines(self.ver_points, arcade.color.WHITE_SMOKE, 0.5)
         # draw minis
         # for mini in game.map['minis']:
 
@@ -135,11 +93,60 @@ class GameView(arcade.View):
         global myInfo
         myInfo_lock.acquire()
         myInfo.addMousePosition([vx, vy])
+        # print(myInfo.attributes['mouse'][0], myInfo.attributes['mouse'][1])
         myInfo_lock.release()
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        game_lock.acquire()
+        self.shape_list = arcade.ShapeElementList()
+        if game.players is not None:
+            for player in game.players:
+                for x, y, radius in player.coordinates:
+                    arcade.draw_circle_filled(x, y, radius, arcade.color.REDWOOD)
+                    shape = arcade.create_rectangle_filled(x, y, 10, 10, arcade.color.WATERSPOUT)
+                    self.shape_list.append(shape)
 
+        if len(game.view) == 4:
+            
+            self.view_left = copy.deepcopy(game.view[0])
+            self.view_right = copy.deepcopy(game.view[2])
+            self.view_bottom = copy.deepcopy(game.view[1])
+            self.view_top = copy.deepcopy(game.view[3])
+        game_lock.release()
+
+        arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
+
+        left, right, bottom, top = self.view_left, self.view_right, self.view_bottom, self.view_top
+
+        left = (left // GRID_WIDTH * GRID_WIDTH)
+        right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+        bottom = bottom // GRID_WIDTH * GRID_WIDTH
+        top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+
+        self.hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
+        self.ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
+
+        y_coord = bottom
+        for i in range(len(self.hor_points) // 4):
+            self.hor_points[4 * i] = left
+            self.hor_points[4 * i + 2] = right
+            self.hor_points[4 * i + 1] = y_coord
+            self.hor_points[4 * i + 3] = y_coord
+
+            y_coord += GRID_WIDTH
+
+        x_coord = left
+        for i in range(len(self.ver_points) // 4):
+            self.ver_points[4 * i] = x_coord
+            self.ver_points[4 * i + 1] = bottom
+            self.ver_points[4 * i + 2] = x_coord
+            self.ver_points[4 * i + 3] = top
+
+            x_coord += GRID_WIDTH
+        
+        self.hor_points = np.reshape(self.hor_points, (len(self.hor_points) // 2, 2))
+        self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
 
 
     def on_key_press(self, key, modifiers):
@@ -147,20 +154,18 @@ class GameView(arcade.View):
         global myInfo
 
         if key == arcade.key.W:
-            myInfo.addWAction()
+            myInfo.addWAction(1)
         elif key == arcade.key.SPACE:
-            myInfo.addDivideAction()
+            myInfo.addDivideAction(1)
         elif key == arcade.key.A:
             arcade.set_viewport(45, 145, 7, 34)
         elif key == arcade.key.ESCAPE:
             arcade.close_window()
             closeClient = True
-        
-
 
 def main():
     """ Main method """
-
+    
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     start_view = InstructionView()
     window.show_view(start_view)

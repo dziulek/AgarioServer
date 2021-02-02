@@ -65,14 +65,14 @@ class MyInfo:
         self.attributes['mouse'] = [0, 0]
         self.attributes['state'] = 'wait'
 
-    def addWAction(self):
-        self.attributes['waction'] = 1
+    def addWAction(self, b):
+        self.attributes['waction'] = b
     
     def addMousePosition(self, vector):
         self.attributes['mouse'] = copy.deepcopy(vector)
     
-    def addDivideAction(self):
-        self.attributes['divide'] = 1
+    def addDivideAction(self, b):
+        self.attributes['divide'] = b
 
     def addState(self, state):
         self.attributes['state'] = state
@@ -80,21 +80,12 @@ class MyInfo:
 
 def main():
 
-    nickname = 'siemano'
-    player = Player()
-    player.addNickname(nickname)
+    my = MyInfo()
 
-    nickname = ''
+    print(my.attributes['mouse'][0], my.attributes['mouse'][1])
 
-    print(player.nickname)
-
-    gameState = GameState()
-
-    gameState.appendMe(player)
-
-    player.nickname = 'nie'
-
-    print(gameState.myPlayer.nickname)
+    my.addMousePosition([4,5])
+    print(my.attributes['mouse'][0], my.attributes['mouse'][1])
 
 if __name__ == "__main__":
 

@@ -73,6 +73,7 @@ private:
     char s[INET_ADDRSTRLEN];
 
     bool close_server = false;
+    float send_frequency = 30.0f;
 
     pthread_t server_thread;
     pthread_t send_thread;

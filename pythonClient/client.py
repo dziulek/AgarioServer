@@ -22,17 +22,27 @@ game = GameState()
 game_lock = threading.Lock()
 myInfo_lock = threading.Lock()
 
+SEND_FREQUENCY = 30.0
+
 def writeToServerRoutine(server_socket):
 
     global closeClient
     global myInfo
+
+    t = time.process_time()
+
     while closeClient == False:
 
+        myInfo_lock.acquire()
         buf = fillMyData(myInfo)
-        # print(buf)
-        # time.sleep(3)
-        server_socket.send(bytearray(buf, 'utf-8'))
-    
+        
+        myInfo_lock.release()
+        
+        elapsed_time = time.process_time() - t
+        if elapsed_time > 1 / SEND_FREQUENCY:
+            t = time.process_time()
+            server_socket.send(bytearray(buf, 'utf-8'))
+            # print(buf)
     closeClient = True
 
 def handleConnection(server_socket):
