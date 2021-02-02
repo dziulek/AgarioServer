@@ -28,7 +28,7 @@ def parse(data, game):
 
     minis = np.array([])
     view = np.array([])
-
+    map_size = np.array([])
     i = 0
 
     current_state = '-'
@@ -59,7 +59,10 @@ def parse(data, game):
             current_state = word
             continue
         elif word == state_dictionary['state']:
-            word_state = word
+            current_state = word
+            continue
+        elif word == state_dictionary['map']:
+            current_state = word
             continue
 
         if current_state == state_dictionary['nickname']:
@@ -67,17 +70,18 @@ def parse(data, game):
         elif current_state == state_dictionary['coordinates']:
             player.addCoordinate(float(word))
         elif current_state == state_dictionary['minis']:
-            np.append(minis, float(word))
+            minis = np.append(minis, float(word))
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
         elif current_state == state_dictionary['state']:
             player.setState(bool(word))
+        elif current_state == state_dictionary['map']:
+            map_size = np.append(map_size, float(word))
     
     if minis is not None:
-        game.map['minis'] = np.reshape(minis, (len(game.map['minis'])//3, 3))
-        for i in range(len(game.map['minis'])):
-            game.map['minis'][i][1] = -game.map['minis'][i][1]
-
+        game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
+    if map_size is not None:
+        game.map['width'], game.map['height'] = map_size
     # if game.view is not None and len(game.view) == 4:
     #     game.view[1] = -game.view[1]
     #     game.view[3] = -game.view[3]

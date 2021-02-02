@@ -49,7 +49,7 @@ int main(){
 
     //     rend.getWindow()->display();
 
-        // rend.getWindow()->setFramerateLimit(60);
+    //     rend.getWindow()->setFramerateLimit(60);
     // }
 
     // Game game;

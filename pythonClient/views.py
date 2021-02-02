@@ -1,6 +1,6 @@
 import random
 import arcade
-from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer
+from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
 from gameState import Player, GameState, MyInfo
 import numpy as np
 import copy
@@ -10,7 +10,36 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Agar.io"
 
-GRID_WIDTH = 20
+GRID_WIDTH = 10
+
+colors = [
+    arcade.color.AFRICAN_VIOLET,
+    arcade.color.AIR_FORCE_BLUE,
+    arcade.color.ALABAMA_CRIMSON,
+    arcade.color.RED,
+    arcade.color.YELLOW,
+    arcade.color.PURPLE,
+    arcade.color.VIOLET,
+    arcade.color.BLUE,
+    arcade.color.GREEN,
+    arcade.color.MAGENTA,
+    arcade.color.MANGO_TANGO,
+    arcade.color.BLACK,
+    arcade.color.MAROON,
+    arcade.color.GRAY,
+    arcade.color.BROWN,
+    arcade.color.BUFF,
+    arcade.color.ORANGE
+]
+
+def mapWindowCoordToView(x, y, view):
+
+    height, width = view.window.get_size()
+
+    view_x = x / width * (view.view_right - view.view_left) + view.view_left
+    view_y = y / height * (view.view_top - view.view_bottom) + view.view_bottom
+
+    return view_x, view_y
 
 
 class InstructionView(arcade.View):
@@ -44,7 +73,10 @@ class GameView(arcade.View):
         """ Initializer """
         # Call the parent class initializer
         super().__init__()
-        self.shape_list = None
+        self.player_shapes = None
+        self.mini_shapes = None
+
+        self.map_rectangle = None
 
         self.view_left = 0
         self.view_right = SCREEN_WIDTH - 1
@@ -55,15 +87,24 @@ class GameView(arcade.View):
         self.ver_points = None
 
         self.window.set_mouse_visible(True)
+        self.socket = None
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.DARK_BLUE)
 
     def setup(self):
         """ Set up the game and initialize the variables. """
         
-        connectToServer()
+        self.socket = connectToServer()
 
-        self.shape_list = arcade.ShapeElementList()
+        self.socket.send(bytearray('get.game', 'utf-8'))
+        listenOnSocket(self.socket)
+
+        self.player_shapes = arcade.ShapeElementList()
+        self.mini_shapes = arcade.ShapeElementList()
+        self.map_rectangle = arcade.create_rectangle_filled(
+            SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 
+            SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.AMAZON)
+
         self.hor_points = np.array([])
         self.ver_points = np.array([])
 
@@ -72,40 +113,51 @@ class GameView(arcade.View):
         """ Draw everything """
         arcade.start_render()
 
-        # for shape in shape_list:
-        #     arcade.Shape.draw(shape)
-        # # draw players
-        self.shape_list.draw()
-    
-        arcade.draw_lines(self.hor_points, arcade.color.WHITE_SMOKE, 0.5)
-        arcade.draw_lines(self.ver_points, arcade.color.WHITE_SMOKE, 0.5)
+        self.map_rectangle.draw()
+        self.player_shapes.draw()
+        
+        arcade.draw_lines(self.hor_points, arcade.color.WHITE_SMOKE, 0.25)
+        arcade.draw_lines(self.ver_points, arcade.color.WHITE_SMOKE, 0.25)
         # draw minis
-        # for mini in game.map['minis']:
+        self.mini_shapes.draw()
 
         # draw bombs
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        width, height = arcade.Window.get_size(self.window)
-        vx = x - width / 2.0
-        vy = y - height / 2.0
+        vx, vy = mapWindowCoordToView(x, y, self)
 
         global myInfo
         myInfo_lock.acquire()
         myInfo.addMousePosition([vx, vy])
-        # print(myInfo.attributes['mouse'][0], myInfo.attributes['mouse'][1])
         myInfo_lock.release()
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        writeToServerRoutine(self.socket)
+        self.socket.send(bytearray('get.game', 'utf-8'))
+        listenOnSocket(self.socket)
+
+        self.map_rectangle = arcade.create_rectangle_filled(
+            game.map['width'] // 2, game.map['height']//2,
+            game.map['width'], game.map['height'],
+            arcade.color.AMAZON
+        )
+
         game_lock.acquire()
-        self.shape_list = arcade.ShapeElementList()
+        self.player_shapes = arcade.ShapeElementList()
         if game.players is not None:
             for player in game.players:
                 for x, y, radius in player.coordinates:
-                    arcade.draw_circle_filled(x, y, radius, arcade.color.REDWOOD)
-                    shape = arcade.create_rectangle_filled(x, y, 10, 10, arcade.color.WATERSPOUT)
-                    self.shape_list.append(shape)
+                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.WATERSPOUT)
+                    self.player_shapes.append(shape)
+        
+        if game.map['minis'] is not None:
+            self.mini_shapes = arcade.ShapeElementList()
+            for mini in game.map['minis']:
+                x, y, radius = mini
+                shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.ORANGE)
+                self.mini_shapes.append(shape)
 
         if len(game.view) == 4:
             

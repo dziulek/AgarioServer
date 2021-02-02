@@ -36,8 +36,8 @@ public:
     float height;
 
     Map(){
-        width = 1000.0f;
-        height = 1000.0f;
+        width = 200.0f;
+        height = 200.0f;
     }
 
     ~Map(){

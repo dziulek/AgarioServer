@@ -6,14 +6,37 @@ void * clientThread(void * server_client_struct){
     
     Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
 
+    DataFormatServer buf;
+    clientInfo cinfo;
+
     while(client != nullptr && client->getDisconnect() == false){
 
-        int status = sc->server->listenOnSocket(client);
+        buf.clearBuf();
 
+        int status = recv(client->getSockfd(), buf.getBuf(), 1000, NULL);
         if(status == 0){
             //closed socket
             break;
         }
+
+        if(strcmp("get.game", buf.getBuf()) == 0){
+            buf.clearBuf();
+            sc->server->fillDataToClient(client, buf);
+
+            int status = sc->server->sendDataToClient(client);
+
+            if(status == -1){
+                fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
+            }
+        }
+        else if(strcmp("get.score", buf.getBuf()) == 0){
+
+        }
+        else if(buf.getBuf()[0] == ':'){
+            buf.extractClientInfo(cinfo);
+            client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
+        }
+        
     }
 
     std::cout<<"exit from client thread"<<std::endl;

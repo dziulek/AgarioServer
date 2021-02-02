@@ -34,7 +34,11 @@ class GameState:
     def __init__(self):
         self.myPlayer = None
         self.players = []
-        self.map = {'minis' : np.array([])}
+        self.map = {
+            'minis' : np.array([]),
+            'width' : 1,
+            'height' : 1
+        }
         self.view = np.array([])
     
     def clear(self):

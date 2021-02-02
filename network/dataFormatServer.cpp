@@ -98,7 +98,7 @@ void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player)
 
     for(int i = mini_range.first.first; i < mini_range.second.first; i++){
 
-        for(int j = mini_range.first.second; i < mini_range.second.second; i++){
+        for(int j = mini_range.first.second; j < mini_range.second.second; j++){
 
             for(auto & m : game->getMap()->minis[j][i]){
                 

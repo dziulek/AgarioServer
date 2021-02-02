@@ -137,7 +137,11 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.clearBuf();
 
-    // data.appendMinis(client->getGame(), client->getPlayer());
+    data.appendChar(MAP);
+    data.appendFloat(client->getGame()->getMap()->width);
+    data.appendFloat(client->getGame()->getMap()->height);
+
+    data.appendMinis(client->getGame(), client->getPlayer());
     //player coordinates
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
 
@@ -182,13 +186,13 @@ int Server::mainLogic(){
         return -1;
     }
 
-    status = pthread_create(&this->send_thread, NULL, (THREADFUNCPTR) &Server::sendDataThread, this);
+    // status = pthread_create(&this->send_thread, NULL, (THREADFUNCPTR) &Server::sendDataThread, this);
 
-    if(status){
+    // if(status){
 
-        fprintf(stderr, "creating send data thread: %s", gai_strerror(status));
-        return -1;
-    }
+    //     fprintf(stderr, "creating send data thread: %s", gai_strerror(status));
+    //     return -1;
+    // }
     
     status = pthread_create(&this->game_thread, NULL, gameThread, (void *)this);
 
