@@ -37,14 +37,15 @@ class GameState:
         self.map = {
             'minis' : np.array([]),
             'width' : 1,
-            'height' : 1
+            'height' : 1,
+            'colors' : np.array([], int)
         }
         self.view = np.array([])
     
     def clear(self):
         self.myPlayer = None
         self.players = []
-        self.map = {'minis' : np.array([])}
+        self.map = {'minis' : np.array([]), 'colors' : np.array([], int)}
         self.view = np.array([])
         
     def appendPlayer(self, player):
@@ -53,10 +54,11 @@ class GameState:
     def appendMe(self, me):
         self.myPlayer = copy.deepcopy(me)
 
-    def addMap(self, width, height, minis):
+    def addMap(self, width, height, minis, colors):
         self.map['width'] = width
         self.map['height'] = height
         self.map['minis'] = copy.deepcopy(minis)
+        self.map['colors'] = copy.deepcopy(colors)
 
     def addViewCoord(self, coord):
         self.view = np.append(self.view, coord)

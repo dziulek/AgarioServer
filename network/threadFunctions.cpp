@@ -19,6 +19,8 @@ void * clientThread(void * server_client_struct){
             break;
         }
 
+        // buf.printBuf();
+
         if(strcmp("get.game", buf.getBuf()) == 0){
             buf.clearBuf();
             sc->server->fillDataToClient(client, buf);
@@ -38,6 +40,18 @@ void * clientThread(void * server_client_struct){
         }
         
     }
+
+    pthread_mutex_lock(&sc->server->client_creation_mutex);
+
+    pthread_mutex_lock(&sc->server->new_player_mutex);
+
+    client->setDisconnect();
+    client->getGame()->deletePlayer(client->getPlayer());
+
+    pthread_mutex_unlock(&sc->server->new_player_mutex);
+    sc->server->cullDisconnectedClients();
+
+    pthread_mutex_unlock(&sc->server->client_creation_mutex);
 
     std::cout<<"exit from client thread"<<std::endl;
     pthread_exit(NULL);

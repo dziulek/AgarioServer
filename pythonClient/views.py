@@ -32,6 +32,17 @@ colors = [
     arcade.color.ORANGE
 ]
 
+def getColorFromInt(color):
+
+    rgba = []
+
+    rgba.append(color & 0xff)
+    rgba.append(color >> 8 & 0xff)
+    rgba.append(color >> 16 & 0xff)
+    rgba.append(color >> 24 & 0xff)
+
+    return rgba
+
 def mapWindowCoordToView(x, y, view):
 
     height, width = view.window.get_size()
@@ -128,13 +139,15 @@ class GameView(arcade.View):
         vx, vy = mapWindowCoordToView(x, y, self)
 
         global myInfo
-        myInfo_lock.acquire()
         myInfo.addMousePosition([vx, vy])
-        myInfo_lock.release()
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-        writeToServerRoutine(self.socket)
+        # global myInfo
+        # vx, vy = mapWindowCoordToView(arcade.Window.get_system_mouse_cursor(), y, self)
+        # myInfo.addMousePosition([vx, vy])
+
+        
         self.socket.send(bytearray('get.game', 'utf-8'))
         listenOnSocket(self.socket)
 
@@ -144,7 +157,6 @@ class GameView(arcade.View):
             arcade.color.AMAZON
         )
 
-        game_lock.acquire()
         self.player_shapes = arcade.ShapeElementList()
         if game.players is not None:
             for player in game.players:
@@ -154,9 +166,9 @@ class GameView(arcade.View):
         
         if game.map['minis'] is not None:
             self.mini_shapes = arcade.ShapeElementList()
-            for mini in game.map['minis']:
+            for mini, color in zip(game.map['minis'], game.map['colors']):
                 x, y, radius = mini
-                shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.ORANGE)
+                shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
                 self.mini_shapes.append(shape)
 
         if len(game.view) == 4:
@@ -165,7 +177,7 @@ class GameView(arcade.View):
             self.view_right = copy.deepcopy(game.view[2])
             self.view_bottom = copy.deepcopy(game.view[1])
             self.view_top = copy.deepcopy(game.view[3])
-        game_lock.release()
+
 
         arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
 
@@ -200,6 +212,8 @@ class GameView(arcade.View):
         self.hor_points = np.reshape(self.hor_points, (len(self.hor_points) // 2, 2))
         self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
 
+        writeToServerRoutine(self.socket)
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -212,8 +226,37 @@ class GameView(arcade.View):
         elif key == arcade.key.A:
             arcade.set_viewport(45, 145, 7, 34)
         elif key == arcade.key.ESCAPE:
-            arcade.close_window()
-            closeClient = True
+            self.socket.close()
+            game_over = GameOverView()
+            self.window.show_view(game_over)
+
+
+class GameOverView(arcade.View):
+    """ View to show when game is over """
+
+    def __init__(self):
+        """ This is run once when we switch to this view """
+        super().__init__()
+
+        # Reset the viewport, necessary if we have a scrolling game and we need
+        # to reset the viewport back to the start so we can see what we draw.
+        arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
+        arcade.set_background_color(arcade.csscolor.DARK_SLATE_BLUE)
+
+    def on_draw(self):
+        """ Draw this view """
+        arcade.start_render()
+
+        arcade.draw_text("YOU LOST", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                         arcade.color.WHITE, font_size=50, anchor_x="center")
+        arcade.draw_text("Click to play", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75,
+                         arcade.color.WHITE, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """ If the user presses the mouse button, re-start the game. """
+        game_view = GameView()
+        game_view.setup()
+        self.window.show_view(game_view)
 
 def main():
     """ Main method """

@@ -34,6 +34,7 @@ void SFMLRenderer::drawMap(){
                     continue;
                 }
                 mm.setPosition({k.get()->getPosition().x, k.get()->getPosition().y});
+                mm.setFillColor(sf::Color(k.get()->getColor()));
                 window->draw(mm);
             }
         }

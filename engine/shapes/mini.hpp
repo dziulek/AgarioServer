@@ -16,6 +16,8 @@ public:
         
         centerPosition = pos;
         radius = MINI_RADIUS;
+
+        color = AGARIO_COLORS[rand() % n_colors];
         calculateArea();
     }
     virtual ~Mini(){}

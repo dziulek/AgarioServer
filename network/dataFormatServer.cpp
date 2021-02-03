@@ -22,6 +22,8 @@ void DataFormatServer::appendPlayer(agario::Player * player){
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
         this->appendFloat((*player)[i].getRadius());
+        // this->appendColor((*player)[i].getColor());
+
     }
 }
 
@@ -105,6 +107,7 @@ void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player)
                 this->appendFloat(m.get()->getPosition().x);
                 this->appendFloat(m.get()->getPosition().y);
                 this->appendFloat(m.get()->getRadius());
+                this->appendColor(m.get()->getColor());
             }    
         }
     }

@@ -272,7 +272,7 @@ void Server::findGameForNewClient(Client * client){
     bool added = false;
     for(auto & g : games){
 
-        if(g.get()->getnOfPlayers() < 5){
+        if(g.get()->getnOfPlayers() < 15){
             
             pthread_mutex_lock(&new_player_mutex);
             agario::Player * p = g.get()->addPlayer();

@@ -27,9 +27,12 @@ def parse(data, game):
     words = data.split(':')
 
     minis = np.array([])
+    colors = np.array([], int)
     view = np.array([])
     map_size = np.array([])
+
     i = 0
+    cmini = 0
 
     current_state = '-'
     for word in words:
@@ -70,7 +73,11 @@ def parse(data, game):
         elif current_state == state_dictionary['coordinates']:
             player.addCoordinate(float(word))
         elif current_state == state_dictionary['minis']:
-            minis = np.append(minis, float(word))
+            cmini += 1
+            if cmini % 4 == 0:
+                colors = np.append(colors, int(word, 16))
+            else:
+                minis = np.append(minis, float(word))
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
         elif current_state == state_dictionary['state']:
@@ -80,6 +87,8 @@ def parse(data, game):
     
     if minis is not None:
         game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
+    if colors is not None:
+        game.map['colors'] = colors
     if map_size is not None:
         game.map['width'], game.map['height'] = map_size
     # if game.view is not None and len(game.view) == 4:
@@ -89,7 +98,7 @@ def parse(data, game):
 def fillMyData(myInfo):
 
     text = []
-    mouse = SEPARATOR.join([str(myInfo.attributes['mouse'][0]), str(myInfo.attributes['mouse'][1])])   
+    mouse = SEPARATOR.join(['{:.2f}'.format(myInfo.attributes['mouse'][0]), '{:.2f}'.format(myInfo.attributes['mouse'][1])])   
     text.append(state_dictionary['mouse'])
     text.append(mouse)
     text.append(state_dictionary['w_mass'])

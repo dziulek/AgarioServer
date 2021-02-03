@@ -38,8 +38,6 @@ glm::vec2 Map::findPositionForNewPlayer(){
         xPos = static_cast<float>(rand()) / RAND_MAX * width;
         yPos = static_cast<float>(rand()) / RAND_MAX * height;
 
-        std::cout << xPos << " " << yPos << std::endl;
-
         // for(auto & playerobject : playerObjects){
 
         //     float distance = glm::vec2(xPos, yPos) - playerobject 

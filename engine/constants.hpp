@@ -13,7 +13,24 @@ const float eps = 0.01;
 const float WINDOW_WIDTH = 1000;
 const float WINDOW_HEIGHT = 1000;
 
+//colors
+const unsigned int WHITE = 0xffffffff;
+const unsigned int RED = 0xff0000ff;
+const unsigned int GRAY = 0x808080ff;
+const unsigned int YELLOW = 0xffff00ff;
+const unsigned int ORANGE = 0xff8000ff;
+const unsigned int PINK = 0xff007fff;
+const unsigned int BLUE = 0x0000ffff;
+const unsigned int GREEN = 0x00ff00ff;
+const unsigned int MAGENTA = 0xff00ffff;
+const unsigned int PURPLE = 0x800080ff;
+const unsigned int MAROON = 0x800000ff;
 
+const unsigned int n_colors = 11;
+
+const unsigned int AGARIO_COLORS[n_colors] = {
+    WHITE, RED, PURPLE, YELLOW, ORANGE, PINK, BLUE, GREEN, MAGENTA, GRAY, MAROON
+};
 //physics
 
 const float PLUS_INFINITY = 10e9;

@@ -25,7 +25,8 @@
 #define DIVIDE_ACTION 'd'
 #define W_MASS 'w'
 #define VIEW 'v'
-#define MASS 'r'
+#define MASS 'a'
+
 
 
 struct clientInfo{
@@ -67,6 +68,7 @@ public:
     char getChar(int index);
     int getNextIndexSeparator(int currInd);
     bool getBool(int currInd);
+    void appendColor(uint32_t color);
 
 
     void appendMouseCoordinates(float x, float y);

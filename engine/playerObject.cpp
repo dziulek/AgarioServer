@@ -50,7 +50,11 @@ void PlayerObject::setVelocities(){
 
     for(auto & b : blobs){
 
-        glm::vec2 v = glm::normalize(mousePosition - b.get()->getPosition() + glm::vec2(0.25, 0.25));
+        glm::vec2 v = mousePosition - b.get()->getPosition();
+
+        if(abs(v.x) < eps || abs(v.y) < eps)
+            v = {1.0, 1.0};
+        else v = glm::normalize(v);
 
         v *= b.get()->calculateVelocityMod();
 

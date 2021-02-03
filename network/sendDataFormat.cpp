@@ -124,3 +124,15 @@ int SendDataFormat::getNextIndexSeparator(int currInd){
 
     return currInd;
 }
+
+void SendDataFormat::appendColor(uint32_t color){
+
+    char local[9];
+    bzero(local, sizeof(local));
+
+    snprintf(local, sizeof(local), "%02X", color);
+
+    memcpy(this->buf + strlen(buf), local, strlen(local));
+
+    this->appendSeparator();
+}
