@@ -4,13 +4,13 @@ void DataFormatServer::appendPlayer(agario::Player * player){
 
     this->appendChar(PLAYER);
 
-    this->appendChar(STATE);
-
-    this->appendChar(player->getState() == false ? '0' : '1');
-
     this->appendChar(NICKNAME);
 
-    this->appendString("Unnamed_cell");
+    this->appendString(player->getNickname());
+
+    this->appendChar(COLOR);
+
+    this->appendColor(player->getColor());
 
     this->appendChar(COORDINATES);
 
@@ -22,9 +22,14 @@ void DataFormatServer::appendPlayer(agario::Player * player){
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
         this->appendFloat((*player)[i].getRadius());
-        // this->appendColor((*player)[i].getColor());
 
     }
+}
+
+void DataFormatServer::appendState(agario::Player * player){
+
+    this->appendChar(STATE);
+    this->appendChar(player->getState());
 }
 
 void DataFormatServer::appendView(agario::Player * player){

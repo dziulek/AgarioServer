@@ -32,6 +32,7 @@ public:
     void addMass(const float mass);
     const glm::vec2 getVelocity() const;
     void setVelocity(const glm::vec2 v);
+    void setColor(uint32_t color){ this->color = color;}
     void move(const float dTime);
     static std::pair<glm::vec2, glm::vec2> calculateGravityVelocities(const MoveableCircle & c1, const MoveableCircle & c2);
 

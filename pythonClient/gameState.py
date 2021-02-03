@@ -5,29 +5,16 @@ class Player:
     def __init__(self):
         self.nickname = 'Unnamed_cell'
         self.coordinates = np.array([])
-        self.state = False
+        self.color = 0xffffffff
     def clear(self):
         self.nickname = ''
         self.coordinates = np.array([])
-        self.state = False
 
     def addCoordinate(self, coord):
         self.coordinates = np.append(self.coordinates, coord)
 
     def addNickname(self, nick):
         self.nickname = nick
-    
-    def setState(self, state):
-        self.state = state
-
-    def __str__(self):
-
-        text = 'nickname: '
-        text += self.nickname
-        text += ', state: '
-        text += str(self.state)
-        text += ', coordinates:\n'
-        return text
 
 
 class GameState:
@@ -40,6 +27,7 @@ class GameState:
             'height' : 1,
             'colors' : np.array([], int)
         }
+        self.playerState = True
         self.view = np.array([])
     
     def clear(self):

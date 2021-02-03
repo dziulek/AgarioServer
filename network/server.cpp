@@ -151,6 +151,8 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.appendView(client->getPlayer());
 
+    data.appendState(client->getPlayer());
+
     //bomb coordinates
 }
 

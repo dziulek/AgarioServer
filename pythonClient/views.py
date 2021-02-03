@@ -6,6 +6,11 @@ from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToS
 from gameState import Player, GameState, MyInfo
 import numpy as np
 import copy
+import time
+
+ping = None
+logic_time = None
+drawing_time = None
 
 
 SCREEN_WIDTH = 800
@@ -92,6 +97,7 @@ class InstructionView(arcade.View):
         self.socket = None
 
         self.connectionRefused = None
+        self.brokenPipe = None
         self.rectangle = None
 
         self.ui_input_box = None
@@ -103,7 +109,8 @@ class InstructionView(arcade.View):
         ui_input_box = arcade.gui.UIInputBox(
             center_x=SCREEN_WIDTH // 2,
             center_y=SCREEN_HEIGHT // 2 - 50,
-            width=300
+            width=300,
+            id='inputbox'
         )
         ui_input_box.text = 'unnamed cell'
         ui_input_box.cursor_index = len(ui_input_box.text)
@@ -153,13 +160,19 @@ class InstructionView(arcade.View):
 
     def on_update(self, delta_time):
         
+        nickname = self.ui_manager.find_by_id('inputbox').text
         button = self.ui_manager.find_by_id('playbutton')
         if button is not None:
             if button.connection is not None:
                 if button.connection is True:
-                    game_view = GameView()
-                    game_view.setup(button.socket)
-                    self.window.show_view(game_view)
+                    try:
+                        button.socket.send(bytearray('nickname:' + nickname, 'utf-8'))
+                        confirmation = button.socket.recv(10)
+                        game_view = GameView()
+                        game_view.setup(button.socket)
+                        self.window.show_view(game_view)                        
+                    except BrokenPipeError:
+                        self.brokenPipe = True
                 else:
                     self.rectangle = arcade.create_rectangle_filled(SCREEN_WIDTH // 2 - 135, 20, SCREEN_WIDTH * 3.4 / 5, 50, arcade.color.RED)
                     self.connectionRefused = 'Cannot connect to server,\ncheck your network connection and try again.'
@@ -199,7 +212,7 @@ class GameView(arcade.View):
         
         self.socket = s
 
-        self.socket.send(bytearray('get.game', 'utf-8'))
+        self.socket.send(bytearray('get:game', 'utf-8'))
         listenOnSocket(self.socket)
 
         self.player_shapes = arcade.ShapeElementList()
@@ -214,16 +227,21 @@ class GameView(arcade.View):
 
     def on_draw(self):
         """ Draw everything """
+        global drawing_time
+
         arcade.start_render()
 
+        drawing_time = time.time()
         self.map_rectangle.draw()
-        self.player_shapes.draw()
+        
         
         arcade.draw_lines(self.hor_points, arcade.color.WHITE_SMOKE, 0.25)
         arcade.draw_lines(self.ver_points, arcade.color.WHITE_SMOKE, 0.25)
         # draw minis
         self.mini_shapes.draw()
+        self.player_shapes.draw()
 
+        drawing_time = time.time() - drawing_time
         # draw bombs
 
     def on_mouse_motion(self, x, y, dx, dy):
@@ -235,76 +253,86 @@ class GameView(arcade.View):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-        # global myInfo
-        # vx, vy = mapWindowCoordToView(arcade.Window.get_system_mouse_cursor(), y, self)
-        # myInfo.addMousePosition([vx, vy])
+        global ping, logic_time
 
-        
-        self.socket.send(bytearray('get.game', 'utf-8'))
+        ping = time.time()
+        self.socket.send(bytearray('get:game', 'utf-8'))
         listenOnSocket(self.socket)
-
-        self.map_rectangle = arcade.create_rectangle_filled(
-            game.map['width'] // 2, game.map['height']//2,
-            game.map['width'], game.map['height'],
-            arcade.color.AMAZON
-        )
-
-        self.player_shapes = arcade.ShapeElementList()
-        if game.players is not None:
-            for player in game.players:
-                for x, y, radius in player.coordinates:
-                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.WATERSPOUT)
-                    self.player_shapes.append(shape)
+        if game.playerState == False:
+            #lost game
+            self.socket.close()
+            game_over = GameOverView()
+            self.window.show_view(game_over)
         
-        if game.map['minis'] is not None:
-            self.mini_shapes = arcade.ShapeElementList()
-            for mini, color in zip(game.map['minis'], game.map['colors']):
-                x, y, radius = mini
-                shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
-                self.mini_shapes.append(shape)
+        else:
+            ping = time.time() - ping
 
-        if len(game.view) == 4:
+            logic_time = time.time()
+            self.map_rectangle = arcade.create_rectangle_filled(
+                game.map['width'] // 2, game.map['height']//2,
+                game.map['width'], game.map['height'],
+                arcade.color.AMAZON
+            )
+
+            self.player_shapes = arcade.ShapeElementList()
+            if game.players is not None:
+                for player in game.players:
+                    for x, y, radius in player.coordinates:
+                        shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(player.color))
+                        self.player_shapes.append(shape)
             
-            self.view_left = copy.deepcopy(game.view[0])
-            self.view_right = copy.deepcopy(game.view[2])
-            self.view_bottom = copy.deepcopy(game.view[1])
-            self.view_top = copy.deepcopy(game.view[3])
+            if game.map['minis'] is not None:
+                self.mini_shapes = arcade.ShapeElementList()
+                for mini, color in zip(game.map['minis'], game.map['colors']):
+                    x, y, radius = mini
+                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
+                    self.mini_shapes.append(shape)
+
+            if len(game.view) == 4:
+                
+                self.view_left = copy.deepcopy(game.view[0])
+                self.view_right = copy.deepcopy(game.view[2])
+                self.view_bottom = copy.deepcopy(game.view[1])
+                self.view_top = copy.deepcopy(game.view[3])
 
 
-        arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
+            arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
 
-        left, right, bottom, top = self.view_left, self.view_right, self.view_bottom, self.view_top
+            left, right, bottom, top = self.view_left, self.view_right, self.view_bottom, self.view_top
 
-        left = (left // GRID_WIDTH * GRID_WIDTH)
-        right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
-        bottom = bottom // GRID_WIDTH * GRID_WIDTH
-        top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+            left = (left // GRID_WIDTH * GRID_WIDTH)
+            right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+            bottom = bottom // GRID_WIDTH * GRID_WIDTH
+            top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
 
-        self.hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
-        self.ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
+            self.hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
+            self.ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
 
-        y_coord = bottom
-        for i in range(len(self.hor_points) // 4):
-            self.hor_points[4 * i] = left
-            self.hor_points[4 * i + 2] = right
-            self.hor_points[4 * i + 1] = y_coord
-            self.hor_points[4 * i + 3] = y_coord
+            y_coord = bottom
+            for i in range(len(self.hor_points) // 4):
+                self.hor_points[4 * i] = left
+                self.hor_points[4 * i + 2] = right
+                self.hor_points[4 * i + 1] = y_coord
+                self.hor_points[4 * i + 3] = y_coord
 
-            y_coord += GRID_WIDTH
+                y_coord += GRID_WIDTH
 
-        x_coord = left
-        for i in range(len(self.ver_points) // 4):
-            self.ver_points[4 * i] = x_coord
-            self.ver_points[4 * i + 1] = bottom
-            self.ver_points[4 * i + 2] = x_coord
-            self.ver_points[4 * i + 3] = top
+            x_coord = left
+            for i in range(len(self.ver_points) // 4):
+                self.ver_points[4 * i] = x_coord
+                self.ver_points[4 * i + 1] = bottom
+                self.ver_points[4 * i + 2] = x_coord
+                self.ver_points[4 * i + 3] = top
 
-            x_coord += GRID_WIDTH
-        
-        self.hor_points = np.reshape(self.hor_points, (len(self.hor_points) // 2, 2))
-        self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
+                x_coord += GRID_WIDTH
+            
+            self.hor_points = np.reshape(self.hor_points, (len(self.hor_points) // 2, 2))
+            self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
+            logic_time = time.time() - logic_time
 
-        writeToServerRoutine(self.socket)
+            writeToServerRoutine(self.socket)
+
+            # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time)
 
 
     def on_key_press(self, key, modifiers):

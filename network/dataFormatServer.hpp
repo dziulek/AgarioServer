@@ -20,6 +20,8 @@ public:
     void appendMinis(agario::Game * game, agario::Player * player);
 
     void extractClientInfo(clientInfo & cinfo);
+
+    void appendState(agario::Player * player);
 };
 
 #endif

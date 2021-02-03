@@ -19,6 +19,7 @@ private:
     float mass;
     float highestScore;
     int highestPosition;
+    uint32_t color = WHITE;
 
 public:
 
@@ -30,7 +31,11 @@ public:
     virtual ~Player(){}
     char getState(){ return state;}
     void setState(bool s){this->state = s;}
+    void setNickname(std::string nickname){ this->nick = nickname;}
+    std::string & getNickname(){ return this->nick;}
     std::pair<glm::vec2, glm::vec2> getView();
+    void setColor();
+    uint32_t getColor(){ return this->color;}
 
 };
 

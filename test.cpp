@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
 #include "network/server.hpp"
 
 
@@ -22,6 +23,8 @@ int main(){
     // SFMLRenderer rend(game);
     // MouseObserver mouse(&rend);
 
+    // std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     // while(rend.getWindow()->isOpen()){
 
     //     sf::Event event;
@@ -35,7 +38,11 @@ int main(){
 
     //     rend.getWindow()->clear();
 
-    //     game.mainLoop(1.0f / 30);
+    //     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+    //     int delta = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+    //     begin = std::chrono::steady_clock::now();
+    //     game.mainLoop(delta * 1e-6);
 
     //     rend.drawMap();
 
@@ -49,13 +56,21 @@ int main(){
 
     //     rend.getWindow()->display();
 
-    //     rend.getWindow()->setFramerateLimit(60);
+    //     // rend.getWindow()->setFramerateLimit(60);
     // }
 
 
     Server server;
 
-    server.mainLogic();    
+    server.mainLogic();  
+
+    // SendDataFormat data;
+
+    // data.appendString("nickname:dziulek:");
+
+    // std::string siemano = data.getWord(10);
+
+    // std::cout << siemano << std::endl;  
 
     return 0;
 }

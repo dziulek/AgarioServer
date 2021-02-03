@@ -16,7 +16,8 @@ state_dictionary = {
     'divide_action' : 'd',
     'w_mass' : 'w',
     'myplayer' : 'u',
-    'view' : 'v'
+    'view' : 'v', 
+    'color' : 't'
 }
 
 def parse(data, game):
@@ -48,6 +49,9 @@ def parse(data, game):
             player.clear()
             current_state = word
             i += 1
+            continue
+        elif word == state_dictionary['color']:
+            current_state = word
             continue
         elif word == state_dictionary['minis']:
             current_state = word
@@ -81,9 +85,11 @@ def parse(data, game):
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
         elif current_state == state_dictionary['state']:
-            player.setState(bool(word))
+            game.playerState = bool(word)
         elif current_state == state_dictionary['map']:
             map_size = np.append(map_size, float(word))
+        elif current_state == state_dictionary['color']:
+            player.color = int(word, 16)
     
     if minis is not None:
         game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))

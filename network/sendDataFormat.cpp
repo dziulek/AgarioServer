@@ -136,3 +136,16 @@ void SendDataFormat::appendColor(uint32_t color){
 
     this->appendSeparator();
 }
+
+std::string SendDataFormat::getWord(int currInd){
+
+    int end = this->getNextIndexSeparator(currInd);
+    int help = (this->buf[currInd] == SEPARATOR ? 1 : 0);
+
+    char local[end - currInd + 1];
+    bzero(local, sizeof(local)); 
+
+    memcpy(local, buf + currInd + help, end - currInd - help);
+
+    return std::string(local);
+}

@@ -6,7 +6,7 @@ namespace agario{
 using namespace shapes;
 
 void Game::mainLoop(const float dTime){
-
+    
     for(auto & player : players){
 
         player->setVelocities();
@@ -15,7 +15,8 @@ void Game::mainLoop(const float dTime){
     
     // move players
     for(int i = 0; i < players.size(); i++){
-        players[i].get()->move(dTime);
+        if(players[i].get()->getSize() > 0)
+            players[i].get()->move(dTime);
     }
 }
 

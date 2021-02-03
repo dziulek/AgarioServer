@@ -26,6 +26,7 @@
 #define W_MASS 'w'
 #define VIEW 'v'
 #define MASS 'a'
+#define COLOR 't'
 
 
 
@@ -67,6 +68,7 @@ public:
     float getFloat(int index);
     char getChar(int index);
     int getNextIndexSeparator(int currInd);
+    std::string getWord(int currInd);
     bool getBool(int currInd);
     void appendColor(uint32_t color);
 

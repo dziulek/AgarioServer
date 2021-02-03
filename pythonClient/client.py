@@ -50,6 +50,7 @@ def listenOnSocket(server_socket):
     global game
 
     buf = server_socket.recv(10000)
+    # print(buf)
     
     if len(buf) == 0:
         closeClient = True

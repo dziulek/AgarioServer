@@ -13,28 +13,48 @@ void * clientThread(void * server_client_struct){
 
         buf.clearBuf();
 
-        int status = recv(client->getSockfd(), buf.getBuf(), 1000, NULL);
+        int status = recv(client->getSockfd(), buf.getBuf(), 150, 0);
         if(status == 0){
             //closed socket
             break;
         }
 
-        // buf.printBuf();
 
-        if(strcmp("get.game", buf.getBuf()) == 0){
+        if(strcmp("get:game", buf.getBuf()) == 0){
+
             buf.clearBuf();
-            sc->server->fillDataToClient(client, buf);
+            if(client->getPlayer() == nullptr || client->getPlayer()->getSize() == 0){
+                
+                client->getPlayer()->setState(false);
+                std::cout << "xd" << std::endl;
+            }
 
             int status = sc->server->sendDataToClient(client);
 
             if(status == -1){
                 fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
             }
-        }
-        else if(strcmp("get.score", buf.getBuf()) == 0){
 
         }
+        else if(strcmp("get:score", buf.getBuf()) == 0){
+
+        }
+        else if(buf.getWord(0) == "nickname"){
+
+            int ind = buf.getNextIndexSeparator(0);
+            std::string nick = buf.getWord(ind);
+
+            client->getPlayer()->setNickname(nick);
+            client->getPlayer()->setColor();
+
+            int status = send(client->getSockfd(), "conf", 4, 0);
+
+            if(status == -1){
+                fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
+            }
+        }
         else if(buf.getBuf()[0] == ':'){
+            // buf.printBuf();
             buf.extractClientInfo(cinfo);
             client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
         }
