@@ -1,5 +1,7 @@
 import random
 import arcade
+from arcade.gui import UIManager
+from arcade.gui.ui_style import UIStyle
 from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
 from gameState import Player, GameState, MyInfo
 import numpy as np
@@ -53,28 +55,119 @@ def mapWindowCoordToView(x, y, view):
     return view_x, view_y
 
 
+class PlayButton(arcade.gui.UIImageButton):
+
+    def __init__(self, center_x, center_y, normal_texture, hover_texture, press_texture, text):
+        super().__init__(
+            center_x=center_x, 
+            center_y=center_y, 
+            normal_texture=normal_texture, 
+            hover_texture=normal_texture, 
+            press_texture=press_texture, 
+            text=text,
+            id='playbutton'
+        )
+
+        self.socket = None
+
+        self.connection = None
+        self.socket = None
+        
+    def on_click(self):
+        
+        self.connection = None
+        try:
+            self.socket = connectToServer()
+            self.connection = True
+        except ConnectionRefusedError:
+            self.connection = False
+
 class InstructionView(arcade.View):
 
+    def __init__(self):
+        super().__init__()
+
+        self.ui_manager = UIManager()
+
+        self.socket = None
+
+        self.connectionRefused = None
+        self.rectangle = None
+
+        self.ui_input_box = None
+
+    def setup(self):
+
+        self.ui_manager.purge_ui_elements()
+
+        ui_input_box = arcade.gui.UIInputBox(
+            center_x=SCREEN_WIDTH // 2,
+            center_y=SCREEN_HEIGHT // 2 - 50,
+            width=300
+        )
+        ui_input_box.text = 'unnamed cell'
+        ui_input_box.cursor_index = len(ui_input_box.text)
+        self.ui_manager.add_ui_element(ui_input_box)
+
+        button_normal = arcade.load_texture(':resources:gui_basic_assets/red_button_normal.png')
+        hovered_texture = arcade.load_texture(':resources:gui_basic_assets/red_button_hover.png')
+        pressed_texture = arcade.load_texture(':resources:gui_basic_assets/red_button_press.png')
+        button = PlayButton(
+            center_x=SCREEN_WIDTH // 2,
+            center_y=SCREEN_HEIGHT // 2 - 100,
+            normal_texture=button_normal,
+            hover_texture=hovered_texture,
+            press_texture=pressed_texture,
+            text='Play'
+        )
+        self.ui_manager.add_ui_element(button)
+
     def on_show(self):
+
+        self.setup()
         arcade.set_background_color(arcade.csscolor.DARK_SLATE_BLUE)
 
         # Reset the viewport, necessary if we have a scrolling game and we need
         # to reset the viewport back to the start so we can see what we draw.
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
 
+    def on_hide_view(self):
+        
+        self.ui_manager.purge_ui_elements()
+
     def on_draw(self):
         """ Draw this view """
         arcade.start_render()
+        
+        if self.ui_input_box is not None:
+            self.ui_input_box.draw()
+
+        if self.rectangle is not None:
+            self.rectangle.draw()
+
         arcade.draw_text("AGAR.IO", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                          arcade.color.WHITE, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to play", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75,
-                         arcade.color.WHITE, font_size=20, anchor_x="center")
+
+        if self.connectionRefused is not None:
+            arcade.draw_text(self.connectionRefused, 0, 5, arcade.color.WHITE, 16, SCREEN_WIDTH, 'left', 'calibri', bold=True, anchor_x='left', anchor_y='bottom')
+
+    def on_update(self, delta_time):
+        
+        button = self.ui_manager.find_by_id('playbutton')
+        if button is not None:
+            if button.connection is not None:
+                if button.connection is True:
+                    game_view = GameView()
+                    game_view.setup(button.socket)
+                    self.window.show_view(game_view)
+                else:
+                    self.rectangle = arcade.create_rectangle_filled(SCREEN_WIDTH // 2 - 135, 20, SCREEN_WIDTH * 3.4 / 5, 50, arcade.color.RED)
+                    self.connectionRefused = 'Cannot connect to server,\ncheck your network connection and try again.'
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ If the user presses the mouse button, start the game. """
-        game_view = GameView()
-        game_view.setup()
-        self.window.show_view(game_view)
+
+
 
 
 class GameView(arcade.View):
@@ -98,14 +191,13 @@ class GameView(arcade.View):
         self.ver_points = None
 
         self.window.set_mouse_visible(True)
-        self.socket = None
 
         arcade.set_background_color(arcade.color.DARK_BLUE)
 
-    def setup(self):
+    def setup(self, s):
         """ Set up the game and initialize the variables. """
         
-        self.socket = connectToServer()
+        self.socket = s
 
         self.socket.send(bytearray('get.game', 'utf-8'))
         listenOnSocket(self.socket)
@@ -247,16 +339,16 @@ class GameOverView(arcade.View):
         """ Draw this view """
         arcade.start_render()
 
-        arcade.draw_text("YOU LOST", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+        arcade.draw_text("YOU QUIT THE GAME", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                          arcade.color.WHITE, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to play", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75,
+        arcade.draw_text("Click to play again", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75,
                          arcade.color.WHITE, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ If the user presses the mouse button, re-start the game. """
-        game_view = GameView()
-        game_view.setup()
-        self.window.show_view(game_view)
+        start_view = InstructionView()
+        start_view.setup()
+        self.window.show_view(start_view)
 
 def main():
     """ Main method """

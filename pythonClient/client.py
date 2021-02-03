@@ -65,7 +65,10 @@ def connectToServer():
     except socket.error as err:
         print("socket creation failed with error %s" %(err))
 
-    s.connect((sys.argv[1], int(sys.argv[2])))
+    try:
+        s.connect((sys.argv[1], int(sys.argv[2])))
+    except ConnectionRefusedError:
+        raise ConnectionRefusedError
 
     print("succesfully connected to server")
 
