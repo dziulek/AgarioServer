@@ -137,10 +137,6 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
     data.clearBuf();
 
-    data.appendChar(MAP);
-    data.appendFloat(client->getGame()->getMap()->width);
-    data.appendFloat(client->getGame()->getMap()->height);
-
     data.appendMinis(client->getGame(), client->getPlayer());
     //player coordinates
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
@@ -243,7 +239,7 @@ int Server::mainLogic(){
     }
 
     pthread_join(this->server_thread, NULL);
-    pthread_join(this->send_thread, NULL);
+    // pthread_join(this->send_thread, NULL);
     pthread_join(this->game_thread, NULL);
 
     for(auto & c : clients){
@@ -379,12 +375,12 @@ void * Server::serverInfoRoutine(void * args){
 
             this->close_server = true;
 
-            for(auto & c : clients){
+            // for(auto & c : clients){
                 
-                c.get()->setDisconnect();
-                disconnectClient(c.get()->getSockfd());
-            }
-            break;
+            //     c.get()->setDisconnect();
+            //     disconnectClient(c.get()->getSockfd());
+            // }
+            // break;
         }
     }
 

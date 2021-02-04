@@ -13,7 +13,7 @@ void * clientThread(void * server_client_struct){
 
         buf.clearBuf();
 
-        int status = recv(client->getSockfd(), buf.getBuf(), 150, 0);
+        int status = read(client->getSockfd(), buf.getBuf(), 150);
         if(status == 0){
             //closed socket
             break;
@@ -22,13 +22,13 @@ void * clientThread(void * server_client_struct){
 
         if(strcmp("get:game", buf.getBuf()) == 0){
 
-            buf.clearBuf();
             if(client->getPlayer() == nullptr || client->getPlayer()->getSize() == 0){
                 
                 client->getPlayer()->setState(false);
-                std::cout << "xd" << std::endl;
             }
 
+            buf.clearBuf();
+            buf.appendSeparator();
             int status = sc->server->sendDataToClient(client);
 
             if(status == -1){
@@ -43,11 +43,18 @@ void * clientThread(void * server_client_struct){
 
             int ind = buf.getNextIndexSeparator(0);
             std::string nick = buf.getWord(ind);
+            std::cout << nick << std::endl;
 
             client->getPlayer()->setNickname(nick);
             client->getPlayer()->setColor();
 
-            int status = send(client->getSockfd(), "conf", 4, 0);
+            buf.clearBuf();
+
+            buf.appendSeparator();
+            buf.appendFloat(client->getGame()->getMap()->width);
+            buf.appendFloat(client->getGame()->getMap()->height);
+            
+            int status = write(client->getSockfd(), buf.getBuf(), buf.getLen());
 
             if(status == -1){
                 fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
@@ -69,6 +76,7 @@ void * clientThread(void * server_client_struct){
     client->getGame()->deletePlayer(client->getPlayer());
 
     pthread_mutex_unlock(&sc->server->new_player_mutex);
+    close(client->getSockfd());
     sc->server->cullDisconnectedClients();
 
     pthread_mutex_unlock(&sc->server->client_creation_mutex);

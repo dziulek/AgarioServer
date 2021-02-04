@@ -47,6 +47,7 @@ def getColorFromInt(color):
     rgba.append(color >> 8 & 0xff)
     rgba.append(color >> 16 & 0xff)
     rgba.append(color >> 24 & 0xff)
+    rgba.reverse()
 
     return rgba
 
@@ -86,6 +87,9 @@ class PlayButton(arcade.gui.UIImageButton):
             self.connection = True
         except ConnectionRefusedError:
             self.connection = False
+
+# class SpectateButton(arcade.gui.UIImageButton):
+
 
 class InstructionView(arcade.View):
 
@@ -156,7 +160,7 @@ class InstructionView(arcade.View):
                          arcade.color.WHITE, font_size=50, anchor_x="center")
 
         if self.connectionRefused is not None:
-            arcade.draw_text(self.connectionRefused, 0, 5, arcade.color.WHITE, 16, SCREEN_WIDTH, 'left', 'calibri', bold=True, anchor_x='left', anchor_y='bottom')
+            arcade.draw_text(self.connectionRefused, 0, 5, arcade.color.WHITE, 16, SCREEN_WIDTH, 'left', 'arial', bold=True, anchor_x='left', anchor_y='bottom')
 
     def on_update(self, delta_time):
         
@@ -167,8 +171,13 @@ class InstructionView(arcade.View):
                 if button.connection is True:
                     try:
                         button.socket.send(bytearray('nickname:' + nickname, 'utf-8'))
-                        confirmation = button.socket.recv(10)
-                        game_view = GameView()
+                        #get data that can be send once
+                        confirmation = button.socket.recv(50)
+                        data = confirmation.decode()
+                        # print(data)
+                        empty, width, height, empty = data.split(':')
+                        
+                        game_view = GameView(float(width), float(height))
                         game_view.setup(button.socket)
                         self.window.show_view(game_view)                        
                     except BrokenPipeError:
@@ -186,14 +195,18 @@ class InstructionView(arcade.View):
 class GameView(arcade.View):
     """ Our custom Window Class"""
 
-    def __init__(self):
+    def __init__(self, map_width, map_height):
         """ Initializer """
         # Call the parent class initializer
         super().__init__()
         self.player_shapes = None
         self.mini_shapes = None
+        self.players_nicks = None
 
         self.map_rectangle = None
+
+        self.map_width = map_width
+        self.map_height = map_height
 
         self.view_left = 0
         self.view_right = SCREEN_WIDTH - 1
@@ -202,6 +215,8 @@ class GameView(arcade.View):
 
         self.hor_points = None
         self.ver_points = None
+        self.cursor_x = 0
+        self.cursor_y = 0
 
         self.window.set_mouse_visible(True)
 
@@ -224,7 +239,6 @@ class GameView(arcade.View):
         self.hor_points = np.array([])
         self.ver_points = np.array([])
 
-
     def on_draw(self):
         """ Draw everything """
         global drawing_time
@@ -246,10 +260,8 @@ class GameView(arcade.View):
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        vx, vy = mapWindowCoordToView(x, y, self)
-
-        global myInfo
-        myInfo.addMousePosition([vx, vy])
+        self.cursor_x = x
+        self.cursor_y = y
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -261,7 +273,7 @@ class GameView(arcade.View):
         if game.playerState == False:
             #lost game
             self.socket.close()
-            game_over = GameOverView()
+            game_over = GameOverView("YOU LOST")
             self.window.show_view(game_over)
         
         else:
@@ -269,18 +281,19 @@ class GameView(arcade.View):
 
             logic_time = time.time()
             self.map_rectangle = arcade.create_rectangle_filled(
-                game.map['width'] // 2, game.map['height']//2,
-                game.map['width'], game.map['height'],
+                self.map_width // 2, self.map_height//2,
+                self.map_width, self.map_height,
                 arcade.color.AMAZON
             )
 
             self.player_shapes = arcade.ShapeElementList()
+            self.players_nicks = []
             if game.players is not None:
                 for player in game.players:
                     for x, y, radius in player.coordinates:
                         shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(player.color))
                         self.player_shapes.append(shape)
-            
+
             if game.map['minis'] is not None:
                 self.mini_shapes = arcade.ShapeElementList()
                 for mini, color in zip(game.map['minis'], game.map['colors']):
@@ -330,8 +343,8 @@ class GameView(arcade.View):
             self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
             logic_time = time.time() - logic_time
 
+            myInfo.addMousePosition(mapWindowCoordToView(self.cursor_x, self.cursor_y, self))
             writeToServerRoutine(self.socket)
-
             # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time)
 
 
@@ -343,18 +356,16 @@ class GameView(arcade.View):
             myInfo.addWAction(1)
         elif key == arcade.key.SPACE:
             myInfo.addDivideAction(1)
-        elif key == arcade.key.A:
-            arcade.set_viewport(45, 145, 7, 34)
         elif key == arcade.key.ESCAPE:
             self.socket.close()
-            game_over = GameOverView()
+            game_over = GameOverView("YOU QUIT THE GAME")
             self.window.show_view(game_over)
 
 
 class GameOverView(arcade.View):
     """ View to show when game is over """
 
-    def __init__(self):
+    def __init__(self, text):
         """ This is run once when we switch to this view """
         super().__init__()
 
@@ -363,11 +374,13 @@ class GameOverView(arcade.View):
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
         arcade.set_background_color(arcade.csscolor.DARK_SLATE_BLUE)
 
+        self.text = text
+
     def on_draw(self):
         """ Draw this view """
         arcade.start_render()
 
-        arcade.draw_text("YOU QUIT THE GAME", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+        arcade.draw_text(self.text.upper(), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
                          arcade.color.WHITE, font_size=50, anchor_x="center")
         arcade.draw_text("Click to play again", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75,
                          arcade.color.WHITE, font_size=20, anchor_x="center")

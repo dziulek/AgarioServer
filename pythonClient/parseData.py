@@ -68,9 +68,6 @@ def parse(data, game):
         elif word == state_dictionary['state']:
             current_state = word
             continue
-        elif word == state_dictionary['map']:
-            current_state = word
-            continue
 
         if current_state == state_dictionary['nickname']:
             player.addNickname(word)
@@ -85,9 +82,7 @@ def parse(data, game):
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
         elif current_state == state_dictionary['state']:
-            game.playerState = bool(word)
-        elif current_state == state_dictionary['map']:
-            map_size = np.append(map_size, float(word))
+            game.playerState = bool(int(word))
         elif current_state == state_dictionary['color']:
             player.color = int(word, 16)
     
@@ -95,8 +90,6 @@ def parse(data, game):
         game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
     if colors is not None:
         game.map['colors'] = colors
-    if map_size is not None:
-        game.map['width'], game.map['height'] = map_size
     # if game.view is not None and len(game.view) == 4:
     #     game.view[1] = -game.view[1]
     #     game.view[3] = -game.view[3]

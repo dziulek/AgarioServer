@@ -16,9 +16,6 @@ void DataFormatServer::appendPlayer(agario::Player * player){
 
     for(int i = 0; i < player->getSize(); i++){
 
-        // std::cout<< "x: " << (*player)[i].getPosition().x << ", y: " << (*player)[i].getPosition().y <<std::endl;
-        // std::cout << "mass: " << (*player)[i].getArea() <<std::endl;
-
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
         this->appendFloat((*player)[i].getRadius());

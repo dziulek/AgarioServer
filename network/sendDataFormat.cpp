@@ -13,7 +13,7 @@ void SendDataFormat::appendFloat(float f){
     
     char local[N_CHAR_FLOAT];
     bzero(local, sizeof(local));
-    int status = snprintf(local, sizeof(local), "%f", f);
+    int status = snprintf(local, sizeof(local), "%0.1f", f);
     
     if(status < 0){
         
@@ -44,7 +44,7 @@ void SendDataFormat::appendString(std::string s){
 
 void SendDataFormat::clearBuf(){
     
-    bzero(this->buf, MAX_LEN_BUFER);
+    bzero(this->buf, this->getLen());
 }
 
 void SendDataFormat::printBuf(){

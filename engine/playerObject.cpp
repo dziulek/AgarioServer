@@ -51,7 +51,10 @@ void PlayerObject::setVelocities(){
     for(auto & b : blobs){
 
         glm::vec2 v = mousePosition - b.get()->getPosition();
+
         glm::vec2 before = v;
+
+        std::cout << before.x << " " << before.y << std::endl;
         if(abs(v.x) < 1.0 && abs(v.y) < 1.0)
             v = {0, 0};
         else v = glm::normalize(v);
@@ -73,6 +76,7 @@ void PlayerObject::deleteIthElement(int i){
     blobs[i] = std::move(blobs.back());
 
     blobs.pop_back();
+
 }
 
 std::pair<glm::vec2, glm::vec2> PlayerObject::getMinRectangle(){

@@ -29,7 +29,7 @@ public:
         state = true;
     }
     virtual ~Player(){}
-    char getState(){ return state;}
+    char getState(){ return (state == true ? '1' : '0');}
     void setState(bool s){this->state = s;}
     void setNickname(std::string nickname){ this->nick = nickname;}
     std::string & getNickname(){ return this->nick;}
