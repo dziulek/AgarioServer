@@ -30,8 +30,10 @@ def writeToServerRoutine(server_socket):
     global myInfo
 
     buf = fillMyData(myInfo)
-        
-    server_socket.send(bytearray(buf, 'utf-8'))
+    try:
+        server_socket.send(bytearray(buf, 'utf-8'))
+    except BrokenPipeError:
+        raise BrokenPipeError
 
 def handleConnection(server_socket):
 
@@ -48,8 +50,10 @@ def listenOnSocket(server_socket):
 
     global closeClient
     global game
-
-    buf = server_socket.recv(10000)
+    try:
+        buf = server_socket.recv(100000)
+    except OSError:
+        raise OSError
     # print(buf)
     
     if len(buf) == 0:

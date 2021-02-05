@@ -10,4 +10,6 @@ void * clientThread(void * server_client);
 
 void * gameThread(void * srv);
 
+void * serverInfoRoutine(void * args);
+
 #endif

@@ -54,7 +54,7 @@ void PlayerObject::setVelocities(){
 
         glm::vec2 before = v;
 
-        std::cout << before.x << " " << before.y << std::endl;
+        // std::cout << before.x << " " << before.y << std::endl;
         if(abs(v.x) < 1.0 && abs(v.y) < 1.0)
             v = {0, 0};
         else v = glm::normalize(v);

@@ -56,37 +56,42 @@ void DataFormatServer::extractClientInfo(clientInfo & cinfo){
 
     int curr_ind = 0;
 
-    while(curr_ind < this->getLen() - 1){
+    std::string word = this->getWord(curr_ind);
 
-        c = this->getChar(curr_ind);
-
-        if(c == MOUSE){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            x = this->getFloat(curr_ind);
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            y = this->getFloat(curr_ind);
-            cinfo.mousePosition = {x, y};
-
-            c = '-';
-        }
-        else if(c == W_MASS){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            char t = this->getChar(curr_ind);
-            cinfo.w_action = (t == '0' ? false : true);
-
-            c = '-';
-        }
-        else if(c == DIVIDE_ACTION){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            char t = this->getChar(curr_ind);
-            cinfo.divide_action = (t == '0' ? false : true);
-
-            c = '-';
-        }
-        else if(c == STATE){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-        }
+    if(word == "data"){
         curr_ind = this->getNextIndexSeparator(curr_ind);
+        while(curr_ind < this->getLen() - 1){
+
+            c = this->getChar(curr_ind);
+
+            if(c == MOUSE){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                x = this->getFloat(curr_ind);
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                y = this->getFloat(curr_ind);
+                cinfo.mousePosition = {x, y};
+
+                c = '-';
+            }
+            else if(c == W_MASS){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                char t = this->getChar(curr_ind);
+                cinfo.w_action = (t == '0' ? false : true);
+
+                c = '-';
+            }
+            else if(c == DIVIDE_ACTION){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                char t = this->getChar(curr_ind);
+                cinfo.divide_action = (t == '0' ? false : true);
+
+                c = '-';
+            }
+            else if(c == STATE){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+            }
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+        }        
     }
 }
 

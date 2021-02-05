@@ -14,18 +14,22 @@ void * clientThread(void * server_client_struct){
         buf.clearBuf();
 
         int status = read(client->getSockfd(), buf.getBuf(), 150);
+
         if(status == 0){
             //closed socket
             break;
         }
+        buf.printBuf();
 
-
-        if(strcmp("get:game", buf.getBuf()) == 0){
+        if(buf.getWord(0) == "data"){
 
             if(client->getPlayer() == nullptr || client->getPlayer()->getSize() == 0){
                 
                 client->getPlayer()->setState(false);
             }
+
+            buf.extractClientInfo(cinfo);
+            client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
 
             buf.clearBuf();
             buf.appendSeparator();
@@ -34,6 +38,7 @@ void * clientThread(void * server_client_struct){
             if(status == -1){
                 fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
             }
+            
 
         }
         else if(strcmp("get:score", buf.getBuf()) == 0){
@@ -59,11 +64,6 @@ void * clientThread(void * server_client_struct){
             if(status == -1){
                 fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
             }
-        }
-        else if(buf.getBuf()[0] == ':'){
-            // buf.printBuf();
-            buf.extractClientInfo(cinfo);
-            client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
         }
         
     }
@@ -101,5 +101,55 @@ void * gameThread(void * srv){
     }
 
     fprintf(stdout, "exit from game thread\n");
+    pthread_exit(NULL);
+}
+
+void * serverInfoRoutine(void * args){
+
+    Server * server = (Server *)args;
+
+    int terminate = true;
+    std::string s;
+
+    while(terminate){
+
+        std::cin>>s;
+        
+        if(s == "clients")
+        {
+            fprintf(stdout, "current number of clients connected: %d\n", (int)server->clients.size());
+        }
+        else if(s == "games")
+        {
+            fprintf(stdout, "number of games running: %d\n", (int)server->games.size());
+        }
+        else if(s == "port"){
+            fprintf(stdout, "server is running on %s port\n", server->portNumber);
+        }
+        else if(s == "cullClients"){
+
+            server->cullDisconnectedClients();
+            fprintf(stdout, "deleting disconnected clients\n");
+        }
+        else if(s == "time"){
+            
+            std::time_t time = server->getServerTime();
+
+            std::cout<<std::ctime(&time)<<std::endl;
+        }
+        if(s == "closeServer:4rfvbgt5"){
+
+            server->close_server = true;
+
+            for(auto & c : server->clients){
+                
+                c.get()->setDisconnect();
+                server->disconnectClient(c.get()->getSockfd());
+            }
+            break;
+        }
+    }
+
+    fprintf(stdout, "exit from infoServerRoutine thread\n");
     pthread_exit(NULL);
 }

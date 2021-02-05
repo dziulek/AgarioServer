@@ -5,7 +5,7 @@ int Server::setUpServer(){
     int status;
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
@@ -13,8 +13,11 @@ int Server::setUpServer(){
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
         return -1;
     }
+    char ip[INET6_ADDRSTRLEN];
+    std::cout << inet_ntop(serverInfo->ai_family, serverInfo->ai_addr, ip, sizeof(ip)) << std::endl;
 
     sockfd = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+    //nieblokujące gniazdo
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
     if((sockfd < 0)){
@@ -176,7 +179,7 @@ int Server::sendDataToClient(Client * client){
 
 int Server::mainLogic(){
 
-    int status = pthread_create(&this->server_thread, NULL,  (THREADFUNCPTR) &Server::serverInfoRoutine, this);
+    int status = pthread_create(&this->server_thread, NULL,  serverInfoRoutine, (void *)this);
 
     if(status){
 
@@ -338,54 +341,6 @@ int  Server::listenOnSocket(Client * client){
 
 
         return n;
-}
-
-void * Server::serverInfoRoutine(void * args){
-
-    int terminate = true;
-    std::string s;
-
-    while(terminate){
-
-        std::cin>>s;
-        
-        if(s == "clients")
-        {
-            fprintf(stdout, "current number of clients connected: %d\n", (int)clients.size());
-        }
-        else if(s == "games")
-        {
-            fprintf(stdout, "number of games running: %d\n", (int)games.size());
-        }
-        else if(s == "port"){
-            fprintf(stdout, "server is running on %s port\n", this->portNumber);
-        }
-        else if(s == "cullClients"){
-
-            cullDisconnectedClients();
-            fprintf(stdout, "deleting disconnected clients\n");
-        }
-        else if(s == "time"){
-            
-            std::time_t time = this->getServerTime();
-
-            std::cout<<std::ctime(&time)<<std::endl;
-        }
-        if(s == "closeServer:4rfvbgt5"){
-
-            this->close_server = true;
-
-            // for(auto & c : clients){
-                
-            //     c.get()->setDisconnect();
-            //     disconnectClient(c.get()->getSockfd());
-            // }
-            // break;
-        }
-    }
-
-    fprintf(stdout, "exit from infoServerRoutine thread\n");
-    pthread_exit(NULL);
 }
 
 void Server::sig_pipe_signal_handler(int signum){

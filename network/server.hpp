@@ -32,16 +32,6 @@ class Server;
 
 typedef void * (*THREADFUNCPTR)(void *);
 
-struct sendDataFormat{
-
-    char state;
-    float window_coordinates[2][2];
-    float player_coordinates[16][2];
-    float other_players_coordinates[5][16][2];
-    float minis_coorindate[100][2];
-    float bomb_coordinates[20][2];
-};
-
 struct recvDataFormat{
 
     char state;
@@ -50,6 +40,8 @@ struct recvDataFormat{
     int mouse_coordinates[2];
 };
 
+
+//struktura potrzebna do tworzenia wątku dla nowego klienta
 struct server_client{
     Server * server;
     char * ip_addr;
@@ -93,7 +85,6 @@ private:
     static void sig_pipe_signal_handler(int signum);
     static void non_blocking_socket_signal(int signum);
 
-    void * serverInfoRoutine(void * args);
     void fillDataToClient(Client * client, DataFormatServer & data);
     void * sendDataThread(void * args);
     void cullDisconnectedClients();
@@ -105,7 +96,6 @@ public:
     Server(){
         
         signal(SIGPIPE, sig_pipe_signal_handler);
-        client_creation_mutex = PTHREAD_MUTEX_INITIALIZER;
 
         strcpy(this->portNumber, std::string("1234").c_str());
         int status = setUpServer();
@@ -132,6 +122,7 @@ public:
     int listenOnSocket(Client * client);
     friend void * clientThread(void * server_client);
     friend void * gameThread(void * server);
+    friend void * serverInfoRoutine(void * args);
 
     const std::time_t getServerTime();
 

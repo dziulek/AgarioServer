@@ -171,10 +171,9 @@ class InstructionView(arcade.View):
                 if button.connection is True:
                     try:
                         button.socket.send(bytearray('nickname:' + nickname, 'utf-8'))
-                        #get data that can be send once
+                        #czekamy na dane które ptrzebne są tylko raz, w tym przypadku tylko wysokość i szerokośc mapy
                         confirmation = button.socket.recv(50)
                         data = confirmation.decode()
-                        # print(data)
                         empty, width, height, empty = data.split(':')
                         
                         game_view = GameView(float(width), float(height))
@@ -227,7 +226,7 @@ class GameView(arcade.View):
         
         self.socket = s
 
-        self.socket.send(bytearray('get:game', 'utf-8'))
+        self.socket.send(bytearray(':data:', 'utf-8'))
         listenOnSocket(self.socket)
 
         self.player_shapes = arcade.ShapeElementList()
@@ -268,8 +267,6 @@ class GameView(arcade.View):
         global ping, logic_time
 
         ping = time.time()
-        self.socket.send(bytearray('get:game', 'utf-8'))
-        listenOnSocket(self.socket)
         if game.playerState == False:
             #lost game
             self.socket.close()
@@ -344,7 +341,20 @@ class GameView(arcade.View):
             logic_time = time.time() - logic_time
 
             myInfo.addMousePosition(mapWindowCoordToView(self.cursor_x, self.cursor_y, self))
-            writeToServerRoutine(self.socket)
+            try:
+                writeToServerRoutine(self.socket)
+            except BrokenPipeError:
+                #broken pipe
+                self.socket.close()
+                game_over = GameOverView("UPS, LOST CONNECTION")
+                self.window.show_view(game_over)
+            try:
+                listenOnSocket(self.socket)
+            except OSError:
+                #bad file descriptor, inactive socket
+                self.socket.close()
+                game_over = GameOverView("UPS, LOST CONNECTION")
+                self.window.show_view(game_over)
             # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time)
 
 

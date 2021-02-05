@@ -90,13 +90,10 @@ def parse(data, game):
         game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
     if colors is not None:
         game.map['colors'] = colors
-    # if game.view is not None and len(game.view) == 4:
-    #     game.view[1] = -game.view[1]
-    #     game.view[3] = -game.view[3]
 
 def fillMyData(myInfo):
 
-    text = []
+    text = ['data']
     mouse = SEPARATOR.join(['{:.2f}'.format(myInfo.attributes['mouse'][0]), '{:.2f}'.format(myInfo.attributes['mouse'][1])])   
     text.append(state_dictionary['mouse'])
     text.append(mouse)
