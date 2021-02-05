@@ -87,6 +87,7 @@ def parse(data, game):
             player.color = int(word, 16)
     
     if minis is not None:
+        minis = np.resize(minis, len(minis) // 3 * 3)
         game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
     if colors is not None:
         game.map['colors'] = colors
