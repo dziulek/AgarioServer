@@ -7,6 +7,7 @@ from gameState import Player, GameState, MyInfo
 import numpy as np
 import copy
 import time
+import socket
 
 ping = None
 logic_time = None
@@ -86,6 +87,8 @@ class PlayButton(arcade.gui.UIImageButton):
             self.socket = connectToServer()
             self.connection = True
         except ConnectionRefusedError:
+            self.connection = False
+        except socket.gaierror:
             self.connection = False
 
 # class SpectateButton(arcade.gui.UIImageButton):

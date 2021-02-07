@@ -74,6 +74,8 @@ def connectToServer():
         s.connect((sys.argv[1], int(sys.argv[2])))
     except ConnectionRefusedError:
         raise ConnectionRefusedError
+    except socket.gaierror:
+        raise socket.gaierror
 
     print("succesfully connected to server")
 

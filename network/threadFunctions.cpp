@@ -19,7 +19,7 @@ void * clientThread(void * server_client_struct){
             //closed socket
             break;
         }
-        buf.printBuf();
+        // buf.printBuf();
 
         if(buf.getWord(0) == "data"){
 
