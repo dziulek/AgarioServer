@@ -8,10 +8,14 @@ import numpy as np
 import copy
 import time
 import socket
+import sys
 
 ping = None
 logic_time = None
 drawing_time = None
+
+frames_per_second = 0
+second = time.time()
 
 
 SCREEN_WIDTH = 800
@@ -267,9 +271,17 @@ class GameView(arcade.View):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-        global ping, logic_time
+        global ping, logic_time, second, frames_per_second
 
         ping = time.time()
+
+        if ping - second > 1.0:
+            second = ping
+            # print(frames_per_second)
+            frames_per_second = 1
+        else:
+            frames_per_second += 1
+
         if game.playerState == False:
             #lost game
             self.socket.close()
@@ -358,7 +370,7 @@ class GameView(arcade.View):
                 self.socket.close()
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
-            # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time)
+            # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time, 'total: ', ping + logic_time + drawing_time)
 
 
     def on_key_press(self, key, modifiers):
@@ -406,11 +418,15 @@ class GameOverView(arcade.View):
 
 def main():
     """ Main method """
+
+    if len(sys.argv) != 3:
+        print("Uruchomienie klienta: python views.py <serwer ip> <numer portu>")
     
-    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    start_view = InstructionView()
-    window.show_view(start_view)
-    arcade.run()
+    else:
+        window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        start_view = InstructionView()
+        window.show_view(start_view)
+        arcade.run()
 
 
 if __name__ == "__main__":

@@ -46,8 +46,8 @@ glm::vec2 Map::findPositionForNewPlayer(){
         occupied = false;
     }
 
-    // return {xPos, yPos};
-    return {100, 100};
+    return {xPos, yPos};
+    // return {100, 100};
 }
 
 std::pair<std::pair<int, int>, std::pair<int, int>> Map::getMiniRects(glm::vec2 left_up, glm::vec2 right_down){
@@ -61,6 +61,23 @@ std::pair<std::pair<int, int>, std::pair<int, int>> Map::getMiniRects(glm::vec2 
     rd.second = std::min((int)minis.size(), (int)ceil(right_down.y / MINI_WIDTH));
 
     return {lu, rd};
+}
+
+void Map::playerObjectAbandoned(PlayerObject * playerObject){
+
+    for(auto & blob : *playerObject->getBlobs()){
+        
+        this->abandoned.push_back(std::move(blob));
+    }
+
+    playerObject->getBlobs()->clear();
+
+    for(int i = 0; i < playerObjects.size(); i++){
+        if(playerObject == playerObjects[i]){
+            playerObjects[i] = playerObjects.back();
+            playerObjects.pop_back();
+        }
+    }
 }
 
 }

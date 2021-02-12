@@ -5,6 +5,7 @@
 #include "../glm/glm.hpp"
 #include <utility>
 #include <cmath>
+#include <iostream>
 
 namespace agario{
 
@@ -27,7 +28,7 @@ public:
     virtual ~MoveableCircle(){}
     
     inline float calculateVelocityMod() const{
-        return 80.4 * pow(this->getArea(), -0.439);
+        return 40.4 * pow(this->getArea(), -0.239);
     };
     void addMass(const float mass);
     const glm::vec2 getVelocity() const;

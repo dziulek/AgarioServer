@@ -5,17 +5,17 @@ int Server::setUpServer(){
     int status;
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
+    hints.ai_family = AF_UNSPEC;//niewyspecyfikowany, może być ipv4 albo ipv6
+    hints.ai_socktype = SOCK_STREAM;//tcp
+    hints.ai_flags = AI_PASSIVE;//localhost
 
+    //wypełnienie struktury
     if((status = getaddrinfo(NULL, this->portNumber, &hints, &serverInfo)) != 0){
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
         return -1;
     }
-    char ip[INET6_ADDRSTRLEN];
-    std::cout << inet_ntop(serverInfo->ai_family, serverInfo->ai_addr, ip, sizeof(ip)) << std::endl;
 
+    //utworzenie gniazda sieciowego
     sockfd = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
     //nieblokujące gniazdo
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
@@ -25,16 +25,19 @@ int Server::setUpServer(){
         return -1;
     }
 
+    //zmiana ustwanień gniazda, żeby można było ponownie używać w razie błędów
     if((status = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt_value, sizeof(int))) < 0){
         fprintf(stderr, "setsockopt error: %s\n", gai_strerror(status));
         return -1;
     }
 
+    //skojarzenie gniazda z adresem 
     if((status = bind(sockfd, serverInfo->ai_addr, serverInfo->ai_addrlen)) < 0){
         fprintf(stderr, "bind error: %s\n", gai_strerror(status));
         return -1;
     }
 
+    //ustawienie długości kolejki klientów oczekujących
     if((status = listen(sockfd, 5)) != 0){
         fprintf(stderr, "listen error: %s\n", gai_strerror(status));
         return -1;
@@ -138,21 +141,25 @@ void * Server::sendDataThread(void * args){
 
 void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
+    //wyczyść bufor danych
     data.clearBuf();
 
+    data.appendSeparator();
+
+    //dodanie mini kulek na mapie
     data.appendMinis(client->getGame(), client->getPlayer());
-    //player coordinates
+    //dodanie wszystkich graczy danej gry 
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
 
         data.appendPlayer(&client->getGame()->getPlayer(i));     
     }
     data.appendChar(PLAYER);
 
+    //dodanie widoku gracza
     data.appendView(client->getPlayer());
 
+    //dodanie stanu gracza
     data.appendState(client->getPlayer());
-
-    //bomb coordinates
 }
 
 int Server::sendDataToClient(Client * client){
@@ -179,6 +186,8 @@ int Server::sendDataToClient(Client * client){
 
 int Server::mainLogic(){
 
+
+    //utworzenie wątku kontrolnego
     int status = pthread_create(&this->server_thread, NULL,  serverInfoRoutine, (void *)this);
 
     if(status){
@@ -195,6 +204,7 @@ int Server::mainLogic(){
     //     return -1;
     // }
     
+    //utworzenie wątku gier
     status = pthread_create(&this->game_thread, NULL, gameThread, (void *)this);
 
     if(status){
@@ -202,6 +212,7 @@ int Server::mainLogic(){
         fprintf(stderr, "creating game thread: %s", gai_strerror(status));
     }
 
+    
     struct sockaddr_storage client_addr;
     socklen_t str_size = sizeof(client_addr);
 
@@ -273,7 +284,7 @@ void Server::findGameForNewClient(Client * client){
     bool added = false;
     for(auto & g : games){
 
-        if(g.get()->getnOfPlayers() < 15){
+        if(g.get()->getnOfPlayers() < agario::MAX_PLAYERS_IN_GAME){
             
             pthread_mutex_lock(&new_player_mutex);
             agario::Player * p = g.get()->addPlayer();
@@ -287,7 +298,6 @@ void Server::findGameForNewClient(Client * client){
     }
 
     if(added == false){
-
 
         pthread_mutex_lock(&new_player_mutex);
         this->createNewGame();
@@ -323,13 +333,6 @@ int  Server::listenOnSocket(Client * client){
         //update client state
         clientInfo cinfo;
         data_in.extractClientInfo(cinfo);
-
-        // cinfo.mousePosition = {1, 1};
-
-
-
-        // std::cout<<cinfo.mousePosition.x<< " " << cinfo.mousePosition.y<<std::endl;
-        // std::cout<<cinfo.divide_action << " " << cinfo.w_action << std::endl;
         //mouse position
         pthread_mutex_lock(&client_creation_mutex);
         client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);

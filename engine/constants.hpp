@@ -52,6 +52,8 @@ const float MINI_WIDTH = 50.0f;
 const int DEFAULT_MAP_WIDTH = 300;
 const int DEFAULT_MAP_HEIGHT = 300;
 
+const int MAX_PLAYERS_IN_GAME = 5;
+
 }//namespace agario
 
 #endif

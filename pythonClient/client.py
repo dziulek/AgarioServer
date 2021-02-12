@@ -59,6 +59,7 @@ def listenOnSocket(server_socket):
     if len(buf) == 0:
         closeClient = True
     data = buf.decode()
+    # print(len(data))
     game.clear()
     parse(data, game)
 
