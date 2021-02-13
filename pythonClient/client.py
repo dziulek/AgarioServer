@@ -59,6 +59,7 @@ def listenOnSocket(server_socket):
     if len(buf) == 0:
         closeClient = True
     data = buf.decode()
+    # print(len(data))
     game.clear()
     parse(data, game)
 
@@ -74,6 +75,8 @@ def connectToServer():
         s.connect((sys.argv[1], int(sys.argv[2])))
     except ConnectionRefusedError:
         raise ConnectionRefusedError
+    except socket.gaierror:
+        raise socket.gaierror
 
     print("succesfully connected to server")
 

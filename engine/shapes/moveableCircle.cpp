@@ -17,6 +17,7 @@ const glm::vec2 MoveableCircle::getVelocity() const{
 void MoveableCircle::move(const float dTime){
 
     centerPosition += dTime * velocity;
+    // std::cout << glm::length(velocity) <<std::endl;
 }
 
 std::pair<glm::vec2, glm::vec2> MoveableCircle::calculateGravityVelocities(const MoveableCircle & c1, const MoveableCircle & c2){

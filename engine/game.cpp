@@ -31,7 +31,7 @@ Player * Game::addPlayer(std::string nickname){
 
 void Game::deletePlayer(Player * player){
 
-    player = nullptr;
+    player->setState(false);
 
     cullDeadPlayers();
 }
@@ -40,7 +40,7 @@ void Game::cullDeadPlayers(){
 
     for(int i = 0; i < players.size(); i++){
 
-        if(players[i].get() == nullptr){
+        if(players[i].get()->getState() == '0'){
 
             players[i].reset();
             players[i] = std::move(players.back());
