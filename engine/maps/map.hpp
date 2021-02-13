@@ -58,9 +58,6 @@ public:
 
     void notify();
     
-
-    // friend class MapMiniController;
-    // friend class MapBombController;
 };
 
 }

@@ -1,7 +1,7 @@
 #ifndef MAP_CONTROLLER_HPP
 #define MAP_CONTROLLER_HPP
 
-#include "../shapes/shape.hpp"
+#include "../allshapes.hpp"
 #include "map.hpp"
 
 namespace agario{

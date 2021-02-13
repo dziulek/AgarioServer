@@ -1,11 +1,8 @@
 #ifndef MAP_PLAYER_MOVEMENT_HPP
 #define MAP_PLAYER_MOVEMENT_HPP
 
-#include "shapes/shape.hpp"
 #include "mapController.hpp"
-
 #include <cmath>
-
 #include <iostream>
 
 namespace agario{
