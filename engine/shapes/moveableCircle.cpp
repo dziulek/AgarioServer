@@ -16,7 +16,14 @@ const glm::vec2 MoveableCircle::getVelocity() const{
 
 void MoveableCircle::move(const float dTime){
 
+    glm::vec2 old = this->velocity;
+
+    float dirx, diry;
+
     this->velocity += this->acceleration * dTime;
+
+    dirx = old.x * this->velocity.x;
+    diry = old.y * this->velocity.y;
 
     if(glm::length(this->velocity) > eps)
         centerPosition += dTime * velocity;

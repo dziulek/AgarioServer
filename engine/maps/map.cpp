@@ -80,4 +80,22 @@ void Map::playerObjectAbandoned(PlayerObject * playerObject){
     }
 }
 
+void Map::wAction(PlayerObject * po){
+
+    for(auto & blob : *po->getBlobs()){
+
+        if(blob.get()->getArea() > 2 * W_AREA){
+
+            glm::vec2 dir = glm::normalize(po->mousePosition - blob.get()->getPosition()) * blob.get()->getRadius();
+            glm::vec2 wPos = blob.get()->getPosition() + dir;
+            std::unique_ptr<WObject> w = std::make_unique<WObject>(wPos, dir);
+
+            w.get()->setColor(blob.get()->getColor());
+            this->abandoned.push_back(std::move(w));
+
+            blob.get()->addMass(-W_AREA);
+        }
+    }
+}
+
 }

@@ -21,6 +21,8 @@ int main(){
 
     game.addPlayer();
 
+    game.getPlayer(0).setColor();
+
     SFMLRenderer rend(game);
     MouseObserver mouse(&rend);
 
@@ -31,6 +33,9 @@ int main(){
         {
             if (event.type == sf::Event::Closed)
                 rend.getWindow()->close();
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+                game.wAction(&game.getPlayer(0));
+            }
         }
 
         mouse.update(&game.getPlayer(0));

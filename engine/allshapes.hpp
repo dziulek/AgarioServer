@@ -5,5 +5,6 @@
 #include "shapes/circle.hpp"
 #include "shapes/mini.hpp"
 #include "shapes/moveableCircle.hpp"
+#include "shapes/wObject.hpp"
 
 #endif

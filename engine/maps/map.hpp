@@ -57,6 +57,8 @@ public:
     void playerObjectAbandoned(PlayerObject * playerObject);
 
     void notify();
+
+    void wAction(PlayerObject * po);
     
 };
 

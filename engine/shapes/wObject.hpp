@@ -22,11 +22,12 @@ public:
         
         this->velocity = glm::normalize(dir);
         this->velocity *= calculateVelocityMod();
-        this->acceleration = this->velocity * W_ACCELERATION_VALUE;
+        this->acceleration = this->velocity * 4.0f * W_ACCELERATION_VALUE;
     }
 
     void stopObject();
     void slowDown();
+    void move1(const float dTime);
 
 };
 

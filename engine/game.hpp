@@ -44,6 +44,8 @@ public:
     void deletePlayer(Player * player);
     glm::vec2 & getPlayerMousePosition(Player * p){ p->mousePosition;}
     void setPlayerMousePosition(Player * p, glm::vec2 pos){p->mousePosition = pos;}
+    void wAction(Player * p);
+
     void mainLoop(const float dTime);
 
     void cullDeadPlayers();

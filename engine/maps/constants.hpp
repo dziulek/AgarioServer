@@ -27,6 +27,8 @@ const int MAX_BOMB_ON_MAP = 20;
 const int DEFAULT_MAP_WIDTH = 200;
 const int DEFAULT_MAP_HEIGHT = 200;
 
+const float W_AREA = PI * MIN_PLAYER_RADIUS * MIN_PLAYER_RADIUS;
+
 }//namespace agario
 
 #endif
