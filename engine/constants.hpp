@@ -54,6 +54,8 @@ const int DEFAULT_MAP_HEIGHT = 300;
 
 const int MAX_PLAYERS_IN_GAME = 5;
 
+const float W_ACCELERATION_VALUE = -2.0f;
+
 }//namespace agario
 
 #endif

@@ -13,8 +13,9 @@ namespace shapes{
 
 class MoveableCircle : public Circle{
 
-private:
+protected:
 
+    glm::vec2 acceleration = {0, 0};
     glm::vec2 velocity = {0,0};
     void calculateVelocity();
     

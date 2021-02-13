@@ -11,22 +11,22 @@ include_directories(${PROJECT_SOURCE_DIR})
 file(GLOB HEADER_NETWORK ${PROJECT_SOURCE_DIR}/network/*.hpp)
 file(GLOB SOURCE_NETWORK ${PROJECT_SOURCE_DIR}/network/*.cpp)
 
-# file(GLOB_RECURSE HEADER_ENGINE ${PROJECT_SOURCE_DIR}/engine/*.hpp)
-# file(GLOB_RECURSE SOURCE_ENGINE ${PROJECT_SOURCE_DIR}/engine/*.cpp)
+file(GLOB HEADER_RENDERER ${PROJECT_SOURCE_DIR}/renderers/*.hpp)
+file(GLOB SOURCE_RENDERER ${PROJECT_SOURCE_DIR}/renderers/*.cpp)
 
 file(GLOB SOURCE_MAIN main.cpp)
 
 set(HEADERS
-    ${HEADER_NETWORK}
+    ${HEADER_NETWORK} ${HEADER_RENDERER}
 )
 
 set(SOURCE
-    ${SOURCE_MAIN} ${SOURCE_NETWORK}
+    ${SOURCE_MAIN} ${SOURCE_NETWORK} ${SOURCE_RENDERER}
 )
 
 message("${HEADERS}")
 
 add_executable("${PROJECT_NAME}" ${SOURCE} ${HEADERS})
 
-target_link_libraries(AgarioServer PUBLIC AgarioEngine_lib -pthread)
-# target_include_directories(AgarioServer "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/engine")
+target_link_libraries(AgarioServer PUBLIC AgarioEngine_lib -pthread -lsfml-graphics -lsfml-window -lsfml-system)
+# target_link_libraries(AgarioServer )

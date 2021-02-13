@@ -47,6 +47,7 @@ public:
     void addMass(const float mass, int mcIndex);
     void move(const float dTime) override;
     void setPosition(const glm::vec2 pos) override;
+    void wAction();
     std::pair<glm::vec2, glm::vec2> getMinRectangle();
 
     float bombAction();
