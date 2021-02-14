@@ -56,7 +56,7 @@ const int MAX_PLAYERS_IN_GAME = 5;
 
 const float W_ACCELERATION_VALUE = -0.3f;
 
-const float W_AREA = PI * MIN_PLAYER_RADIUS * MIN_PLAYER_RADIUS;
+const float W_AREA = PI * MIN_PLAYER_RADIUS * MIN_PLAYER_RADIUS / 5;
 
 }//namespace agario
 

@@ -39,6 +39,11 @@ void MapPlayerMovement::check_borders(){
         }
 
     }
+
+    for(auto & w : map->abandoned){
+
+        
+    }
 }
 
 

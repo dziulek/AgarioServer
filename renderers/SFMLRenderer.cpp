@@ -59,7 +59,7 @@ void SFMLRenderer::drawMap(){
            
            float r = game->getPlayer(i)[j].getRadius();
            sf::CircleShape blob(r);
-           blob.setFillColor(sf::Color(255,0,0,127));
+           blob.setFillColor(sf::Color(game->getPlayer(i)[j].getColor()));
            blob.setOrigin(sf::Vector2f(r,r));
 
            blob.setPosition(sf::Vector2f(game->getPlayer(i)[j].getPosition().x,

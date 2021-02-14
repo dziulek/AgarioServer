@@ -20,21 +20,38 @@ void WObject::slowDown(){
 
 }
 
-void WObject::move1(const float dTime){
+void WObject::move(const float dTime){
 
-    glm::vec2 old = this->velocity;
+    if(isMove == true){
+        this->time += dTime;
 
-    float dirx, diry;
+        glm::vec2 old = this->velocity;
 
-    this->velocity += this->acceleration * dTime;
+        float dirx, diry;
 
-    dirx = old.x * this->velocity.x;
-    diry = old.y * this->velocity.y;
+        this->velocity += accelerationFunction() * dTime;
 
-    if(glm::length(this->velocity) > eps || dirx > 0 || diry > 0)
-        centerPosition += dTime * velocity;
+        // std::cout << glm::length(accelerationFunction()) << std::endl;
 
-    std::cout <<"a";
+        dirx = old.x * this->velocity.x;
+        diry = old.y * this->velocity.y;
+
+        if(dirx < 0 || diry < 0){
+            this->isMove = false;
+        }
+
+
+        centerPosition += this->velocity * dTime;        
+    }
+
+
+}
+
+glm::vec2 WObject::accelerationFunction(){
+
+    return this->acceleration * (float)(-pow(2, this->time * 3.9) + 20.0f);
+    // return this->acceleration * (float)sin(this->time);
+    
 }
 }//shapes
 

@@ -25,6 +25,11 @@ std::pair<glm::vec2, glm::vec2> Player::getView(){
 void Player::setColor(){
 
     this->color = AGARIO_COLORS[rand()%n_colors];
+
+    for(auto & blob : *this->getBlobs()){
+
+        blob.get()->setColor(this->color);
+    }
 }
 
 }
