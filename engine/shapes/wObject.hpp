@@ -20,7 +20,7 @@ private:
 
 public:
 
-    WObject(glm::vec2 pos, glm::vec2 dir) : MoveableCircle(pos, MIN_PLAYER_RADIUS){
+    WObject(glm::vec2 pos, glm::vec2 dir) : MoveableCircle(pos, W_RADIUS){
         
         this->velocity = glm::normalize(dir);
         this->velocity *= 2.0f * calculateVelocityMod();

@@ -40,9 +40,26 @@ void MapPlayerMovement::check_borders(){
 
     }
 
+    float xVel;
+    float yVel;
+
     for(auto & w : map->abandoned){
 
-        
+        xVel = w.get()->getVelocity().x;
+        yVel = w.get()->getVelocity().y;
+
+        if(w.get()->getPosition().x - W_RADIUS < 0){
+            w.get()->setVelocity({abs(xVel), yVel});
+        }
+        else if(w.get()->getPosition().x + W_RADIUS > map->width){
+            w.get()->setVelocity({-abs(xVel), yVel});
+        }
+        if(w.get()->getPosition().y - W_RADIUS < 0){
+            w.get()->setVelocity({xVel, abs(yVel)});
+        }
+        else if(w.get()->getPosition().y + W_RADIUS > map->height){
+            w.get()->setVelocity({xVel, -abs(yVel)});
+        }
     }
 }
 

@@ -39,7 +39,6 @@ const float PI = 3.14159265359;
 const float GRAVITY_CONST = 6;
 const float OUT_FORCE_VALUE = 20;
 const float MIN_PLAYER_RADIUS = 5;
-const float W_RADIUS = 7;
 const float MINI_RADIUS = 1.0f;
 const float BOMB_RADIUS = 25;
 const float DIVIDE_FORCE = 40;
@@ -56,7 +55,8 @@ const int MAX_PLAYERS_IN_GAME = 5;
 
 const float W_ACCELERATION_VALUE = -0.3f;
 
-const float W_AREA = PI * MIN_PLAYER_RADIUS * MIN_PLAYER_RADIUS / 5;
+const float W_AREA = PI * MIN_PLAYER_RADIUS * MIN_PLAYER_RADIUS;
+const float W_RADIUS = MIN_PLAYER_RADIUS;
 
 }//namespace agario
 

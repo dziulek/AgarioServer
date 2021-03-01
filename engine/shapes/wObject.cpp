@@ -31,8 +31,6 @@ void WObject::move(const float dTime){
 
         this->velocity += accelerationFunction() * dTime;
 
-        // std::cout << glm::length(accelerationFunction()) << std::endl;
-
         dirx = old.x * this->velocity.x;
         diry = old.y * this->velocity.y;
 

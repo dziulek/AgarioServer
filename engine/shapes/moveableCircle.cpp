@@ -7,6 +7,7 @@ namespace shapes{
 void MoveableCircle::setVelocity(const glm::vec2 v){
 
     this->velocity = v;
+    this->acceleration = glm::normalize(v);
 }
 
 const glm::vec2 MoveableCircle::getVelocity() const{

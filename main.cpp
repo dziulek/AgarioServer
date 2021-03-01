@@ -35,6 +35,8 @@ int main(){
                 rend.getWindow()->close();
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
                 game.wAction(&game.getPlayer(0));
+
+                std::cout << game.getMap()->abandoned.size()<<std::endl;
             }
         }
 
