@@ -34,11 +34,23 @@ void SFMLRenderer::drawMap(){
                     continue;
                 }
                 mm.setPosition({k.get()->getPosition().x, k.get()->getPosition().y});
+                mm.setFillColor(sf::Color(k.get()->getColor()));
                 window->draw(mm);
             }
         }
     }
     //draw bombs
+
+    //  draw other shapes
+    for(auto & shape : this->game->getMap()->abandoned){
+        sf::CircleShape w(shape.get()->getRadius());
+        w.setFillColor(sf::Color(shape.get()->getColor()));
+        w.setOrigin(sf::Vector2f(shape.get()->getRadius(), shape.get()->getRadius()));
+
+        w.setPosition(sf::Vector2f(shape.get()->getPosition().x, shape.get()->getPosition().y));
+
+        window->draw(w);
+    }
    
    //draw players
    for(int i = 0; i < this->game->getnOfPlayers(); i++){
@@ -47,7 +59,7 @@ void SFMLRenderer::drawMap(){
            
            float r = game->getPlayer(i)[j].getRadius();
            sf::CircleShape blob(r);
-           blob.setFillColor(sf::Color(255,0,0,127));
+           blob.setFillColor(sf::Color(game->getPlayer(i)[j].getColor()));
            blob.setOrigin(sf::Vector2f(r,r));
 
            blob.setPosition(sf::Vector2f(game->getPlayer(i)[j].getPosition().x,

@@ -5,6 +5,7 @@
 #include "../glm/glm.hpp"
 #include <utility>
 #include <cmath>
+#include <iostream>
 
 namespace agario{
 
@@ -12,8 +13,9 @@ namespace shapes{
 
 class MoveableCircle : public Circle{
 
-private:
+protected:
 
+    glm::vec2 acceleration = {0, 0};
     glm::vec2 velocity = {0,0};
     void calculateVelocity();
     
@@ -27,12 +29,13 @@ public:
     virtual ~MoveableCircle(){}
     
     inline float calculateVelocityMod() const{
-        return 40.4 * pow(this->getArea(), -0.439);
+        return 40.4 * pow(this->getArea(), -0.239);
     };
     void addMass(const float mass);
     const glm::vec2 getVelocity() const;
     void setVelocity(const glm::vec2 v);
-    void move(const float dTime);
+    void setColor(uint32_t color){ this->color = color;}
+    virtual void move(const float dTime);
     static std::pair<glm::vec2, glm::vec2> calculateGravityVelocities(const MoveableCircle & c1, const MoveableCircle & c2);
 
 };

@@ -29,21 +29,11 @@ def writeToServerRoutine(server_socket):
     global closeClient
     global myInfo
 
-    t = time.process_time()
-
-    while closeClient == False:
-
-        myInfo_lock.acquire()
-        buf = fillMyData(myInfo)
-        
-        myInfo_lock.release()
-        
-        elapsed_time = time.process_time() - t
-        if elapsed_time > 1 / SEND_FREQUENCY:
-            t = time.process_time()
-            server_socket.send(bytearray(buf, 'utf-8'))
-            # print(buf)
-    closeClient = True
+    buf = fillMyData(myInfo)
+    try:
+        server_socket.send(bytearray(buf, 'utf-8'))
+    except BrokenPipeError:
+        raise BrokenPipeError
 
 def handleConnection(server_socket):
 
@@ -60,18 +50,18 @@ def listenOnSocket(server_socket):
 
     global closeClient
     global game
-    while closeClient == False:
-        buf = server_socket.recv(10000)
-        
-        if len(buf) == 0:
-            closeClient = True
-        data = buf.decode()
-        # print(data)
-        
-        game_lock.acquire()
-        game.clear()
-        parse(data, game)
-        game_lock.release()
+    try:
+        buf = server_socket.recv(100000)
+    except OSError:
+        raise OSError
+    # print(buf)
+    
+    if len(buf) == 0:
+        closeClient = True
+    data = buf.decode()
+    # print(len(data))
+    game.clear()
+    parse(data, game)
 
 def connectToServer():
 
@@ -81,13 +71,16 @@ def connectToServer():
     except socket.error as err:
         print("socket creation failed with error %s" %(err))
 
-    s.connect((sys.argv[1], int(sys.argv[2])))
+    try:
+        s.connect((sys.argv[1], int(sys.argv[2])))
+    except ConnectionRefusedError:
+        raise ConnectionRefusedError
+    except socket.gaierror:
+        raise socket.gaierror
 
     print("succesfully connected to server")
 
-    thread = threading.Thread(target=handleConnection, args=(s,), daemon=True)
-
-    thread.start()
+    return s
 
 def main():
 

@@ -1,10 +1,7 @@
 #ifndef MAP_MINI_CONTROLLER_HPP
 #define MAP_MINI_CONTROLLER_HPP
 
-// #include "mapController.hpp"
-#include "map.hpp"
-
-#include "../allshapes.hpp"
+#include "mapController.hpp"
 #include <string>
 #include <memory>
 

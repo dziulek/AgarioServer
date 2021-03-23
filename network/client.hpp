@@ -18,19 +18,22 @@
 #include <pthread.h>
 #include <vector>
 #include <memory>
-
+/*
+Klasa Client reprezentuje klienta na serwerze, 
+jeden klient jest powiązany z tylko jednym zawodnikiem
+*/
 class Client{
     
 private:
 
-    char ip_addr[INET_ADDRSTRLEN];
-    int sockfd;
-    struct sockaddr_storage * myInfo;
-    agario::Player * player;
-    agario::Game * game;
-    bool disconnect = false;
+    char ip_addr[INET_ADDRSTRLEN];//adres ip
+    int sockfd;//numer gniazda
+    struct sockaddr_storage * myInfo;//struktura zawierająca dane o kliencie
+    agario::Player * player;//wskaźnik na gracza
+    agario::Game * game;//wskaźnik go gry
+    bool disconnect = false;//zmienna aktualnie nie używana
 
-    pthread_t thread_id;
+    pthread_t thread_id;//id wątku klienta
 
 public:
 

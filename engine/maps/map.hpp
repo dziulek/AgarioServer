@@ -30,14 +30,16 @@ public:
     std::vector<std::unique_ptr<Bomb>> bombs;
     std::vector<PlayerObject *> playerObjects;
 
+    std::vector<std::unique_ptr<MoveableCircle>> abandoned;
+
     int nOfMinis = 0;
     
     float width;
     float height;
 
     Map(){
-        width = 1000.0f;
-        height = 1000.0f;
+        width = DEFAULT_MAP_WIDTH;
+        height = DEFAULT_MAP_HEIGHT;
     }
 
     ~Map(){
@@ -45,17 +47,19 @@ public:
     }
 
     void addPlayerObject(PlayerObject * po);
+    void removePlayerObject(PlayerObject * po);
     void addController(std::unique_ptr<MapController> & controller);
     void removeController(MapController * controller);
 
     glm::vec2 findPositionForNewPlayer();
     std::pair<std::pair<int, int>, std::pair<int, int>> getMiniRects(glm::vec2 lu, glm::vec2 rd);
 
-    void notify();
-    
+    void playerObjectAbandoned(PlayerObject * playerObject);
 
-    // friend class MapMiniController;
-    // friend class MapBombController;
+    void notify();
+
+    void wAction(PlayerObject * po);
+    
 };
 
 }

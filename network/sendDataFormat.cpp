@@ -13,7 +13,7 @@ void SendDataFormat::appendFloat(float f){
     
     char local[N_CHAR_FLOAT];
     bzero(local, sizeof(local));
-    int status = snprintf(local, sizeof(local), "%f", f);
+    int status = snprintf(local, sizeof(local), "%0.1f", f);
     
     if(status < 0){
         
@@ -44,7 +44,7 @@ void SendDataFormat::appendString(std::string s){
 
 void SendDataFormat::clearBuf(){
     
-    bzero(this->buf, MAX_LEN_BUFER);
+    bzero(this->buf, this->getLen());
 }
 
 void SendDataFormat::printBuf(){
@@ -123,4 +123,29 @@ int SendDataFormat::getNextIndexSeparator(int currInd){
     while(++currInd < strlen(this->buf) && buf[currInd] != SEPARATOR);
 
     return currInd;
+}
+
+void SendDataFormat::appendColor(uint32_t color){
+
+    char local[9];
+    bzero(local, sizeof(local));
+
+    snprintf(local, sizeof(local), "%02X", color);
+
+    memcpy(this->buf + strlen(buf), local, strlen(local));
+
+    this->appendSeparator();
+}
+
+std::string SendDataFormat::getWord(int currInd){
+
+    int end = this->getNextIndexSeparator(currInd);
+    int help = (this->buf[currInd] == SEPARATOR ? 1 : 0);
+
+    char local[end - currInd + 1];
+    bzero(local, sizeof(local)); 
+
+    memcpy(local, buf + currInd + help, end - currInd - help);
+
+    return std::string(local);
 }

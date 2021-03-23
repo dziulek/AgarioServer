@@ -25,19 +25,21 @@
 #define DIVIDE_ACTION 'd'
 #define W_MASS 'w'
 #define VIEW 'v'
-#define MASS 'r'
+#define MASS 'a'
+#define COLOR 't'
 
+/*
+Klasa SendDataFormat jest po prostu interfejsem który udostępnia funkcje 
+dodawania, usuwania liczb, napisów do ciągu znaków (bufora)
+*/
 
+//Struktura zawierająca stan klienta
 struct clientInfo{
 
     char state;
     glm::vec2 mousePosition;
     bool divide_action;
     bool w_action;
-};
-
-struct serverToClient{
-
 };
 
 class SendDataFormat{
@@ -66,7 +68,9 @@ public:
     float getFloat(int index);
     char getChar(int index);
     int getNextIndexSeparator(int currInd);
+    std::string getWord(int currInd);
     bool getBool(int currInd);
+    void appendColor(uint32_t color);
 
 
     void appendMouseCoordinates(float x, float y);

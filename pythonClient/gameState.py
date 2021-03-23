@@ -5,42 +5,35 @@ class Player:
     def __init__(self):
         self.nickname = 'Unnamed_cell'
         self.coordinates = np.array([])
-        self.state = False
+        self.color = 0xffffffff
     def clear(self):
         self.nickname = ''
         self.coordinates = np.array([])
-        self.state = False
 
     def addCoordinate(self, coord):
         self.coordinates = np.append(self.coordinates, coord)
 
     def addNickname(self, nick):
         self.nickname = nick
-    
-    def setState(self, state):
-        self.state = state
-
-    def __str__(self):
-
-        text = 'nickname: '
-        text += self.nickname
-        text += ', state: '
-        text += str(self.state)
-        text += ', coordinates:\n'
-        return text
 
 
 class GameState:
     def __init__(self):
         self.myPlayer = None
         self.players = []
-        self.map = {'minis' : np.array([])}
+        self.map = {
+            'minis' : np.array([]),
+            'width' : 1,
+            'height' : 1,
+            'colors' : np.array([], int)
+        }
+        self.playerState = True
         self.view = np.array([])
     
     def clear(self):
         self.myPlayer = None
         self.players = []
-        self.map = {'minis' : np.array([])}
+        self.map = {'minis' : np.array([]), 'colors' : np.array([], int)}
         self.view = np.array([])
         
     def appendPlayer(self, player):
@@ -49,10 +42,11 @@ class GameState:
     def appendMe(self, me):
         self.myPlayer = copy.deepcopy(me)
 
-    def addMap(self, width, height, minis):
+    def addMap(self, width, height, minis, colors):
         self.map['width'] = width
         self.map['height'] = height
         self.map['minis'] = copy.deepcopy(minis)
+        self.map['colors'] = copy.deepcopy(colors)
 
     def addViewCoord(self, coord):
         self.view = np.append(self.view, coord)

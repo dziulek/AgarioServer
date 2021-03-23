@@ -4,25 +4,29 @@ void DataFormatServer::appendPlayer(agario::Player * player){
 
     this->appendChar(PLAYER);
 
-    this->appendChar(STATE);
-
-    this->appendChar(player->getState() == false ? '0' : '1');
-
     this->appendChar(NICKNAME);
 
-    this->appendString("Unnamed_cell");
+    this->appendString(player->getNickname());
+
+    this->appendChar(COLOR);
+
+    this->appendColor(player->getColor());
 
     this->appendChar(COORDINATES);
 
     for(int i = 0; i < player->getSize(); i++){
 
-        // std::cout<< "x: " << (*player)[i].getPosition().x << ", y: " << (*player)[i].getPosition().y <<std::endl;
-        // std::cout << "mass: " << (*player)[i].getArea() <<std::endl;
-
         this->appendFloat((*player)[i].getPosition().x);
         this->appendFloat((*player)[i].getPosition().y);
         this->appendFloat((*player)[i].getRadius());
+
     }
+}
+
+void DataFormatServer::appendState(agario::Player * player){
+
+    this->appendChar(STATE);
+    this->appendChar(player->getState());
 }
 
 void DataFormatServer::appendView(agario::Player * player){
@@ -52,37 +56,42 @@ void DataFormatServer::extractClientInfo(clientInfo & cinfo){
 
     int curr_ind = 0;
 
-    while(curr_ind < this->getLen() - 1){
+    std::string word = this->getWord(curr_ind);
 
-        c = this->getChar(curr_ind);
-
-        if(c == MOUSE){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            x = this->getFloat(curr_ind);
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            y = this->getFloat(curr_ind);
-            cinfo.mousePosition = {x, y};
-
-            c = '-';
-        }
-        else if(c == W_MASS){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            char t = this->getChar(curr_ind);
-            cinfo.w_action = (t == '0' ? false : true);
-
-            c = '-';
-        }
-        else if(c == DIVIDE_ACTION){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-            char t = this->getChar(curr_ind);
-            cinfo.divide_action = (t == '0' ? false : true);
-
-            c = '-';
-        }
-        else if(c == STATE){
-            curr_ind = this->getNextIndexSeparator(curr_ind);
-        }
+    if(word == "data"){
         curr_ind = this->getNextIndexSeparator(curr_ind);
+        while(curr_ind < this->getLen() - 1){
+
+            c = this->getChar(curr_ind);
+
+            if(c == MOUSE){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                x = this->getFloat(curr_ind);
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                y = this->getFloat(curr_ind);
+                cinfo.mousePosition = {x, y};
+
+                c = '-';
+            }
+            else if(c == W_MASS){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                char t = this->getChar(curr_ind);
+                cinfo.w_action = (t == '0' ? false : true);
+
+                c = '-';
+            }
+            else if(c == DIVIDE_ACTION){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+                char t = this->getChar(curr_ind);
+                cinfo.divide_action = (t == '0' ? false : true);
+
+                c = '-';
+            }
+            else if(c == STATE){
+                curr_ind = this->getNextIndexSeparator(curr_ind);
+            }
+            curr_ind = this->getNextIndexSeparator(curr_ind);
+        }        
     }
 }
 
@@ -98,13 +107,14 @@ void DataFormatServer::appendMinis(agario::Game * game, agario::Player * player)
 
     for(int i = mini_range.first.first; i < mini_range.second.first; i++){
 
-        for(int j = mini_range.first.second; i < mini_range.second.second; i++){
+        for(int j = mini_range.first.second; j < mini_range.second.second; j++){
 
             for(auto & m : game->getMap()->minis[j][i]){
                 
                 this->appendFloat(m.get()->getPosition().x);
                 this->appendFloat(m.get()->getPosition().y);
                 this->appendFloat(m.get()->getRadius());
+                this->appendColor(m.get()->getColor());
             }    
         }
     }

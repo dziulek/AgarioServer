@@ -39,6 +39,25 @@ void MapCrashController::update(){
             }
         }
     }
+
+    for(PlayerObject * p : this->getMap()->playerObjects){
+
+        for(int i = 0; i < p->getSize(); i++){
+
+            for(auto & a : this->getMap()->abandoned){
+
+                float distance = glm::length((*p)[i].getPosition() - a.get()->getPosition());
+                if(distance < std::max(a.get()->getRadius(), (*p)[i].getRadius()) && a.get()->getArea() < 0.85 * (*p)[i].getArea()){
+
+                    float m = a.get()->getArea();
+                    (*p)[i].addMass(m);
+                    a.reset();
+                    a = std::move(this->getMap()->abandoned.back());
+                    this->getMap()->abandoned.pop_back();
+                }
+            }            
+        }
+    }
 }
 
 bool MapCrashController::crashCalculate(MoveableCircle & b1, MoveableCircle & b2){

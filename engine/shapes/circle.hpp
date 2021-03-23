@@ -2,7 +2,7 @@
 #define CIRCLE_HPP
 
 #include "shape.hpp"
-#include "constants.hpp"
+#include "../constants.hpp"
 #include "../glm/glm.hpp"
 
 namespace agario{
@@ -15,6 +15,7 @@ protected:
 
     float radius;
     glm::vec2 centerPosition;
+    unsigned int color = WHITE;
 
 public:
 
@@ -33,6 +34,7 @@ public:
     float getRadiusFromArea();
     void setRadius(const float newR);
     const float getRadius() const;
+    uint32_t getColor() const { return this->color;}
     
     float static inline getDistance(const Circle & a, const Circle & b);
 

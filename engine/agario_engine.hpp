@@ -3,5 +3,6 @@
 
 #include "game.hpp"
 #include "player.hpp"
+#include "constants.hpp"
 
 #endif

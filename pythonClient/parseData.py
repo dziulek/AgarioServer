@@ -16,7 +16,8 @@ state_dictionary = {
     'divide_action' : 'd',
     'w_mass' : 'w',
     'myplayer' : 'u',
-    'view' : 'v'
+    'view' : 'v', 
+    'color' : 't'
 }
 
 def parse(data, game):
@@ -27,9 +28,12 @@ def parse(data, game):
     words = data.split(':')
 
     minis = np.array([])
+    colors = np.array([], int)
     view = np.array([])
+    map_size = np.array([])
 
     i = 0
+    cmini = 0
 
     current_state = '-'
     for word in words:
@@ -46,6 +50,9 @@ def parse(data, game):
             current_state = word
             i += 1
             continue
+        elif word == state_dictionary['color']:
+            current_state = word
+            continue
         elif word == state_dictionary['minis']:
             current_state = word
             continue
@@ -59,7 +66,7 @@ def parse(data, game):
             current_state = word
             continue
         elif word == state_dictionary['state']:
-            word_state = word
+            current_state = word
             continue
 
         if current_state == state_dictionary['nickname']:
@@ -67,25 +74,28 @@ def parse(data, game):
         elif current_state == state_dictionary['coordinates']:
             player.addCoordinate(float(word))
         elif current_state == state_dictionary['minis']:
-            np.append(minis, float(word))
+            cmini += 1
+            if cmini % 4 == 0:
+                colors = np.append(colors, int(word, 16))
+            else:
+                minis = np.append(minis, float(word))
         elif current_state == state_dictionary['view']:
             game.addViewCoord(float(word))
         elif current_state == state_dictionary['state']:
-            player.setState(bool(word))
+            game.playerState = bool(int(word))
+        elif current_state == state_dictionary['color']:
+            player.color = int(word, 16)
     
     if minis is not None:
-        game.map['minis'] = np.reshape(minis, (len(game.map['minis'])//3, 3))
-        for i in range(len(game.map['minis'])):
-            game.map['minis'][i][1] = -game.map['minis'][i][1]
-
-    # if game.view is not None and len(game.view) == 4:
-    #     game.view[1] = -game.view[1]
-    #     game.view[3] = -game.view[3]
+        minis = np.resize(minis, len(minis) // 3 * 3)
+        game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
+    if colors is not None:
+        game.map['colors'] = colors
 
 def fillMyData(myInfo):
 
-    text = []
-    mouse = SEPARATOR.join([str(myInfo.attributes['mouse'][0]), str(myInfo.attributes['mouse'][1])])   
+    text = ['data']
+    mouse = SEPARATOR.join(['{:.2f}'.format(myInfo.attributes['mouse'][0]), '{:.2f}'.format(myInfo.attributes['mouse'][1])])   
     text.append(state_dictionary['mouse'])
     text.append(mouse)
     text.append(state_dictionary['w_mass'])

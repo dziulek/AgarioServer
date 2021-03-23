@@ -6,17 +6,25 @@ namespace agario{
 using namespace shapes;
 
 void Game::mainLoop(const float dTime){
-
+    
     for(auto & player : players){
 
         player->setVelocities();
     }
     map->notify();
     
+    // move other shapes
+    for(auto & shape : this->map->abandoned){
+        if(shape.get() != nullptr){
+            shape.get()->move(dTime);
+        }
+    }
     // move players
     for(int i = 0; i < players.size(); i++){
-        players[i].get()->move(dTime);
+        if(players[i].get()->getSize() > 0)
+            players[i].get()->move(dTime);
     }
+
 }
 
 Player * Game::addPlayer(std::string nickname){
@@ -30,7 +38,7 @@ Player * Game::addPlayer(std::string nickname){
 
 void Game::deletePlayer(Player * player){
 
-    player = nullptr;
+    player->setState(false);
 
     cullDeadPlayers();
 }
@@ -39,7 +47,7 @@ void Game::cullDeadPlayers(){
 
     for(int i = 0; i < players.size(); i++){
 
-        if(players[i].get() == nullptr){
+        if(players[i].get()->getState() == '0'){
 
             players[i].reset();
             players[i] = std::move(players.back());
@@ -48,6 +56,11 @@ void Game::cullDeadPlayers(){
             i--;
         }
     }
+}
+
+void Game::wAction(Player * player){
+
+    this->map->wAction(player);
 }
 
 }

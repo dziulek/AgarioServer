@@ -38,8 +38,6 @@ glm::vec2 Map::findPositionForNewPlayer(){
         xPos = static_cast<float>(rand()) / RAND_MAX * width;
         yPos = static_cast<float>(rand()) / RAND_MAX * height;
 
-        std::cout << xPos << " " << yPos << std::endl;
-
         // for(auto & playerobject : playerObjects){
 
         //     float distance = glm::vec2(xPos, yPos) - playerobject 
@@ -48,8 +46,8 @@ glm::vec2 Map::findPositionForNewPlayer(){
         occupied = false;
     }
 
-    // return {xPos, yPos};
-    return {100, 100};
+    return {xPos, yPos};
+    // return {100, 100};
 }
 
 std::pair<std::pair<int, int>, std::pair<int, int>> Map::getMiniRects(glm::vec2 left_up, glm::vec2 right_down){
@@ -63,6 +61,41 @@ std::pair<std::pair<int, int>, std::pair<int, int>> Map::getMiniRects(glm::vec2 
     rd.second = std::min((int)minis.size(), (int)ceil(right_down.y / MINI_WIDTH));
 
     return {lu, rd};
+}
+
+void Map::playerObjectAbandoned(PlayerObject * playerObject){
+
+    for(auto & blob : *playerObject->getBlobs()){
+        
+        this->abandoned.push_back(std::move(blob));
+    }
+
+    playerObject->getBlobs()->clear();
+
+    for(int i = 0; i < playerObjects.size(); i++){
+        if(playerObject == playerObjects[i]){
+            playerObjects[i] = playerObjects.back();
+            playerObjects.pop_back();
+        }
+    }
+}
+
+void Map::wAction(PlayerObject * po){
+
+    for(auto & blob : *po->getBlobs()){
+
+        if(blob.get()->getArea() > 2 * W_AREA){
+
+            glm::vec2 dir = glm::normalize(po->mousePosition - blob.get()->getPosition()) * blob.get()->getRadius();
+            glm::vec2 wPos = blob.get()->getPosition() + dir;
+            std::unique_ptr<WObject> w = std::make_unique<WObject>(wPos, dir);
+
+            w.get()->setColor(blob.get()->getColor());
+            this->abandoned.push_back(std::move(w));
+
+            blob.get()->addMass(-W_AREA);
+        }
+    }
 }
 
 }

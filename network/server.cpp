@@ -5,16 +5,19 @@ int Server::setUpServer(){
     int status;
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
+    hints.ai_family = AF_UNSPEC;//niewyspecyfikowany, może być ipv4 albo ipv6
+    hints.ai_socktype = SOCK_STREAM;//tcp
+    hints.ai_flags = AI_PASSIVE;//localhost
 
+    //wypełnienie struktury
     if((status = getaddrinfo(NULL, this->portNumber, &hints, &serverInfo)) != 0){
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
         return -1;
     }
 
+    //utworzenie gniazda sieciowego
     sockfd = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+    //nieblokujące gniazdo
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
     if((sockfd < 0)){
@@ -22,16 +25,19 @@ int Server::setUpServer(){
         return -1;
     }
 
+    //zmiana ustwanień gniazda, żeby można było ponownie używać w razie błędów
     if((status = setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt_value, sizeof(int))) < 0){
         fprintf(stderr, "setsockopt error: %s\n", gai_strerror(status));
         return -1;
     }
 
+    //skojarzenie gniazda z adresem 
     if((status = bind(sockfd, serverInfo->ai_addr, serverInfo->ai_addrlen)) < 0){
         fprintf(stderr, "bind error: %s\n", gai_strerror(status));
         return -1;
     }
 
+    //ustawienie długości kolejki klientów oczekujących
     if((status = listen(sockfd, 5)) != 0){
         fprintf(stderr, "listen error: %s\n", gai_strerror(status));
         return -1;
@@ -135,19 +141,25 @@ void * Server::sendDataThread(void * args){
 
 void Server::fillDataToClient(Client * client, DataFormatServer & data){
 
+    //wyczyść bufor danych
     data.clearBuf();
 
-    // data.appendMinis(client->getGame(), client->getPlayer());
-    //player coordinates
+    data.appendSeparator();
+
+    //dodanie mini kulek na mapie
+    data.appendMinis(client->getGame(), client->getPlayer());
+    //dodanie wszystkich graczy danej gry 
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
 
         data.appendPlayer(&client->getGame()->getPlayer(i));     
     }
     data.appendChar(PLAYER);
 
+    //dodanie widoku gracza
     data.appendView(client->getPlayer());
 
-    //bomb coordinates
+    //dodanie stanu gracza
+    data.appendState(client->getPlayer());
 }
 
 int Server::sendDataToClient(Client * client){
@@ -174,7 +186,9 @@ int Server::sendDataToClient(Client * client){
 
 int Server::mainLogic(){
 
-    int status = pthread_create(&this->server_thread, NULL,  (THREADFUNCPTR) &Server::serverInfoRoutine, this);
+
+    //utworzenie wątku kontrolnego
+    int status = pthread_create(&this->server_thread, NULL,  serverInfoRoutine, (void *)this);
 
     if(status){
 
@@ -182,14 +196,15 @@ int Server::mainLogic(){
         return -1;
     }
 
-    status = pthread_create(&this->send_thread, NULL, (THREADFUNCPTR) &Server::sendDataThread, this);
+    // status = pthread_create(&this->send_thread, NULL, (THREADFUNCPTR) &Server::sendDataThread, this);
 
-    if(status){
+    // if(status){
 
-        fprintf(stderr, "creating send data thread: %s", gai_strerror(status));
-        return -1;
-    }
+    //     fprintf(stderr, "creating send data thread: %s", gai_strerror(status));
+    //     return -1;
+    // }
     
+    //utworzenie wątku gier
     status = pthread_create(&this->game_thread, NULL, gameThread, (void *)this);
 
     if(status){
@@ -197,6 +212,7 @@ int Server::mainLogic(){
         fprintf(stderr, "creating game thread: %s", gai_strerror(status));
     }
 
+    
     struct sockaddr_storage client_addr;
     socklen_t str_size = sizeof(client_addr);
 
@@ -237,7 +253,7 @@ int Server::mainLogic(){
     }
 
     pthread_join(this->server_thread, NULL);
-    pthread_join(this->send_thread, NULL);
+    // pthread_join(this->send_thread, NULL);
     pthread_join(this->game_thread, NULL);
 
     for(auto & c : clients){
@@ -268,7 +284,7 @@ void Server::findGameForNewClient(Client * client){
     bool added = false;
     for(auto & g : games){
 
-        if(g.get()->getnOfPlayers() < 5){
+        if(g.get()->getnOfPlayers() < agario::MAX_PLAYERS_IN_GAME){
             
             pthread_mutex_lock(&new_player_mutex);
             agario::Player * p = g.get()->addPlayer();
@@ -282,7 +298,6 @@ void Server::findGameForNewClient(Client * client){
     }
 
     if(added == false){
-
 
         pthread_mutex_lock(&new_player_mutex);
         this->createNewGame();
@@ -318,13 +333,6 @@ int  Server::listenOnSocket(Client * client){
         //update client state
         clientInfo cinfo;
         data_in.extractClientInfo(cinfo);
-
-        // cinfo.mousePosition = {1, 1};
-
-
-
-        // std::cout<<cinfo.mousePosition.x<< " " << cinfo.mousePosition.y<<std::endl;
-        // std::cout<<cinfo.divide_action << " " << cinfo.w_action << std::endl;
         //mouse position
         pthread_mutex_lock(&client_creation_mutex);
         client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
@@ -336,54 +344,6 @@ int  Server::listenOnSocket(Client * client){
 
 
         return n;
-}
-
-void * Server::serverInfoRoutine(void * args){
-
-    int terminate = true;
-    std::string s;
-
-    while(terminate){
-
-        std::cin>>s;
-        
-        if(s == "clients")
-        {
-            fprintf(stdout, "current number of clients connected: %d\n", (int)clients.size());
-        }
-        else if(s == "games")
-        {
-            fprintf(stdout, "number of games running: %d\n", (int)games.size());
-        }
-        else if(s == "port"){
-            fprintf(stdout, "server is running on %s port\n", this->portNumber);
-        }
-        else if(s == "cullClients"){
-
-            cullDisconnectedClients();
-            fprintf(stdout, "deleting disconnected clients\n");
-        }
-        else if(s == "time"){
-            
-            std::time_t time = this->getServerTime();
-
-            std::cout<<std::ctime(&time)<<std::endl;
-        }
-        if(s == "closeServer:4rfvbgt5"){
-
-            this->close_server = true;
-
-            for(auto & c : clients){
-                
-                c.get()->setDisconnect();
-                disconnectClient(c.get()->getSockfd());
-            }
-            break;
-        }
-    }
-
-    fprintf(stdout, "exit from infoServerRoutine thread\n");
-    pthread_exit(NULL);
 }
 
 void Server::sig_pipe_signal_handler(int signum){
