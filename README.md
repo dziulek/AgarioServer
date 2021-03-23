@@ -1,2 +1,1 @@
-# sk2project
-Internet game
+# This is a try to implement Agario game engine and server in c++
