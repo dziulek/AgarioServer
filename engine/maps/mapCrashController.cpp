@@ -10,10 +10,15 @@ void MapCrashController::update(){
     for(PlayerObject * p1 : this->getMap()->playerObjects){
 
         for(PlayerObject * p2 : this->getMap()->playerObjects){
-
+            
+            //collision with player itself is calculated in another loop
+            if(p1 == p2)
+                break;
             for(int i1 = 0; i1 < p1->getSize(); i1++){
 
                 for(int i2 = 0; i2 < p2->getSize(); i2++){
+
+
 
                     float distance = glm::length((*p1)[i1].getPosition() - (*p2)[i2].getPosition());
                     if(distance < std::max((*p1)[i1].getRadius(), (*p2)[i2].getRadius()) && 
@@ -41,6 +46,45 @@ void MapCrashController::update(){
             }
         }
     }
+
+    //collision with player itself
+    std::vector<int> indexesToDelete;
+    for(PlayerObject * p : this->getMap()->playerObjects){
+        if(!p->canMerge(std::chrono::steady_clock::now()))
+            continue;
+        for(int i = 0; i < p->getSize() - 1; i++){
+
+            for(int j = i + 1; j < p->getSize() ; j++){
+                
+                if(std::find(indexesToDelete.begin(), indexesToDelete.end(), i) != indexesToDelete.end() ||
+                        std::find(indexesToDelete.begin(), indexesToDelete.end(), j) != indexesToDelete.end())
+                            continue;
+
+                float distance = glm::length((*p)[i].getPosition() - (*p)[j].getPosition());
+                if(distance < std::max((*p)[i].getRadius(), (*p)[j].getRadius())){
+
+                    float m = std::min((*p)[i].getArea(), (*p)[j].getArea());
+                    if((*p)[i].getArea() < (*p)[j].getArea()){
+                        
+                        indexesToDelete.push_back(i);
+                        (*p)[j].addMass((*p)[j].getArea());
+                    }
+                    else {
+
+                        indexesToDelete.push_back(j);
+                        (*p)[j].addMass((*p)[i].getArea());
+                    }
+                }
+            }
+        }
+
+        std::sort(indexesToDelete.begin(), indexesToDelete.end());
+
+        for(int i = indexesToDelete.size() - 1; i >= 0 ; i--)
+            p->deleteIthElement(indexesToDelete[i]);
+    }
+
+
 
     for(PlayerObject * p : this->getMap()->playerObjects){
 

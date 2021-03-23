@@ -6,6 +6,26 @@ using namespace shapes;
 
 void PlayerObject::divideObject(){
 
+    std::cerr<< blobs.size() << std::endl;
+    if(blobs.size() <= MAX_PLAYER_SIZE / 2){
+
+        std::vector<std::unique_ptr<MoveableCircle>> tempVec;
+        for(auto & b : blobs){
+            b.get()->addMass(-b.get()->getArea()/2);
+            // std::cerr<<"before divide " << it << " ";
+            tempVec.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(b.get()->getPosition() 
+                            + glm::normalize(b.get()->getVelocity()) * b.get()->getRadius() * 1.1f, b.get()->getRadius()))); 
+        }
+
+        for(auto & temp : tempVec){
+            this->blobs.push_back(std::move(temp));
+            this->blobs.back().get()->setColor(blobs.front()->getColor());
+        }   
+
+        this->last_division = {std::chrono::steady_clock::time_point::clock::now(), calcSeparationTime()}; 
+        std::cerr << last_division.second << " ";    
+    }
+        
 }
 
 void PlayerObject::addMass(const float mass){
@@ -19,6 +39,17 @@ void PlayerObject::move(const float dTime){
         
         mc->move(dTime);
     }
+}
+
+float PlayerObject::calcSeparationTime(){
+    
+    return (this->getTotalArea() / blobs.size()) / 15.0f;
+}
+
+bool PlayerObject::canMerge(std::chrono::steady_clock::time_point tp){
+
+    return (std::chrono::duration_cast<std::chrono::seconds>(tp - this->last_division.first).count() 
+                    >= this->last_division.second ? true : false);
 }
 
 void PlayerObject::setPosition(const glm::vec2 pos){
@@ -63,6 +94,27 @@ void PlayerObject::setVelocities(){
 
         b.get()->setVelocity(v);
     }
+
+    if(!canMerge(std::chrono::steady_clock::now())){
+
+        MoveableCircle * temp_b1, * temp_b2;
+        for(int i = 0; i < blobs.size() - 1; i++){
+            for(int j = i + 1; j < blobs.size(); j++){ 
+                
+                temp_b1 = blobs[i].get();
+                temp_b2 = blobs[j].get();
+
+                if(glm::distance(temp_b1->getPosition(), temp_b2->getPosition()) < temp_b2->getRadius() + temp_b1->getRadius()){
+
+                    glm::vec2 ax = glm::normalize(temp_b2->getPosition() - temp_b1->getPosition()) * 4.0f;
+
+                    temp_b1->setVelocity(temp_b1->getVelocity() - ax);
+                    temp_b2->setVelocity(temp_b2->getVelocity() + ax);
+                }
+
+            }
+        }        
+    }
 }
 
 void PlayerObject::addMass(const float mass, int mcIndex){
@@ -77,6 +129,11 @@ void PlayerObject::deleteIthElement(int i){
 
     blobs.pop_back();
 
+}
+
+void PlayerObject::resetIthElement(int i){
+
+    blobs[i].reset();
 }
 
 std::pair<glm::vec2, glm::vec2> PlayerObject::getMinRectangle(){

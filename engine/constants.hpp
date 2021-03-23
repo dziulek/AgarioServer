@@ -54,6 +54,7 @@ const int DEFAULT_MAP_WIDTH = 300;
 const int DEFAULT_MAP_HEIGHT = 300;
 
 const int MAX_PLAYERS_IN_GAME = 5;
+const int MAX_PLAYER_SIZE = 16;
 
 const float W_ACCELERATION_VALUE = -0.3f;
 

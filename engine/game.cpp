@@ -36,6 +36,11 @@ Player * Game::addPlayer(std::string nickname){
     return this->players.back().get();
 }
 
+void Game::divideAction(Player * p){
+
+    p->divideObject();
+}
+
 void Game::deletePlayer(Player * player){
 
     player->setState(false);
