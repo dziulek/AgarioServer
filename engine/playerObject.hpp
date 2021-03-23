@@ -8,6 +8,7 @@
 #include <memory>
 #include <iostream>
 #include <utility>
+#include <chrono>
 
 namespace agario{
 
@@ -19,7 +20,10 @@ private:
 
     std::vector<std::unique_ptr<MoveableCircle>> blobs;
     float totalArea;
+    std::pair<std::chrono::steady_clock::time_point, float> last_division;
 
+    float calcSeparationTime();
+    
     
 
 public:
@@ -28,7 +32,7 @@ public:
 
     PlayerObject(glm::vec2 pos){
 
-        blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, MIN_PLAYER_RADIUS)));
+        blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, 3* MIN_PLAYER_RADIUS)));
 
         totalArea = blobs.back().get()->getArea();
     }
@@ -37,8 +41,10 @@ public:
     MoveableCircle & operator[](int t);
 
     std::vector<std::unique_ptr<MoveableCircle>> * getBlobs(){ return &blobs; }
-
+    bool canMerge(std::chrono::steady_clock::time_point tp);
+    
     void deleteIthElement(int i);
+    void resetIthElement(int i);
 
     void setVelocities();
 

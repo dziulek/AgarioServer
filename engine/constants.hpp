@@ -43,6 +43,8 @@ const float MINI_RADIUS = 1.0f;
 const float BOMB_RADIUS = 25;
 const float DIVIDE_FORCE = 40;
 
+const float FRICTION_COEFF = 0.2;
+
 const int MAX_MINIS_ON_MAP = 300;
 const int MAX_MISSING_MINIS = 50;
 const int MAX_BOMB_ON_MAP = 20;
@@ -52,6 +54,7 @@ const int DEFAULT_MAP_WIDTH = 300;
 const int DEFAULT_MAP_HEIGHT = 300;
 
 const int MAX_PLAYERS_IN_GAME = 5;
+const int MAX_PLAYER_SIZE = 16;
 
 const float W_ACCELERATION_VALUE = -0.3f;
 

@@ -4,6 +4,7 @@
 #include "mapController.hpp"
 #include <string>
 #include <memory>
+#include <algorithm>
 
 namespace agario{
 

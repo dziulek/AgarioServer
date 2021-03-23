@@ -21,7 +21,7 @@ void MoveableCircle::move(const float dTime){
 
     float dirx, diry;
 
-    this->velocity += this->acceleration * dTime;
+    this->velocity += (glm::length(this->acceleration) > eps ? this->acceleration * dTime : glm::vec2(0.0f, 0.0f));
 
     dirx = old.x * this->velocity.x;
     diry = old.y * this->velocity.y;

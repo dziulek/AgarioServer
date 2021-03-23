@@ -23,8 +23,8 @@ public:
     WObject(glm::vec2 pos, glm::vec2 dir) : MoveableCircle(pos, W_RADIUS){
         
         this->velocity = glm::normalize(dir);
-        this->velocity *= 2.0f * calculateVelocityMod();
-        this->acceleration = glm::normalize(dir);
+        this->velocity *= 60.f;
+        this->acceleration = glm::normalize(-dir);
         this->time = 0.0f;
     }
 

@@ -29,7 +29,8 @@ void WObject::move(const float dTime){
 
         float dirx, diry;
 
-        this->velocity += accelerationFunction() * dTime;
+        this->acceleration = glm::normalize(-old) * 55.0f * static_cast<float>(pow(2, -glm::length(old) / 30.f));
+        this->velocity += this->acceleration * dTime;
 
         dirx = old.x * this->velocity.x;
         diry = old.y * this->velocity.y;
@@ -47,7 +48,8 @@ void WObject::move(const float dTime){
 
 glm::vec2 WObject::accelerationFunction(){
 
-    return this->acceleration * (float)(-pow(2, this->time * 3.9) + 20.0f);
+    // return this->acceleration * (float)(-pow(2, this->time * 3.9) + 20.0f);
+    return this->acceleration * FRICTION_COEFF;
     // return this->acceleration * (float)sin(this->time);
     
 }

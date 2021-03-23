@@ -36,7 +36,10 @@ int main(){
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
                 game.wAction(&game.getPlayer(0));
 
-                std::cout << game.getMap()->abandoned.size()<<std::endl;
+                // std::cout << game.getMap()->abandoned.size()<<std::endl;
+            }
+            else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+                game.divideAction(&game.getPlayer(0));
             }
         }
 
@@ -52,8 +55,8 @@ int main(){
 
         rend.getView()->setCenter(sf::Vector2f(v.first.x / 2.0 + v.second.x / 2.0, v.second.y / 2.0 + v.first.y / 2.0));
         rend.getView()->setSize(sf::Vector2f(
-            v.second.x - v.first.x,
-            v.second.y - v.first.y
+            std::max(v.second.x - v.first.x, v.second.y - v.first.y),
+            std::max(v.second.x - v.first.x, v.second.y - v.first.y)
         ));
 
         rend.getWindow()->display();
