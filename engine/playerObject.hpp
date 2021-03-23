@@ -28,7 +28,7 @@ public:
 
     PlayerObject(glm::vec2 pos){
 
-        blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, MIN_PLAYER_RADIUS)));
+        blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(pos, 3* MIN_PLAYER_RADIUS)));
 
         totalArea = blobs.back().get()->getArea();
     }

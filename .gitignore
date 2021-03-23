@@ -36,3 +36,4 @@ engine/glm
 .vscode/
 build/
 debug/
+pythonClient/__pycache__

@@ -18,6 +18,7 @@ protected:
     glm::vec2 acceleration = {0, 0};
     glm::vec2 velocity = {0,0};
     void calculateVelocity();
+    // glm::vec2 calcResultantForce();
     
 
 public:
@@ -37,7 +38,7 @@ public:
     void setColor(uint32_t color){ this->color = color;}
     virtual void move(const float dTime);
     static std::pair<glm::vec2, glm::vec2> calculateGravityVelocities(const MoveableCircle & c1, const MoveableCircle & c2);
-
+    void setAcceleration(glm::vec2 acc){this->acceleration = acc;}
 };
 
 }//namespace shapes

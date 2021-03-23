@@ -43,6 +43,8 @@ const float MINI_RADIUS = 1.0f;
 const float BOMB_RADIUS = 25;
 const float DIVIDE_FORCE = 40;
 
+const float FRICTION_COEFF = 0.2;
+
 const int MAX_MINIS_ON_MAP = 300;
 const int MAX_MISSING_MINIS = 50;
 const int MAX_BOMB_ON_MAP = 20;
