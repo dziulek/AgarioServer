@@ -50,8 +50,12 @@ void MapCrashController::update(){
     //collision with player itself
     std::vector<int> indexesToDelete;
     for(PlayerObject * p : this->getMap()->playerObjects){
+
+        indexesToDelete.clear();
+        indexesToDelete.shrink_to_fit();
         if(!p->canMerge(std::chrono::steady_clock::now()))
             continue;
+            
         for(int i = 0; i < p->getSize() - 1; i++){
 
             for(int j = i + 1; j < p->getSize() ; j++){
@@ -67,12 +71,12 @@ void MapCrashController::update(){
                     if((*p)[i].getArea() < (*p)[j].getArea()){
                         
                         indexesToDelete.push_back(i);
-                        (*p)[j].addMass((*p)[j].getArea());
+                        (*p)[j].addMass(m);
                     }
                     else {
 
                         indexesToDelete.push_back(j);
-                        (*p)[j].addMass((*p)[i].getArea());
+                        (*p)[i].addMass(m);
                     }
                 }
             }

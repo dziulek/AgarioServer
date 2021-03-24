@@ -6,15 +6,14 @@ using namespace shapes;
 
 void PlayerObject::divideObject(){
 
-    std::cerr<< blobs.size() << std::endl;
     if(blobs.size() <= MAX_PLAYER_SIZE / 2){
 
         std::vector<std::unique_ptr<MoveableCircle>> tempVec;
         for(auto & b : blobs){
             b.get()->addMass(-b.get()->getArea()/2);
-            // std::cerr<<"before divide " << it << " ";
-            tempVec.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(b.get()->getPosition() 
-                            + glm::normalize(b.get()->getVelocity()) * b.get()->getRadius() * 1.1f, b.get()->getRadius()))); 
+            glm::vec2 new_position = b.get()->getPosition() 
+                            + glm::normalize(this->mousePosition - b.get()->getPosition()) * b.get()->getRadius() * 1.1f;
+            tempVec.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(new_position, b.get()->getRadius()))); 
         }
 
         for(auto & temp : tempVec){
@@ -23,7 +22,6 @@ void PlayerObject::divideObject(){
         }   
 
         this->last_division = {std::chrono::steady_clock::time_point::clock::now(), calcSeparationTime()}; 
-        std::cerr << last_division.second << " ";    
     }
         
 }
@@ -106,7 +104,7 @@ void PlayerObject::setVelocities(){
 
                 if(glm::distance(temp_b1->getPosition(), temp_b2->getPosition()) < temp_b2->getRadius() + temp_b1->getRadius()){
 
-                    glm::vec2 ax = glm::normalize(temp_b2->getPosition() - temp_b1->getPosition()) * 4.0f;
+                    glm::vec2 ax = glm::normalize(temp_b2->getPosition() - temp_b1->getPosition()) * 10.0f;
 
                     temp_b1->setVelocity(temp_b1->getVelocity() - ax);
                     temp_b2->setVelocity(temp_b2->getVelocity() + ax);
@@ -128,6 +126,7 @@ void PlayerObject::deleteIthElement(int i){
     blobs[i] = std::move(blobs.back());
 
     blobs.pop_back();
+    blobs.shrink_to_fit();
 
 }
 
