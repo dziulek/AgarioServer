@@ -39,6 +39,10 @@ int main(){
                 // std::cout << game.getMap()->abandoned.size()<<std::endl;
             }
             else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
+                
+            }
+            if(event.type == sf::Event::MouseButtonPressed){
+                //only for testing
                 game.divideAction(&game.getPlayer(0));
             }
         }
