@@ -66,6 +66,15 @@ void SFMLRenderer::drawMap(){
                             game->getPlayer(i)[j].getPosition().y));
             window->draw(blob);
 
+            sf::Vector2f pos = sf::Vector2f(game->getPlayer(i)[j].getPosition().x, game->getPlayer(i)[j].getPosition().y);
+
+            sf::Vertex line[2] = {
+                sf::Vertex(pos),
+                sf::Vertex(pos + sf::Vector2f(game->getPlayer(i)[j].getVelocity().x, game->getPlayer(i)[j].getVelocity().y))
+            };
+
+            window->draw(line, 2, sf::Lines);
+
             // sf::VertexArray line(sf::Lines, 2);
             // line[0] = blob.getPosition();
             // line[1] = 

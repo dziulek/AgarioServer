@@ -41,7 +41,7 @@ void PlayerObject::move(const float dTime){
 
 float PlayerObject::calcSeparationTime(){
     
-    return (this->getTotalArea() / blobs.size()) / 15.0f;
+    return (this->getTotalArea() / blobs.size()) / 5.0f;
 }
 
 bool PlayerObject::canMerge(std::chrono::steady_clock::time_point tp){
@@ -101,15 +101,49 @@ void PlayerObject::setVelocities(){
                 
                 temp_b1 = blobs[i].get();
                 temp_b2 = blobs[j].get();
+                glm::vec2 ax = glm::normalize(temp_b2->getPosition() - temp_b1->getPosition());
+                float dist = glm::distance(temp_b1->getPosition(), temp_b2->getPosition());
+                float min_dist = temp_b2->getRadius() + temp_b1->getRadius();
 
-                if(glm::distance(temp_b1->getPosition(), temp_b2->getPosition()) < temp_b2->getRadius() + temp_b1->getRadius()){
+                if(dist < temp_b2->getRadius() + temp_b1->getRadius() - 3 * eps){
 
-                    glm::vec2 ax = glm::normalize(temp_b2->getPosition() - temp_b1->getPosition()) * 10.0f;
+                    
 
-                    temp_b1->setVelocity(temp_b1->getVelocity() - ax);
-                    temp_b2->setVelocity(temp_b2->getVelocity() + ax);
+                    temp_b1->setVelocity(temp_b1->getVelocity() - ax * 2.f * min_dist * float(-log(dist / min_dist)));
+                    temp_b2->setVelocity(temp_b2->getVelocity() + ax * 2.f * min_dist * float(-log(dist / min_dist)));
                 }
 
+                if(abs(glm::distance(temp_b1->getPosition(), temp_b2->getPosition()) - temp_b2->getRadius() - temp_b1->getRadius()) < 3 * eps){
+
+                    //ax is a vector of length 1 from b1 to b2
+                    float dot_b1 = glm::dot(ax, temp_b1->getVelocity());
+                    float dot_b2 = glm::dot(ax, temp_b2->getVelocity());
+
+                    if(dot_b1 > 0.f){
+
+                        if(dot_b2 > 0.f){
+
+                            temp_b1->setVelocity(temp_b1->getVelocity() - ax * dot_b1 + ax * std::min(dot_b1, dot_b2));
+                        }
+                        else {
+
+                            temp_b1->setVelocity(temp_b1->getVelocity() - ax * dot_b1);
+                            temp_b2->setVelocity(temp_b2->getVelocity() - ax * dot_b2);
+                        }
+                    }
+                    else {
+
+                        if(dot_b2 > 0){
+
+                            temp_b1->setVelocity(temp_b1->getVelocity() + ax * dot_b1);
+                            temp_b2->setVelocity(temp_b2->getVelocity() + ax * dot_b2);
+                        }
+                        else {
+
+                            temp_b2->setVelocity(temp_b2->getVelocity() + ax * dot_b2 - ax * std::min(dot_b2, dot_b1));
+                        }
+                    }
+                }
             }
         }        
     }
