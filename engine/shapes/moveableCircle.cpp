@@ -7,7 +7,7 @@ namespace shapes{
 void MoveableCircle::setVelocity(const glm::vec2 v){
 
     this->velocity = v;
-    this->acceleration = glm::normalize(v);
+    // this->acceleration = glm::normalize(v);
 }
 
 const glm::vec2 MoveableCircle::getVelocity() const{
@@ -21,7 +21,13 @@ void MoveableCircle::move(const float dTime){
 
     float dirx, diry;
 
-    this->velocity += (glm::length(this->acceleration) > eps ? this->acceleration * dTime : glm::vec2(0.0f, 0.0f));
+    if(glm::length(this->acceleration) > eps){
+
+        this->acceleration -= this->acceleration / (3.f * (float)log(this->area));
+        this->velocity += this->acceleration * dTime;        
+    }
+    else this->acceleration = {0.0f, 0.0f};
+    // this->velocity += (glm::length(this->acceleration) > eps ? this->acceleration * dTime : glm::vec2(0.0f, 0.0f));
 
     dirx = old.x * this->velocity.x;
     diry = old.y * this->velocity.y;

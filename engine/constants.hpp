@@ -59,6 +59,7 @@ const int MAX_PLAYER_SIZE = 16;
 const float W_ACCELERATION_VALUE = -0.3f;
 
 const float W_AREA = PI * MIN_PLAYER_RADIUS * MIN_PLAYER_RADIUS;
+const float MIN_PLAYER_AREA = W_AREA;
 const float W_RADIUS = MIN_PLAYER_RADIUS;
 
 }//namespace agario
