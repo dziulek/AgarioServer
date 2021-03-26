@@ -40,6 +40,14 @@ void SFMLRenderer::drawMap(){
         }
     }
     //draw bombs
+    for(auto & b : this->game->getMap()->bombs){
+
+        sf::CircleShape octagon(BOMB_RADIUS, 8);
+        octagon.setPosition(sf::Vector2f(b.get()->getXCoord(), b.get()->getYCoord()));
+        octagon.setFillColor(sf::Color::Green);
+        window->draw(octagon);
+
+    }
 
     //  draw other shapes
     for(auto & shape : this->game->getMap()->abandoned){

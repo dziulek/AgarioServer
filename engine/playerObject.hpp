@@ -56,7 +56,8 @@ public:
     void wAction();
     std::pair<glm::vec2, glm::vec2> getMinRectangle();
 
-    float bombAction();
+    float bombAction(const unsigned int blob_index);
+    float bombAction(std::unique_ptr<MoveableCircle> & mv);
     float getTotalArea();
     int getSize();
 };

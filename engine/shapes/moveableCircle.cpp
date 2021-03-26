@@ -58,7 +58,7 @@ std::pair<glm::vec2, glm::vec2> MoveableCircle::calculateGravityVelocities(const
 void MoveableCircle::addMass(const float mass){
 
     this->area += mass;
-    float r = this->getRadiusFromArea();
+    float r = Circle::getRadiusFromArea(this->area);
     this->radius = r;
 }
 

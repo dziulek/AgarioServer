@@ -30,9 +30,9 @@ glm::vec2 Circle::getPosition() const{
     return this->centerPosition;
 }
 
-float Circle::getRadiusFromArea(){
+float Circle::getRadiusFromArea(const float area){
 
-    return sqrt(this->area / PI);
+    return sqrt(area / PI);
 }
 
 }

@@ -15,7 +15,7 @@ void PlayerObject::divideObject(){
             b.get()->addMass(-b.get()->getArea()/2);
             glm::vec2 new_position = b.get()->getPosition() 
                             + glm::normalize(this->mousePosition - b.get()->getPosition()) * b.get()->getRadius() * 1.1f;
-            tempVec.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(new_position, b.get()->getRadius()))); 
+            tempVec.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle(new_position, Circle::getRadiusFromArea(b.get()->getArea())))); 
         }
 
         for(auto & temp : tempVec){
@@ -118,7 +118,7 @@ void PlayerObject::setVelocities(){
                     temp_b2->setVelocity(temp_b2->getVelocity() + ax * 1.f * min_dist * float(-log(dist / (1.2 *min_dist))));
                 }
 
-                else if(abs(glm::distance(temp_b1->getPosition(), temp_b2->getPosition()) - temp_b2->getRadius() - temp_b1->getRadius()) < 3 * eps){
+                if(abs(glm::distance(temp_b1->getPosition(), temp_b2->getPosition()) - temp_b2->getRadius() - temp_b1->getRadius()) < 3 * eps){
 
                     //ax is a vector of length 1 from b1 to b2
                     float dot_b1 = glm::dot(ax, temp_b1->getVelocity());
@@ -191,6 +191,46 @@ std::pair<glm::vec2, glm::vec2> PlayerObject::getMinRectangle(){
     }
 
     return {left_upper, down_right};
+}
+
+float PlayerObject::bombAction(const unsigned int blob_index){
+
+
+}
+
+float PlayerObject::bombAction(std::unique_ptr<MoveableCircle> & mv){
+
+    if(this->blobs.size() >= MAX_PLAYER_SIZE){
+
+        //eat the bomb
+    }
+    else {
+
+        int nOfnewBlobs = MAX_PLAYER_SIZE - this->blobs.size();
+        float newAreaBlob = mv.get()->getArea() / (float)nOfnewBlobs;
+        float new_radius = Circle::getRadiusFromArea(newAreaBlob);
+
+        glm::vec2 explosionCenter = mv.get()->getPosition();
+
+        auto color = mv.get()->getColor();
+
+        mv.reset();
+        mv = std::move(this->blobs.back());
+        blobs.pop_back();
+
+        float x, y, r = 1.f, deg = 2*PI / (float)(nOfnewBlobs + 1);
+
+        for(int i = 0; i < nOfnewBlobs + 1; i++){
+
+            x = explosionCenter.x + cos(float(i) * deg) * r;
+            y = explosionCenter.y + sin(float(i) * deg) * r;
+
+            this->blobs.push_back(std::unique_ptr<MoveableCircle>(new MoveableCircle({x, y}, new_radius)));
+            this->blobs.back()->setColor(color);
+        }
+
+        this->last_division = {std::chrono::steady_clock::time_point::clock::now(), calcSeparationTime()}; 
+    }
 }
 
 }

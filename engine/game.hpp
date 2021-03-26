@@ -5,6 +5,7 @@
 #include "maps/mapMiniController.hpp"
 #include "maps/mapPlayerMovement.hpp"
 #include "maps/mapCrashController.hpp"
+#include "maps/mapBombController.hpp"
 #include "player.hpp"
 #include "glm/glm.hpp"
 #include <vector>
@@ -30,6 +31,8 @@ public:
         this->map->addController(playerMovement);
         std::unique_ptr<MapController> crashController = std::make_unique<MapCrashController>(this->getMap());
         this->map->addController(crashController);
+        std::unique_ptr<MapController> bombController = std::make_unique<MapBombController>(this->getMap());
+        this->map->addController(bombController);
     }
     ~Game(){
 

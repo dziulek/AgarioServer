@@ -31,7 +31,7 @@ public:
 
     glm::vec2 getPosition() const override;
     void calculateArea() override;
-    float getRadiusFromArea();
+    static float getRadiusFromArea(const float area);
     void setRadius(const float newR);
     const float getRadius() const;
     uint32_t getColor() const { return this->color;}
