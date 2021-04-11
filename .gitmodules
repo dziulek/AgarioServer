@@ -1,0 +1,3 @@
+[submodule "lib/AgarioEngine"]
+	path = lib/AgarioEngine
+	url = https://github.com/dziulek/AgarioEngine.git
