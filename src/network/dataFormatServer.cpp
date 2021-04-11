@@ -69,7 +69,7 @@ void DataFormatServer::extractClientInfo(clientInfo & cinfo){
                 x = this->getFloat(curr_ind);
                 curr_ind = this->getNextIndexSeparator(curr_ind);
                 y = this->getFloat(curr_ind);
-                cinfo.mousePosition = {x, y};
+                cinfo.mousePosition = glm::vec2(x, y);
 
                 c = '-';
             }

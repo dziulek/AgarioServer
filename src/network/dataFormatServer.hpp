@@ -2,7 +2,6 @@
 #define DATA_FORMAT_SERVER_HPP
 
 #include "sendDataFormat.hpp"
-#include "../engine/agario_engine.hpp"
 #include "client.hpp"
 
 struct clientInfo;

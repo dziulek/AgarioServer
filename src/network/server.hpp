@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "../engine/agario_engine.hpp"
+#include "../lib/AgarioEngine/src/agario_engine.hpp"
 #include "threadFunctions.hpp"
 #include "client.hpp"
 #include "constants.hpp"
