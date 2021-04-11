@@ -1,32 +1,42 @@
 project(AgarioServer)
 
+# set(${BINARY} AgarioServer)
+
 cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "-Wall")
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/engine)
+include_directories(src)
 
-include_directories(${PROJECT_SOURCE_DIR})
+add_subdirectory(lib/AgarioEngine/src)
+add_subdirectory(src/network)
 
-file(GLOB HEADER_NETWORK ${PROJECT_SOURCE_DIR}/network/*.hpp)
-file(GLOB SOURCE_NETWORK ${PROJECT_SOURCE_DIR}/network/*.cpp)
+add_executable(AgarioServer_run main.cpp)
 
-file(GLOB HEADER_RENDERER ${PROJECT_SOURCE_DIR}/renderers/*.hpp)
-file(GLOB SOURCE_RENDERER ${PROJECT_SOURCE_DIR}/renderers/*.cpp)
+set(C_LIB ${CMAKE_BINARY_DIR}/libcombi.a)
 
-file(GLOB SOURCE_MAIN main.cpp)
-
-set(HEADERS
-    ${HEADER_NETWORK} ${HEADER_RENDERER}
+add_custom_target(combinedGen
+    COMMAND ar -x $<TARGET_FILE:AgarioServer_lib>
+    COMMAND ar -x $<TARGET_FILE:AgarioEngine_lib>
+    COMMAND ar -qcs ${C_LIB} *.o
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS AgarioServer_lib AgarioEngine_lib
 )
 
-set(SOURCE
-    ${SOURCE_MAIN} ${SOURCE_NETWORK} ${SOURCE_RENDERER}
-)
+add_library(combined STATIC IMPORTED GLOBAL)
+add_dependencies(combined combinedGen)
 
-message("${HEADERS}")
+set_target_properties(combined PROPERTIES IMPORTED_LOCATION ${C_LIB})
 
-add_executable("${PROJECT_NAME}" ${SOURCE} ${HEADERS})
+target_link_libraries(AgarioServer_run combined)
+target_link_libraries(AgarioServer_run -pthread)
 
-target_link_libraries(AgarioServer PUBLIC AgarioEngine_lib -pthread -lsfml-graphics -lsfml-window -lsfml-system)
-# target_link_libraries(AgarioServer )
+
+
+
+
+# add_subdirectory(tests)
+
+add_subdirectory(lib/json)
