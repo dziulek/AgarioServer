@@ -5,9 +5,23 @@
 #include "client.hpp"
 #include "threadFunctions.hpp"
 
+
+
+
 class DataInterface{
 
+protected:
+
+
+
+
 public:
+
+    enum REQUEST_TYPE{
+        DATA,
+        WANT_PLAY,
+        WANT_OBSERVE
+    };
 
     virtual void fillDataForClient(Client * client) = 0;
     virtual void clearCurrentData() = 0;

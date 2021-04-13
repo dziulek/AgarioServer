@@ -6,6 +6,8 @@
 #include <iostream>
 #include <chrono>
 
+#include "jsonSendFormat.hpp"
+
 void * clientThread(void * server_client);
 
 void * gameThread(void * srv);

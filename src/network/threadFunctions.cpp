@@ -11,75 +11,75 @@ void * clientThread(void * server_client_struct){
     
     Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
 
-    DataFormatServer buf;
+    char * buf;
+    JsonDataFormatter jsonBuf;
     clientInfo cinfo;
 
     while(client != nullptr && client->getDisconnect() == false){
 
-        buf.clearBuf();
-
-        int status = read(client->getSockfd(), buf.getBuf(), 150);
+        int status = read(client->getSockfd(), buf, 150);
 
         if(status == 0){
             //closed socket
             break;
         }
-        // buf.printBuf();
 
-        if(buf.getWord(0) == "data"){
+        jsonBuf.setData(buf);
+
+        switch (jsonBuf.getRequestType())
+        {
+        case jsonBuf.DATA:
 
             if(client->getPlayer() == nullptr || client->getPlayer()->getSize() == 0){
                 
                 client->getPlayer()->setState(false);
             }
 
-            buf.extractClientInfo(cinfo);
+            jsonBuf.interpretClientData(cinfo);
             client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
 
-            int status = sc->server->sendDataToClient(client);
+            jsonBuf.fillDataForClient(client);
+            int status = write(client->getSockfd(), jsonBuf.getCharArray(), jsonBuf.getCharNo());
 
             if(status == -1){
                 fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
-            }
-            
+            }      
 
-        }
-        else if(strcmp("get:score", buf.getBuf()) == 0){
+            break;
+        case jsonBuf.WANT_PLAY:
 
-        }
-        else if(buf.getWord(0) == "nickname"){
-
-            int ind = buf.getNextIndexSeparator(0);
-            std::string nick = buf.getWord(ind);
-            std::cout << nick << std::endl;
-
-            client->getPlayer()->setNickname(nick);
+            client->getPlayer()->setNickname("unnamed cell");
             client->getPlayer()->setColor();
 
-            buf.clearBuf();
+            //send data that needs to be send once
 
-            buf.appendSeparator();
-            buf.appendFloat(client->getGame()->getMap()->width);
-            buf.appendFloat(client->getGame()->getMap()->height);
             
-            int status = write(client->getSockfd(), buf.getBuf(), buf.getLen());
+            // int status = write(client->getSockfd(), jsonbu.getBuf(), buf.getLen());
 
             if(status == -1){
                 fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
             }
+
+            break;
+        case jsonBuf.WANT_OBSERVE:
+
+            break;
+        default:
+            //error
+            continue;
         }
         
     }
 
     pthread_mutex_lock(&sc->server->client_creation_mutex);
 
-    pthread_mutex_lock(&sc->server->new_player_mutex);
+    pthread_mutex_lock(&sc->server->new_player_mutex[client->getGame()]);
 
     client->setDisconnect();
     client->getGame()->getMap()->playerObjectAbandoned(client->getPlayer());
     client->getGame()->deletePlayer(client->getPlayer());
 
-    pthread_mutex_unlock(&sc->server->new_player_mutex);
+    pthread_mutex_unlock(&sc->server->new_player_mutex[client->getGame()]);
     close(client->getSockfd());
     sc->server->cullDisconnectedClients();
 
@@ -135,7 +135,7 @@ void * serverInfoRoutine(void * args){
             fprintf(stdout, "number of games running: %d\n", (int)server->games.size());
             for(int i = 0; i < server->games.size(); i++){
                 std::cout << "Board " << i + 1 << ":\n";
-                pthread_mutex_lock(&server->new_player_mutex);//======================player
+                pthread_mutex_lock(&server->new_player_mutex[server->games[i].get()]);//======================player
 
                 if(server->games[i].get()->getnOfPlayers() == 0)
                     fprintf(stdout, "brak graczy\n");
@@ -144,7 +144,7 @@ void * serverInfoRoutine(void * args){
                         fprintf(stdout, "-- %s\n", server->games[i]->getPlayer(j).getNickname().c_str());
                 }
 
-                pthread_mutex_unlock(&server->new_player_mutex);//====================player
+                pthread_mutex_unlock(&server->new_player_mutex[server->games[i].get()]);//====================player
             }
         }
         else if(s == "port"){

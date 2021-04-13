@@ -4,16 +4,79 @@ using namespace nlohmann;
 using namespace agario;
 
 
-void JsonDataFormatter::addMapInformation(Player * player){
+void JsonDataFormatter::addMapInformation(Client * client){
 
+    //minis
+    std::pair<std::pair<int, int>, std::pair<int, int>> mini_range = client->getGame()->getMap()->getMiniRects(
+        client->getPlayer()->getView().first, client->getPlayer()->getView().second
+    );
+
+    std::vector<int> xMinis;
+    std::vector<int> yMinis;
+
+    for(int i = mini_range.first.first; i < mini_range.second.first; i++){
+
+        for(int j = mini_range.first.second; j < mini_range.second.second; j++){
+
+            for(auto & m : client->getGame()->getMap()->minis[j][i]){
+                
+                xMinis.emplace_back((int)m.get()->getPosition().x);
+                yMinis.emplace_back((int)m.get()->getPosition().y);
+            }    
+        }
+    }
+
+    this->data["map"]["width"] = client->getGame()->getMap()->width;
+    this->data["map"]["height"] = client->getGame()->getMap()->height;
+
+    this->data["map"]["minis"]["x"] = xMinis;
+    this->data["map"]["minis"]["y"] = yMinis;
+
+    std::vector<int> xBomb;
+    std::vector<int> yBomb;
+
+    for(auto & bomb : client->getGame()->getMap()->bombs){
+        xBomb.emplace_back((int)bomb.get()->getPosition().x);
+        yBomb.emplace_back((int)bomb.get()->getPosition().y);
+    }
+
+    this->data["map"]["bombs"]["x"] = xBomb;
+    this->data["map"]["bombs"]["y"] = yBomb;
+
+    std::vector<int> xAbandoned;
+    std::vector<int> yAbandoned;
+
+    for(auto & a : client->getGame()->getMap()->abandoned){
+        xAbandoned.emplace_back((int)a.get()->getPosition().x);
+        yAbandoned.emplace_back((int)a.get()->getPosition().y);
+    }
+
+    this->data["map"]["abandoned"]["x"] = xAbandoned;
+    this->data["map"]["abandoned"]["y"] = yAbandoned;
 } 
 
 void JsonDataFormatter::addStatsInformation(Player * player){
 
+
 }
 
 void JsonDataFormatter::addPlayerInformation(Player * player){
+    
+    auto view = player->getView();
+    this->data["player"]["view"] = {view.first.x, view.first.y, view.second.x, view.second.y};
 
+    std::vector<int> coordinates;
+    coordinates.resize(player->getSize());
+    for(int i = 0; i < player->getSize(); i++){
+        coordinates[i] = (int)(*player)[i].getPosition().x;
+    }
+    this->data["player"]["blobs"]["x"] = coordinates;
+    for(int i = 0; i < player->getSize(); i++){
+        coordinates[i] = (int)(*player)[i].getPosition().y;
+    }
+    this->data["player"]["blobs"]["y"] = coordinates;
+
+    this->data["player"]["state"] = player->getState();
 }
 
 void JsonDataFormatter::clearCurrentData(){
@@ -24,7 +87,7 @@ void JsonDataFormatter::clearCurrentData(){
 void JsonDataFormatter::fillDataForClient(Client * client){
 
     this->clearCurrentData();
-    this->addMapInformation(client->getPlayer());
+    this->addMapInformation(client);
     this->addPlayerInformation(client->getPlayer());
     this->addStatsInformation(client->getPlayer());
 
@@ -37,4 +100,20 @@ void JsonDataFormatter::interpretClientData(clientInfo & cinfo){
     cinfo.mousePosition = glm::vec2(this->data["mouse"][0], this->data["mouse"][1]);
     // cinfo.state = this->data["state"];
     cinfo.w_action = this->data["eject"];
+}
+
+const int JsonDataFormatter::getRequestType(){
+
+    try
+    {
+        if(this->data["type"].get<std::string>() == "data") return this->DATA;
+        if(this->data["type"].get<std::string>() == "want_play") return this->WANT_PLAY;
+        if(this->data["type"].get<std::string>() == "want_observe") return this->WANT_OBSERVE;
+    }
+    catch(const detail::type_error& e)
+    {
+        return -1;
+    }
+    
+    return -1;
 }
