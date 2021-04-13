@@ -71,10 +71,13 @@ int Server::disconnectClient(int sockfd){
 void Server::createNewGame(){
 
     games.push_back(std::unique_ptr<agario::Game>(new agario::Game()));
+    //blessy wishes not to crash, for now
+    new_player_mutex[games.back().get()];
 }
 
 void Server::deleteGame(std::unique_ptr<agario::Game> & game){
 
+    new_player_mutex.erase(game.get());
     game.reset();
     game = std::move(games.back());
     games.pop_back();
@@ -82,6 +85,8 @@ void Server::deleteGame(std::unique_ptr<agario::Game> & game){
 
 void Server::deleteGame(int gameIndex){
 
+    auto ptr = games[gameIndex].get();
+    new_player_mutex.erase(ptr);
     games[gameIndex].reset();
     games[gameIndex] = std::move(games.back());
     games.pop_back();
@@ -127,6 +132,7 @@ void * Server::sendDataThread(void * args){
             continue;
         
         begin = std::chrono::steady_clock::now();
+
         pthread_mutex_lock(&client_creation_mutex);
 
         sendDataToClients(NULL);
@@ -165,9 +171,9 @@ void Server::fillDataToClient(Client * client, DataFormatServer & data){
 int Server::sendDataToClient(Client * client){
 
     DataFormatServer data;
-    pthread_mutex_lock(&new_player_mutex);
+    pthread_mutex_lock(&new_player_mutex[client->getGame()]);
     fillDataToClient(client, data);
-    pthread_mutex_unlock(&new_player_mutex);
+    pthread_mutex_unlock(&new_player_mutex[client->getGame()]);
 
     // data.printBuf();
 
@@ -286,11 +292,11 @@ void Server::findGameForNewClient(Client * client){
 
         if(g.get()->getnOfPlayers() < agario::MAX_PLAYERS_IN_GAME){
             
-            pthread_mutex_lock(&new_player_mutex);
+            pthread_mutex_lock(&new_player_mutex[client->getGame()]);
             agario::Player * p = g.get()->addPlayer();
             client->setPlayer(p);
             client->setGame(g.get());
-            pthread_mutex_unlock(&new_player_mutex);
+            pthread_mutex_unlock(&new_player_mutex[client->getGame()]);
             added = true;
             break;
         }
@@ -299,13 +305,13 @@ void Server::findGameForNewClient(Client * client){
 
     if(added == false){
 
-        pthread_mutex_lock(&new_player_mutex);
+        pthread_mutex_lock(&new_player_mutex[client->getGame()]);
         this->createNewGame();
  
         agario::Player * p = games.back().get()->addPlayer();
         client->setPlayer(p);
         client->setGame(games.back().get());
-        pthread_mutex_unlock(&new_player_mutex);
+        pthread_mutex_unlock(&new_player_mutex[client->getGame()]);
 
     }
 }
@@ -374,9 +380,9 @@ void Server::gameLoop(const float dTime){
 
     for(auto & g : games){
         if(g.get() != nullptr)
-            pthread_mutex_lock(&new_player_mutex);
+            pthread_mutex_lock(&new_player_mutex[g.get()]);
             g.get()->mainLoop(dTime); 
-            pthread_mutex_unlock(&new_player_mutex);
+            pthread_mutex_unlock(&new_player_mutex[g.get()]);
     }
 }
 
