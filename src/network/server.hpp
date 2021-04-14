@@ -6,6 +6,7 @@
 #include "client.hpp"
 #include "constants.hpp"
 #include "dataFormatServer.hpp"
+#include "jsonSendFormat.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,7 +77,7 @@ private:
     std::map<agario::Game *, pthread_mutex_t> new_player_mutex;//mutex przy tworzeniu nowego gracza
 
     int setUpServer();//stawianie serwera
-    int sendDataToClient(Client * client);//wysyłanie danych do klienta
+    int sendDataToClient(Client * client, DataInterface * buf);//wysyłanie danych do klienta
     void * get_in_addr(struct sockaddr *sa);
     void findGameForNewClient(Client * client);
     void interpretData(recvDataFormat * data);//nieużywane
@@ -86,7 +87,7 @@ private:
     static void sig_pipe_signal_handler(int signum);
     static void non_blocking_socket_signal(int signum);//niepotrzebne
 
-    void fillDataToClient(Client * client, DataFormatServer & data);//wypełnia bufor danych wysyłany do klienta
+    void fillDataToClient(Client * client, DataInterface * buf);//wypełnia bufor danych wysyłany do klienta
     void * sendDataThread(void * args);
     void cullDisconnectedClients();
 

@@ -109,11 +109,11 @@ void * Server::sendDataToClients(void * args){
 
         if(c.get() != nullptr && c.get()->getDisconnect() == false && c.get()->getPlayer()->getSize() > 0){
             
-            int status = sendDataToClient(c.get());
+            // int status = sendDataToClient(c.get(), );
 
-            if(status == -1){
-                fprintf(stdout, "client disconnected: %s\n", c->getIp_addr());
-            }
+            // if(status == -1){
+            //     fprintf(stdout, "client disconnected: %s\n", c->getIp_addr());
+            // }
         }
     }
 }
@@ -145,39 +145,19 @@ void * Server::sendDataThread(void * args){
     pthread_exit(NULL);
 }
 
-void Server::fillDataToClient(Client * client, DataFormatServer & data){
+void Server::fillDataToClient(Client * client, DataInterface * buf){
 
-    //wyczyść bufor danych
-    data.clearBuf();
-
-    data.appendSeparator();
-
-    //dodanie mini kulek na mapie
-    data.appendMinis(client->getGame(), client->getPlayer());
-    //dodanie wszystkich graczy danej gry 
-    for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
-
-        data.appendPlayer(&client->getGame()->getPlayer(i));     
-    }
-    data.appendChar(PLAYER);
-
-    //dodanie widoku gracza
-    data.appendView(client->getPlayer());
-
-    //dodanie stanu gracza
-    data.appendState(client->getPlayer());
+    buf->fillDataForClient(client);
 }
 
-int Server::sendDataToClient(Client * client){
+int Server::sendDataToClient(Client * client, DataInterface * buf){
 
-    DataFormatServer data;
+    JsonDataFormatter * jsonBuf = (JsonDataFormatter *)buf;
     pthread_mutex_lock(&new_player_mutex[client->getGame()]);
-    fillDataToClient(client, data);
+    fillDataToClient(client, buf);
     pthread_mutex_unlock(&new_player_mutex[client->getGame()]);
 
-    // data.printBuf();
-
-    int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
+    int status = write(client->getSockfd(), jsonBuf->getCharArray(), jsonBuf->getCharNo());
 
     if(status == -1){
 

@@ -3,9 +3,15 @@
 
 #include "../lib/AgarioEngine/src/agario_engine.hpp"
 #include "client.hpp"
-#include "threadFunctions.hpp"
 
+//Struktura zawierająca stan klienta
+struct clientInfo{
 
+    char state;
+    glm::vec2 mousePosition;
+    bool divide_action;
+    bool w_action;
+};
 
 
 class DataInterface{
@@ -25,7 +31,7 @@ public:
 
     virtual void fillDataForClient(Client * client) = 0;
     virtual void clearCurrentData() = 0;
-    virtual void interpretClientData(clientInfo & cinfo) = 0;
+    virtual void interpretClientData(Client * client) = 0;
 };
 
 #endif

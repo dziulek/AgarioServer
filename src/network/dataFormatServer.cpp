@@ -22,7 +22,6 @@ void DataFormatServer::appendPlayer(agario::Player * player){
 
     }
 }
-
 void DataFormatServer::appendState(agario::Player * player){
 
     this->appendChar(STATE);

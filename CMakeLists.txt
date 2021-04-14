@@ -35,9 +35,6 @@ set_target_properties(combined PROPERTIES IMPORTED_LOCATION ${C_LIB})
 target_link_libraries(AgarioServer_run combined)
 target_link_libraries(AgarioServer_run -pthread)
 
-
-
-
-
-# add_subdirectory(tests)
+add_subdirectory(tests)
+add_subdirectory(lib/AgarioEngine/lib/googletest)
 

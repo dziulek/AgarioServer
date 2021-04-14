@@ -26,49 +26,13 @@ void * clientThread(void * server_client_struct){
 
         jsonBuf.setData(buf);
 
-        switch (jsonBuf.getRequestType())
-        {
-        case jsonBuf.DATA:
+        jsonBuf.interpretClientData(client);
 
-            if(client->getPlayer() == nullptr || client->getPlayer()->getSize() == 0){
-                
-                client->getPlayer()->setState(false);
-            }
-
-            jsonBuf.interpretClientData(cinfo);
-            client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
-
-            jsonBuf.fillDataForClient(client);
-            int status = write(client->getSockfd(), jsonBuf.getCharArray(), jsonBuf.getCharNo());
-
-            if(status == -1){
-                fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
-            }      
-
-            break;
-        case jsonBuf.WANT_PLAY:
-
-            client->getPlayer()->setNickname("unnamed cell");
-            client->getPlayer()->setColor();
-
-            //send data that needs to be send once
-
-            
-            // int status = write(client->getSockfd(), jsonbu.getBuf(), buf.getLen());
-
-            if(status == -1){
-                fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
-            }
-
-            break;
-        case jsonBuf.WANT_OBSERVE:
-
-            break;
-        default:
-            //error
-            continue;
-        }
+        status = sc->server->sendDataToClient(client, &jsonBuf);
         
+        if(status == -1){
+            break;
+        }
     }
 
     pthread_mutex_lock(&sc->server->client_creation_mutex);

@@ -2,7 +2,7 @@
 #define DATA_FORMATTER
 
 #include "../lib/AgarioEngine/src/agario_engine.hpp"
-#include "dataInterface.hpp"
+// #include "dataInterface.hpp"
 
 template<class T>
 class DataFormatter{

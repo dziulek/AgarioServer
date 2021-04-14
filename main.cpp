@@ -17,19 +17,10 @@ int main(){
     // Server server;
 
     // server.mainLogic();   
+    std::string testJson = "{ \"happy\": true, \"pi\": 3.141 }";
+    json j = json::parse(testJson);
 
-    json j;
-
-    std::vector<int> a = {1,2,3,4,5};
-
-    j["player"]["blobs"]["x"] = a;
-
-    std::string s = j.dump();
-    std::cout << s << std::endl;
-
-    auto t = j["map"].get<int>();
-        std::cout << "t is null" <<std::endl;
-    std::cout << t <<std::endl;
+    std::cout << j["happy"].get<bool>() <<std::endl;
 
     return 0;
 }

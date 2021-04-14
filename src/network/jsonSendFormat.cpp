@@ -94,12 +94,42 @@ void JsonDataFormatter::fillDataForClient(Client * client){
     //perhaps some more in the future
 }
 
-void JsonDataFormatter::interpretClientData(clientInfo & cinfo){
+void JsonDataFormatter::interpretClientData(Client * client){
 
-    cinfo.divide_action = this->data["divide"];
-    cinfo.mousePosition = glm::vec2(this->data["mouse"][0], this->data["mouse"][1]);
-    // cinfo.state = this->data["state"];
-    cinfo.w_action = this->data["eject"];
+    clientInfo cinfo;
+    try{
+        if(this->data["type"].get<std::string>().c_str() == "data"){
+
+            cinfo.divide_action = this->data["divide"].get<bool>();
+            cinfo.mousePosition = glm::vec2(this->data["mouse"][0].get<float>(), this->data["mouse"][1].get<float>());
+            // cinfo.state = this->data["state"];
+            cinfo.w_action = this->data["eject"].get<float>();
+            
+            fillDataForClient(client);
+        }
+        else if(!strcmp(this->data["type"].get<std::string>().c_str(),"want_play")){
+
+            client->getPlayer()->setNickname(this->data["nickname"].get<std::string>());
+            client->getPlayer()->setColor();
+
+            this->data.clear();
+            this->data["map"]["height"] = client->getGame()->getMap()->height;
+            this->data["map"]["width"] = client->getGame()->getMap()->width;
+        }
+        else if(this->data["type"].get<std::string>() == "want_observe"){
+
+            //to do
+        }
+        else {
+            std::cerr << "uknown type" <<std::endl;
+        }
+    }
+    catch(json::type_error & e){
+        //invalid request
+        std::cerr <<e.what() <<std::endl;
+    }
+
+
 }
 
 const int JsonDataFormatter::getRequestType(){

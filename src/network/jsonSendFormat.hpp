@@ -1,12 +1,14 @@
 #ifndef JSON_DATA_FORMAT_HPP
 #define JSON_DATA_FORMAT_HPP
 
-#include "dataFormatter.hpp"
+#include "dataInterface.hpp"
 #include "../lib/json/single_include/nlohmann/json.hpp"
 
 #include <string>
 
 using namespace nlohmann;
+
+class DataInterface;
 
 class JsonDataFormatter : public DataInterface{
 
@@ -35,14 +37,17 @@ public:
     
     void clearCurrentData() override;
     void fillDataForClient(Client * client) override;
-    void interpretClientData(clientInfo & cinfo) override;
+    void interpretClientData(Client * client) override;
 
     void setData(const char * buf){this->data = std::string(buf);}
-    void setData(const std::string s){this->data = s;}
+    void setData(const std::string s){this->data = json::parse(s);}
 
     const int getRequestType();
     const char * getCharArray(){return this->data.dump().c_str();}
+    const std::string getString(){return this->data.dump();}
     long getCharNo(){return this->data.dump().length();}
+    json & getBuf(){return this->data;}
+
 };
 
 #endif
