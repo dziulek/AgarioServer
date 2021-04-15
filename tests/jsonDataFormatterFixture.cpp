@@ -89,3 +89,4 @@ TEST_F(jsonDataFormatterFixture, request_data){
     ASSERT_FLOAT_EQ(player->mousePosition.x, 3);
     ASSERT_FLOAT_EQ(player->mousePosition.y, 2);
 }
+

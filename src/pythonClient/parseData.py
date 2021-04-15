@@ -1,5 +1,6 @@
 import gameState
 import numpy as np
+import json
 
 SEPARATOR = ':'
 
@@ -20,9 +21,37 @@ state_dictionary = {
     'color' : 't'
 }
 
+DATA = "data"
+START_INFO = "start_info"
+STATS = "stats"
+
 def parse(data, game):
 
-    game.clear()
+    jsonData = json.loads(data)
+
+    if jsonData["type"] == DATA:
+
+        game.clear()
+        tempPlayer = gameState.Player()
+        playerList = jsonData["map"]["player"]
+
+        #players
+        for player in playerList:
+            tempPlayer.clear()
+            tempPlayer.addBlobsCoordinates(
+                np.array([np.array(player["blobs"]["x"]), 
+                np.array(player["blobs"]["y"])]).reshape(len(player["blobs"]["x"]), 2)
+            )
+            tempPlayer.addNickname(player["nickname"])
+            game.appendPlayer(player)
+        
+        #map
+        #minis
+        minis = np.array(zip(jsonData["map"]["minis"]["x"], jsonData["map"]["minis"]["y"]))
+        #abandoned
+        abandoned = np.array(zip(jsonData["map"]["abandoned"]["x"], jsonData["map"]["abandoned"]["y"]))
+        #bombs
+        bombs = np.array(zip(jsonData["map"]["bombs"]["x"], jsonData["map"]["bombs"]["y"]))
 
     player = gameState.Player()
     words = data.split(':')

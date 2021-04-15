@@ -26,8 +26,26 @@ void JsonDataFormatter::addMapInformation(Client * client){
         }
     }
 
-    this->data["map"]["width"] = client->getGame()->getMap()->width;
-    this->data["map"]["height"] = client->getGame()->getMap()->height;
+    //players
+    std::vector<int> xCoordinates(client->getPlayer()->getSize()), yCoordinates(client->getPlayer()->getSize());
+
+    for(int i = 0; i < client->getGame()->getnOfPlayers(); i++){
+        
+        auto * p = &client->getGame()->getPlayer(i);
+        
+        this->data["player"][i]["nickname"] = p->getNickname();
+        this->data["player"][i]["state"] = p->getState();
+        
+        for(int j = 0; j < p->getSize(); j++){
+            xCoordinates[j] = (int)(*p)[j].getPosition().x;
+            yCoordinates[j] = (int)(*p)[j].getPosition().y;
+        }
+        this->data["player"][i]["blobs"]["x"] = xCoordinates;
+        this->data["player"][i]["blobs"]["y"] = yCoordinates;
+    }
+
+    // this->data["map"]["width"] = client->getGame()->getMap()->width;
+    // this->data["map"]["height"] = client->getGame()->getMap()->height;
 
     this->data["map"]["minis"]["x"] = xMinis;
     this->data["map"]["minis"]["y"] = yMinis;
@@ -36,6 +54,7 @@ void JsonDataFormatter::addMapInformation(Client * client){
     std::vector<int> yBomb;
 
     for(auto & bomb : client->getGame()->getMap()->bombs){
+
         xBomb.emplace_back((int)bomb.get()->getPosition().x);
         yBomb.emplace_back((int)bomb.get()->getPosition().y);
     }
@@ -64,17 +83,6 @@ void JsonDataFormatter::addPlayerInformation(Player * player){
     
     auto view = player->getView();
     this->data["player"]["view"] = {view.first.x, view.first.y, view.second.x, view.second.y};
-
-    std::vector<int> coordinates;
-    coordinates.resize(player->getSize());
-    for(int i = 0; i < player->getSize(); i++){
-        coordinates[i] = (int)(*player)[i].getPosition().x;
-    }
-    this->data["player"]["blobs"]["x"] = coordinates;
-    for(int i = 0; i < player->getSize(); i++){
-        coordinates[i] = (int)(*player)[i].getPosition().y;
-    }
-    this->data["player"]["blobs"]["y"] = coordinates;
 
     this->data["player"]["state"] = player->getState();
 }

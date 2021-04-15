@@ -9,6 +9,12 @@ class Player:
     def clear(self):
         self.nickname = ''
         self.coordinates = np.array([])
+    def setBlobsCoordinates(self, __coordinates):
+        if type(__coordinates) != np.ndarray:
+            coordinates = np.array(__coordinates)
+        
+        if len(np.shape(__coordinates)) == 2 and np.shape(__coordinates)[1] == 2:
+            self.coordinates = copy.deepcopy(coordinates)
 
     def addCoordinate(self, coord):
         self.coordinates = np.append(self.coordinates, coord)
