@@ -7,14 +7,14 @@ class Player:
         self.coordinates = np.array([])
         self.color = 0xffffffff
     def clear(self):
-        self.nickname = ''
+        self.nickname = 'Unnamed_cell'
         self.coordinates = np.array([])
     def setBlobsCoordinates(self, __coordinates):
         if type(__coordinates) != np.ndarray:
             coordinates = np.array(__coordinates)
         
         if len(np.shape(__coordinates)) == 2 and np.shape(__coordinates)[1] == 2:
-            self.coordinates = copy.deepcopy(coordinates)
+            self.coordinates = copy.deepcopy(__coordinates)
 
     def addCoordinate(self, coord):
         self.coordinates = np.append(self.coordinates, coord)
@@ -25,13 +25,14 @@ class Player:
 
 class GameState:
     def __init__(self):
-        self.myPlayer = None
         self.players = []
         self.map = {
             'minis' : np.array([]),
             'width' : 1,
             'height' : 1,
-            'colors' : np.array([], int)
+            'colors' : np.array([], int),
+            'bombs' : np.array([]),
+            'abandoned' : np.array([])
         }
         self.playerState = True
         self.view = np.array([])
@@ -56,6 +57,12 @@ class GameState:
 
     def addViewCoord(self, coord):
         self.view = np.append(self.view, coord)
+    
+    def setView(self, window):
+        if type(window) != np.ndarray:
+            window = np.array(window)
+        if np.shape(window) == (2,2):
+            self.view = copy.deepcopy(window)
 
 class MyInfo:
     def __init__(self):
