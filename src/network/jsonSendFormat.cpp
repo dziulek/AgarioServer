@@ -98,12 +98,23 @@ void JsonDataFormatter::interpretClientData(Client * client){
 
     clientInfo cinfo;
     try{
-        if(this->data["type"].get<std::string>().c_str() == "data"){
-
+        if(this->data["type"].get<std::string>() == "data"){
+            
             cinfo.divide_action = this->data["divide"].get<bool>();
-            cinfo.mousePosition = glm::vec2(this->data["mouse"][0].get<float>(), this->data["mouse"][1].get<float>());
+            auto tempVec = this->data["mouse"].get<std::vector<float>>();
+            cinfo.mousePosition = glm::vec2(tempVec.front(), tempVec.back());
+
             // cinfo.state = this->data["state"];
             cinfo.w_action = this->data["eject"].get<float>();
+
+            if(cinfo.divide_action){
+                client->getPlayer()->divideObject();
+            }
+            if(cinfo.w_action){
+                client->getPlayer()->wAction();
+            }
+
+            client->getPlayer()->mousePosition = cinfo.mousePosition;
             
             fillDataForClient(client);
         }
