@@ -3,9 +3,9 @@ name: C++ tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ optimization ]
   pull_request:
-    branches: [ master ]
+    branches: [ optimization ]
 
 jobs:
   build:
