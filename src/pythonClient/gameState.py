@@ -45,15 +45,11 @@ class GameState:
         
     def appendPlayer(self, player):
         self.players.append(copy.deepcopy(player))
-    
-    def appendMe(self, me):
-        self.myPlayer = copy.deepcopy(me)
 
-    def addMap(self, width, height, minis, colors):
-        self.map['width'] = width
-        self.map['height'] = height
+    def addMap(self, minis, bombs, abandoned):
         self.map['minis'] = copy.deepcopy(minis)
-        self.map['colors'] = copy.deepcopy(colors)
+        self.map['bombs'] = copy.deepcopy(bombs)
+        self.map['abandoned'] = copy.deepcopy(abandoned)
 
     def addViewCoord(self, coord):
         self.view = np.append(self.view, coord)
@@ -74,6 +70,11 @@ class MyInfo:
 
     def addWAction(self, b):
         self.attributes['waction'] = b
+
+    def clear(self):
+        self.attributes['waction'] = 0
+        self.attributes['divide'] = 0
+        self.attributes['mouse'] = [0, 0]
     
     def addMousePosition(self, vector):
         self.attributes['mouse'] = copy.deepcopy(vector)

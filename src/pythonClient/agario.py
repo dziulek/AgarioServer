@@ -1,9 +1,14 @@
 import random
 import arcade
+import json
+import sys
 from arcade.gui import UIManager
 from arcade.gui.ui_style import UIStyle
-from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
-from gameState import Player, GameState, MyInfo
+
+sys.path.insert(1, '..')
+from pythonClient.client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
+from pythonClient.gameState import Player, GameState, MyInfo
+from pythonClient.parseData import parse, fillMyData
 import numpy as np
 import copy
 import time
@@ -177,11 +182,15 @@ class InstructionView(arcade.View):
             if button.connection is not None:
                 if button.connection is True:
                     try:
-                        button.socket.send(bytearray('nickname:' + nickname, 'utf-8'))
+                        temp = {}
+                        temp['nickname'] = nickname
+                        temp['type'] = "want_play"
+                        print(json.dumps(temp))
+                        button.socket.send(bytearray(json.dumps(temp), 'utf-8'))
                         #czekamy na dane które ptrzebne są tylko raz, w tym przypadku tylko wysokość i szerokośc mapy
-                        confirmation = button.socket.recv(50)
+                        confirmation = button.socket.recv(100)
                         data = confirmation.decode()
-                        empty, width, height, empty = data.split(':')
+                        width, height = parse(data, GameState())
                         
                         game_view = GameView(float(width), float(height))
                         game_view.setup(button.socket)

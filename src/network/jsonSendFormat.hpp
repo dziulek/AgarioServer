@@ -2,7 +2,7 @@
 #define JSON_DATA_FORMAT_HPP
 
 #include "dataInterface.hpp"
-#include "../lib/json/single_include/nlohmann/json.hpp"
+#include "../../lib/json/single_include/nlohmann/json.hpp"
 
 #include <string>
 

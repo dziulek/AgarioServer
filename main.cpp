@@ -14,13 +14,13 @@ using namespace nlohmann;
 
 int main(){
 
-    // Server server;
+    Server server;
 
-    // server.mainLogic();   
-    std::string testJson = "{ \"happy\": true, \"pi\": 3.141 }";
-    json j = json::parse(testJson);
+    server.mainLogic();   
+    // std::string testJson = "{ \"happy\": true, \"pi\": 3.141 }";
+    // json j = json::parse(testJson);
 
-    std::cout << j["happy"].get<bool>() <<std::endl;
+    // std::cout << j["happy"].get<bool>() <<std::endl;
 
     return 0;
 }

@@ -33,19 +33,17 @@ void JsonDataFormatter::addMapInformation(Client * client){
         
         auto * p = &client->getGame()->getPlayer(i);
         
-        this->data["player"][i]["nickname"] = p->getNickname();
-        this->data["player"][i]["state"] = p->getState();
+        this->data["players"][std::to_string(i)]["nickname"] = p->getNickname();
+        this->data["players"][std::to_string(i)]["color"] = p->getColor();
+        // this->data["player"][std::to_string(i)]["state"] = p->getState();
         
         for(int j = 0; j < p->getSize(); j++){
             xCoordinates[j] = (int)(*p)[j].getPosition().x;
             yCoordinates[j] = (int)(*p)[j].getPosition().y;
         }
-        this->data["player"][i]["blobs"]["x"] = xCoordinates;
-        this->data["player"][i]["blobs"]["y"] = yCoordinates;
+        this->data["players"][std::to_string(i)]["blobs"]["x"] = xCoordinates;
+        this->data["players"][std::to_string(i)]["blobs"]["y"] = yCoordinates;
     }
-
-    // this->data["map"]["width"] = client->getGame()->getMap()->width;
-    // this->data["map"]["height"] = client->getGame()->getMap()->height;
 
     this->data["map"]["minis"]["x"] = xMinis;
     this->data["map"]["minis"]["y"] = yMinis;
@@ -82,9 +80,9 @@ void JsonDataFormatter::addStatsInformation(Player * player){
 void JsonDataFormatter::addPlayerInformation(Player * player){
     
     auto view = player->getView();
-    this->data["player"]["view"] = {view.first.x, view.first.y, view.second.x, view.second.y};
+    this->data["you"]["view"] = {view.first.x, view.first.y, view.second.x, view.second.y};
 
-    this->data["player"]["state"] = player->getState();
+    this->data["you"]["state"] = player->getState();
 }
 
 void JsonDataFormatter::clearCurrentData(){
@@ -125,6 +123,7 @@ void JsonDataFormatter::interpretClientData(Client * client){
             client->getPlayer()->mousePosition = cinfo.mousePosition;
             
             fillDataForClient(client);
+            this->data["type"] = "data";
         }
         else if(!strcmp(this->data["type"].get<std::string>().c_str(),"want_play")){
 
@@ -132,6 +131,7 @@ void JsonDataFormatter::interpretClientData(Client * client){
             client->getPlayer()->setColor();
 
             this->data.clear();
+            this->data["type"] = "want_play";
             this->data["map"]["height"] = client->getGame()->getMap()->height;
             this->data["map"]["width"] = client->getGame()->getMap()->width;
         }

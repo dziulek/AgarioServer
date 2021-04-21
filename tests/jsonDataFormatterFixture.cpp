@@ -12,8 +12,8 @@ public:
     jsonDataFormatterFixture(){
 
         this->jsonBuf = new JsonDataFormatter();
-        this->player = new agario::Player(glm::vec2(0.f,0.f), "foo");
         this->game = new agario::Game();
+        this->player = game->addPlayer("foo");
         this->client = new Client("", 0, &s);
         this->client->setGame(game);
         this->client->setPlayer(player);
@@ -38,7 +38,6 @@ public:
     virtual ~jsonDataFormatterFixture(){
 
         delete jsonBuf;
-        delete player;
         delete game;
         delete client;
     }
@@ -88,5 +87,12 @@ TEST_F(jsonDataFormatterFixture, request_data){
 
     ASSERT_FLOAT_EQ(player->mousePosition.x, 3);
     ASSERT_FLOAT_EQ(player->mousePosition.y, 2);
+}
+
+TEST_F(jsonDataFormatterFixture, request_data_2){
+
+    jsonBuf->fillDataForClient(client);
+    std::cerr << jsonBuf->getString() << std::endl;
+    ASSERT_EQ(true, true);
 }
 

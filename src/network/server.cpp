@@ -68,11 +68,10 @@ int Server::disconnectClient(int sockfd){
     close(sockfd);
 }
 
-void Server::createNewGame(){
+agario::Game * Server::createNewGame(){
 
     games.push_back(std::unique_ptr<agario::Game>(new agario::Game()));
-    //blessy wishes not to crash, for now
-    new_player_mutex[games.back().get()];
+    return games.back().get();
 }
 
 void Server::deleteGame(std::unique_ptr<agario::Game> & game){
@@ -150,14 +149,9 @@ void Server::fillDataToClient(Client * client, DataInterface * buf){
     buf->fillDataForClient(client);
 }
 
-int Server::sendDataToClient(Client * client, DataInterface * buf){
+int Server::sendDataToClient(Client * client, std::string buf){
 
-    JsonDataFormatter * jsonBuf = (JsonDataFormatter *)buf;
-    pthread_mutex_lock(&new_player_mutex[client->getGame()]);
-    fillDataToClient(client, buf);
-    pthread_mutex_unlock(&new_player_mutex[client->getGame()]);
-
-    int status = write(client->getSockfd(), jsonBuf->getCharArray(), jsonBuf->getCharNo());
+    int status = write(client->getSockfd(), buf.c_str(), buf.length());
 
     if(status == -1){
 
@@ -285,13 +279,18 @@ void Server::findGameForNewClient(Client * client){
 
     if(added == false){
 
-        pthread_mutex_lock(&new_player_mutex[client->getGame()]);
-        this->createNewGame();
- 
+        
+        agario::Game * temp = this->createNewGame();
+        
+        // pthread_mutex_t new_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+        new_player_mutex[temp] = PTHREAD_MUTEX_INITIALIZER;
+        
+        pthread_mutex_lock(&new_player_mutex[temp]);
         agario::Player * p = games.back().get()->addPlayer();
         client->setPlayer(p);
         client->setGame(games.back().get());
-        pthread_mutex_unlock(&new_player_mutex[client->getGame()]);
+        pthread_mutex_unlock(&new_player_mutex[temp]);
 
     }
 }

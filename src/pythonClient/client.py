@@ -1,5 +1,5 @@
-from gameState import MyInfo, GameState, Player
-from parseData import parse, fillMyData
+from pythonClient.gameState import MyInfo, GameState, Player
+from pythonClient.parseData import parse, fillMyData
 import arcade
 
 import socket
@@ -29,9 +29,10 @@ def writeToServerRoutine(server_socket):
     global closeClient
     global myInfo
 
-    buf = fillMyData(myInfo)
+    buf = fillMyData(myInfo, "data")
     try:
         server_socket.send(bytearray(buf, 'utf-8'))
+        myInfo.clear()
     except BrokenPipeError:
         raise BrokenPipeError
 

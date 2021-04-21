@@ -1,7 +1,7 @@
 #ifndef DATA_INTERFACE_HPP
 #define DATA_INTERFACE_HPP
 
-#include "../lib/AgarioEngine/src/agario_engine.hpp"
+#include "../../lib/AgarioEngine/src/agario_engine.hpp"
 #include "client.hpp"
 
 //Struktura zawierająca stan klienta

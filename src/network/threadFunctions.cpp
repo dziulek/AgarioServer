@@ -11,28 +11,34 @@ void * clientThread(void * server_client_struct){
     
     Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
 
-    char * buf;
+    char * buf = nullptr;
     JsonDataFormatter jsonBuf;
     clientInfo cinfo;
 
     while(client != nullptr && client->getDisconnect() == false){
 
-        int status = read(client->getSockfd(), buf, 150);
+        int status = read(client->getSockfd(), buf, MAX_LEN_BUFER);
 
         if(status == 0){
             //closed socket
             break;
         }
-
+        if(buf == nullptr) continue;
         jsonBuf.setData(buf);
+
+        pthread_mutex_lock(&sc->server->new_player_mutex[client->getGame()]);
 
         jsonBuf.interpretClientData(client);
 
-        status = sc->server->sendDataToClient(client, &jsonBuf);
+        pthread_mutex_unlock(&sc->server->new_player_mutex[client->getGame()]);
+
+        status = sc->server->sendDataToClient(client, jsonBuf.getString());
         
         if(status == -1){
             break;
         }
+
+        buf == nullptr;
     }
 
     pthread_mutex_lock(&sc->server->client_creation_mutex);

@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "../lib/AgarioEngine/src/agario_engine.hpp"
+#include "../../lib/AgarioEngine/src/agario_engine.hpp"
 #include "threadFunctions.hpp"
 #include "client.hpp"
 #include "constants.hpp"
@@ -77,7 +77,7 @@ private:
     std::map<agario::Game *, pthread_mutex_t> new_player_mutex;//mutex przy tworzeniu nowego gracza
 
     int setUpServer();//stawianie serwera
-    int sendDataToClient(Client * client, DataInterface * buf);//wysyłanie danych do klienta
+    int sendDataToClient(Client * client, std::string buf);//wysyłanie danych do klienta
     void * get_in_addr(struct sockaddr *sa);
     void findGameForNewClient(Client * client);
     void interpretData(recvDataFormat * data);//nieużywane
@@ -115,7 +115,7 @@ public:
 
     Client * addNewClient(int sockfd, char * ip_addr, struct sockaddr_storage * s);//dodanie nowego klienta
     int disconnectClient(int sockfd);//rozłącz klienta
-    void createNewGame();
+    agario::Game * createNewGame();
     void closeServer();
     void deleteGame(std::unique_ptr<agario::Game> & game);
     void deleteGame(int gameIndex);
