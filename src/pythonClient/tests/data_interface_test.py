@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(1, '../..')
 import numpy as np
-from pythonClient.parseData import parse
+from pythonClient.parseData import parse, fillMyData
 from pythonClient.gameState import GameState, MyInfo, Player
 
 class ParseTest(unittest.TestCase):
@@ -50,6 +50,14 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(gameState.map["bombs"][0][1], 277)
 
         self.assertEqual(gameState.playerState, True)
+
+    def test_parse_my_data(self):
+
+        me = MyInfo()
+        jsonBuf = fillMyData(me, "data")
+
+        print(jsonBuf)
+        self.assertEqual(True, True)
 
 if __name__ == "__main__":
     unittest.main()

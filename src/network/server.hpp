@@ -4,7 +4,7 @@
 #include "../../lib/AgarioEngine/src/agario_engine.hpp"
 #include "threadFunctions.hpp"
 #include "client.hpp"
-#include "constants.hpp"
+#include "constants_server.hpp"
 #include "dataFormatServer.hpp"
 #include "jsonSendFormat.hpp"
 
@@ -74,7 +74,9 @@ private:
     pthread_t game_thread;
     pthread_mutex_t send_data_mutex = PTHREAD_MUTEX_INITIALIZER;//mutex teraz nie używany
     pthread_mutex_t client_creation_mutex = PTHREAD_MUTEX_INITIALIZER;//mutex przy tworzeniu nowego klienta
-    std::map<agario::Game *, pthread_mutex_t> new_player_mutex;//mutex przy tworzeniu nowego gracza
+    pthread_mutex_t new_player_mutex = PTHREAD_MUTEX_INITIALIZER;//mutex przy tworzeniu nowego gracza
+
+    // std::vector<pthread_mutex_t> mutexes(10);
 
     int setUpServer();//stawianie serwera
     int sendDataToClient(Client * client, std::string buf);//wysyłanie danych do klienta
@@ -99,7 +101,7 @@ public:
         
         signal(SIGPIPE, sig_pipe_signal_handler);
 
-        strcpy(this->portNumber, std::string("1234").c_str());
+        strcpy(this->portNumber, std::string("1235").c_str());
         int status = setUpServer();
         if(status < 0){
 

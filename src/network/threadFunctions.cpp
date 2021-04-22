@@ -8,10 +8,14 @@ Tutaj znajdują się funkcje które są wywoływane przez serwer w osobnych wąt
 void * clientThread(void * server_client_struct){
 
     server_client * sc = (server_client *)server_client_struct;
+    std::cerr << "new client" << std::endl;
     
     Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
 
-    char * buf = nullptr;
+    std::cerr << "client created" << std::endl;
+
+    char buf[MAX_LEN_BUFER];
+    bzero(buf, strlen(buf));
     JsonDataFormatter jsonBuf;
     clientInfo cinfo;
 
@@ -23,33 +27,42 @@ void * clientThread(void * server_client_struct){
             //closed socket
             break;
         }
-        if(buf == nullptr) continue;
-        jsonBuf.setData(buf);
+        if(strlen(buf) == 0) continue;
 
-        pthread_mutex_lock(&sc->server->new_player_mutex[client->getGame()]);
+        try{
+            jsonBuf.setData(std::string(buf));
+        }
+        catch(std::exception & e){
+            e.what();
+            std::cerr << buf << std::endl;
+        }
 
-        jsonBuf.interpretClientData(client);
-
-        pthread_mutex_unlock(&sc->server->new_player_mutex[client->getGame()]);
+        pthread_mutex_lock(&sc->server->new_player_mutex);
+        try{
+            jsonBuf.interpretClientData(client);
+        }
+        catch(std::exception & e){
+            e.what();
+            std::cerr << buf << std::endl;
+        }
+        bzero(buf, strlen(buf));
+        pthread_mutex_unlock(&sc->server->new_player_mutex);
 
         status = sc->server->sendDataToClient(client, jsonBuf.getString());
-        
         if(status == -1){
             break;
         }
-
-        buf == nullptr;
     }
 
     pthread_mutex_lock(&sc->server->client_creation_mutex);
 
-    pthread_mutex_lock(&sc->server->new_player_mutex[client->getGame()]);
+    pthread_mutex_lock(&sc->server->new_player_mutex);
 
     client->setDisconnect();
     client->getGame()->getMap()->playerObjectAbandoned(client->getPlayer());
     client->getGame()->deletePlayer(client->getPlayer());
 
-    pthread_mutex_unlock(&sc->server->new_player_mutex[client->getGame()]);
+    pthread_mutex_unlock(&sc->server->new_player_mutex);
     close(client->getSockfd());
     sc->server->cullDisconnectedClients();
 
@@ -105,7 +118,7 @@ void * serverInfoRoutine(void * args){
             fprintf(stdout, "number of games running: %d\n", (int)server->games.size());
             for(int i = 0; i < server->games.size(); i++){
                 std::cout << "Board " << i + 1 << ":\n";
-                pthread_mutex_lock(&server->new_player_mutex[server->games[i].get()]);//======================player
+                pthread_mutex_lock(&server->new_player_mutex);//======================player
 
                 if(server->games[i].get()->getnOfPlayers() == 0)
                     fprintf(stdout, "brak graczy\n");
@@ -114,7 +127,7 @@ void * serverInfoRoutine(void * args){
                         fprintf(stdout, "-- %s\n", server->games[i]->getPlayer(j).getNickname().c_str());
                 }
 
-                pthread_mutex_unlock(&server->new_player_mutex[server->games[i].get()]);//====================player
+                pthread_mutex_unlock(&server->new_player_mutex);//====================player
             }
         }
         else if(s == "port"){
@@ -131,7 +144,7 @@ void * serverInfoRoutine(void * args){
 
             std::cout<<std::ctime(&time)<<std::endl;
         }
-        if(s == "closeServer:4rfvbgt5"){
+        if(s == "aa"){
 
             server->close_server = true;
 

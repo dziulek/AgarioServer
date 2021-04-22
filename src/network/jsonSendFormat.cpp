@@ -13,6 +13,7 @@ void JsonDataFormatter::addMapInformation(Client * client){
 
     std::vector<int> xMinis;
     std::vector<int> yMinis;
+    std::vector<u_int32_t> minis_color;
 
     for(int i = mini_range.first.first; i < mini_range.second.first; i++){
 
@@ -22,12 +23,14 @@ void JsonDataFormatter::addMapInformation(Client * client){
                 
                 xMinis.emplace_back((int)m.get()->getPosition().x);
                 yMinis.emplace_back((int)m.get()->getPosition().y);
+                minis_color.emplace_back(m.get()->getColor());
             }    
         }
     }
 
     //players
-    std::vector<int> xCoordinates(client->getPlayer()->getSize()), yCoordinates(client->getPlayer()->getSize());
+    std::vector<int> xCoordinates(client->getGame()->getnOfPlayers()), yCoordinates(client->getGame()->getnOfPlayers());
+    std::vector<float> radius(client->getGame()->getnOfPlayers());
 
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i++){
         
@@ -40,13 +43,17 @@ void JsonDataFormatter::addMapInformation(Client * client){
         for(int j = 0; j < p->getSize(); j++){
             xCoordinates[j] = (int)(*p)[j].getPosition().x;
             yCoordinates[j] = (int)(*p)[j].getPosition().y;
+            radius[j] = (*p)[j].getRadius();
         }
         this->data["players"][std::to_string(i)]["blobs"]["x"] = xCoordinates;
         this->data["players"][std::to_string(i)]["blobs"]["y"] = yCoordinates;
+        this->data["players"][std::to_string(i)]["blobs"]["radius"] = radius;
     }
 
     this->data["map"]["minis"]["x"] = xMinis;
     this->data["map"]["minis"]["y"] = yMinis;
+    this->data["map"]["minis"]["radius"] = std::vector<float>(xMinis.size(), MINI_RADIUS);
+    this->data["map"]["minis_color"] = minis_color;
 
     std::vector<int> xBomb;
     std::vector<int> yBomb;
@@ -102,16 +109,17 @@ void JsonDataFormatter::fillDataForClient(Client * client){
 
 void JsonDataFormatter::interpretClientData(Client * client){
 
+    std::cerr << "a";
     clientInfo cinfo;
     try{
         if(this->data["type"].get<std::string>() == "data"){
-            
+        
             cinfo.divide_action = this->data["divide"].get<bool>();
             auto tempVec = this->data["mouse"].get<std::vector<float>>();
             cinfo.mousePosition = glm::vec2(tempVec.front(), tempVec.back());
 
             // cinfo.state = this->data["state"];
-            cinfo.w_action = this->data["eject"].get<float>();
+            cinfo.w_action = this->data["eject"].get<bool>();
 
             if(cinfo.divide_action){
                 client->getPlayer()->divideObject();
@@ -126,7 +134,9 @@ void JsonDataFormatter::interpretClientData(Client * client){
             this->data["type"] = "data";
         }
         else if(!strcmp(this->data["type"].get<std::string>().c_str(),"want_play")){
+            
 
+            std::cerr << "in parsing" << std::endl;
             client->getPlayer()->setNickname(this->data["nickname"].get<std::string>());
             client->getPlayer()->setColor();
 
@@ -145,6 +155,7 @@ void JsonDataFormatter::interpretClientData(Client * client){
     }
     catch(json::type_error & e){
         //invalid request
+        std::cerr << "something wrong" << std::endl;
         std::cerr <<e.what() <<std::endl;
     }
 

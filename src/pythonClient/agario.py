@@ -217,6 +217,8 @@ class GameView(arcade.View):
         self.player_shapes = None
         self.mini_shapes = None
         self.players_nicks = None
+        self.bombs = None
+        self.abandoned = None
 
         self.map_rectangle = None
 
@@ -242,8 +244,8 @@ class GameView(arcade.View):
         
         self.socket = s
 
-        self.socket.send(bytearray(':data:', 'utf-8'))
-        listenOnSocket(self.socket)
+        # self.socket.send(bytearray(':data:', 'utf-8'))
+        # listenOnSocket(self.socket)
 
         self.player_shapes = arcade.ShapeElementList()
         self.mini_shapes = arcade.ShapeElementList()
@@ -317,7 +319,7 @@ class GameView(arcade.View):
 
             if game.map['minis'] is not None:
                 self.mini_shapes = arcade.ShapeElementList()
-                for mini, color in zip(game.map['minis'], game.map['colors']):
+                for mini, color in zip(game.map['minis'], game.map['minis_color']):
                     x, y, radius = mini
                     shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
                     self.mini_shapes.append(shape)

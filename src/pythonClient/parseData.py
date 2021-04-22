@@ -39,7 +39,7 @@ def parse(data, game):
         for player in playerList:
             tempPlayer.clear()
             tempPlayer.setBlobsCoordinates(
-                np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"])))
+                np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"], playerList[player]["blobs"]["radius"])))
             )
             tempPlayer.addNickname(playerList[player]["nickname"])
             tempPlayer.color = playerList[player]["color"]
@@ -47,7 +47,8 @@ def parse(data, game):
         
         #map
         #minis
-        minis = np.array(list(zip(jsonData["map"]["minis"]["x"], jsonData["map"]["minis"]["y"])))
+        minis = np.array(list(zip(jsonData["map"]["minis"]["x"], jsonData["map"]["minis"]["y"], jsonData["map"]["minis"]["radius"])))
+        minis_color = np.array(jsonData["map"]["minis_color"])
         #abandoned
         abandoned = np.array(list(zip(jsonData["map"]["abandoned"]["x"], jsonData["map"]["abandoned"]["y"])))
         #bombs
@@ -59,7 +60,7 @@ def parse(data, game):
 
         state = bool(int(chr(jsonData["you"]["state"])))
 
-        game.addMap(minis, bombs, abandoned)
+        game.addMap(minis, bombs, abandoned, minis_color)
         game.setView(view)
         
         game.playerState = state
@@ -81,8 +82,8 @@ def fillMyData(myInfo, request_type):
     jsonData = {}
 
     jsonData["type"] = request_type
-    jsonData["divide"] = myInfo.attributes["divide"]
-    jsonData["eject"] = myInfo.attributes["waction"]
+    jsonData["divide"] = bool(myInfo.attributes["divide"])
+    jsonData["eject"] = bool(myInfo.attributes["waction"])
     jsonData["mouse"] = myInfo.attributes["mouse"]
 
     return json.dumps(jsonData)
