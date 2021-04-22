@@ -284,6 +284,7 @@ void Server::findGameForNewClient(Client * client){
 
         pthread_mutex_lock(&new_player_mutex);
         agario::Player * p = games.back().get()->addPlayer();
+        p->setColor();
         client->setPlayer(p);
         client->setGame(temp);
         pthread_mutex_unlock(&new_player_mutex);

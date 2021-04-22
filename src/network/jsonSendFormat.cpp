@@ -37,7 +37,7 @@ void JsonDataFormatter::addMapInformation(Client * client){
         auto * p = &client->getGame()->getPlayer(i);
         
         this->data["players"][std::to_string(i)]["nickname"] = p->getNickname();
-        this->data["players"][std::to_string(i)]["color"] = p->getColor();
+        this->data["players"][std::to_string(i)]["color"] = (u_int32_t)p->getColor();
         // this->data["player"][std::to_string(i)]["state"] = p->getState();
         
         for(int j = 0; j < p->getSize(); j++){
@@ -109,7 +109,6 @@ void JsonDataFormatter::fillDataForClient(Client * client){
 
 void JsonDataFormatter::interpretClientData(Client * client){
 
-    std::cerr << "a";
     clientInfo cinfo;
     try{
         if(this->data["type"].get<std::string>() == "data"){

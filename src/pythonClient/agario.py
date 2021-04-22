@@ -324,12 +324,12 @@ class GameView(arcade.View):
                     shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
                     self.mini_shapes.append(shape)
 
-            if len(game.view) == 4:
+            if np.shape(game.view) == (2,2):
                 
-                self.view_left = copy.deepcopy(game.view[0])
-                self.view_right = copy.deepcopy(game.view[2])
-                self.view_bottom = copy.deepcopy(game.view[1])
-                self.view_top = copy.deepcopy(game.view[3])
+                self.view_left = copy.deepcopy(game.view[0][0])
+                self.view_right = copy.deepcopy(game.view[1][0])
+                self.view_bottom = copy.deepcopy(game.view[0][1])
+                self.view_top = copy.deepcopy(game.view[1][1])
 
 
             arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
@@ -389,9 +389,9 @@ class GameView(arcade.View):
         global myInfo
 
         if key == arcade.key.W:
-            myInfo.addWAction(1)
+            myInfo.addWAction(True)
         elif key == arcade.key.SPACE:
-            myInfo.addDivideAction(1)
+            myInfo.addDivideAction(True)
         elif key == arcade.key.ESCAPE:
             self.socket.close()
             game_over = GameOverView("YOU QUIT THE GAME")

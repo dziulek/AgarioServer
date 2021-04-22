@@ -64,8 +64,8 @@ class GameState:
 class MyInfo:
     def __init__(self):
         self.attributes = {}
-        self.attributes['waction'] = 0
-        self.attributes['divide'] = 0
+        self.attributes['waction'] = False
+        self.attributes['divide'] = False
         self.attributes['mouse'] = [0, 0]
         self.attributes['state'] = 'wait'
 
@@ -73,8 +73,8 @@ class MyInfo:
         self.attributes['waction'] = b
 
     def clear(self):
-        self.attributes['waction'] = 0
-        self.attributes['divide'] = 0
+        self.attributes['waction'] = False
+        self.attributes['divide'] = False
         self.attributes['mouse'] = [0, 0]
     
     def addMousePosition(self, vector):

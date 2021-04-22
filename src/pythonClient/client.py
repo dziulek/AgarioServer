@@ -62,6 +62,7 @@ def listenOnSocket(server_socket):
     data = buf.decode()
     # print(len(data))
     game.clear()
+    # print(data)
     parse(data, game)
 
 def connectToServer():

@@ -42,6 +42,7 @@ def parse(data, game):
                 np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"], playerList[player]["blobs"]["radius"])))
             )
             tempPlayer.addNickname(playerList[player]["nickname"])
+            print(playerList[player]["color"])
             tempPlayer.color = playerList[player]["color"]
             game.appendPlayer(tempPlayer)
         

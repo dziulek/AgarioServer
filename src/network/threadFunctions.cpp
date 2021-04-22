@@ -8,11 +8,8 @@ Tutaj znajdują się funkcje które są wywoływane przez serwer w osobnych wąt
 void * clientThread(void * server_client_struct){
 
     server_client * sc = (server_client *)server_client_struct;
-    std::cerr << "new client" << std::endl;
     
     Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
-
-    std::cerr << "client created" << std::endl;
 
     char buf[MAX_LEN_BUFER];
     bzero(buf, strlen(buf));
@@ -30,6 +27,7 @@ void * clientThread(void * server_client_struct){
         if(strlen(buf) == 0) continue;
 
         try{
+            jsonBuf.clearCurrentData();
             jsonBuf.setData(std::string(buf));
         }
         catch(std::exception & e){
