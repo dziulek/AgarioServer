@@ -1,1 +1,1 @@
-#Server and client for Agario game
+# Server and client for Agar.io game
