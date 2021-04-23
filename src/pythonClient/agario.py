@@ -2,6 +2,7 @@ import random
 import arcade
 import json
 import sys
+import math
 from arcade.gui import UIManager
 from arcade.gui.ui_style import UIStyle
 
@@ -18,6 +19,8 @@ import sys
 ping = None
 logic_time = None
 drawing_time = None
+
+BOMB_SPRITE_SIZE = 100
 
 frames_per_second = 0
 second = time.time()
@@ -217,8 +220,8 @@ class GameView(arcade.View):
         self.player_shapes = None
         self.mini_shapes = None
         self.players_nicks = None
-        self.bombs = None
-        self.abandoned = None
+        self.bombs_shapes = None
+        self.abandoned_shapes = None
 
         self.map_rectangle = None
 
@@ -247,8 +250,12 @@ class GameView(arcade.View):
         # self.socket.send(bytearray(':data:', 'utf-8'))
         # listenOnSocket(self.socket)
 
+        img_bomb = "test.png"
+
         self.player_shapes = arcade.ShapeElementList()
         self.mini_shapes = arcade.ShapeElementList()
+        self.bombs_shapes = arcade.SpriteList()
+        self.abandoned_shapes = arcade.ShapeElementList()
         self.map_rectangle = arcade.create_rectangle_filled(
             SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 
             SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.AMAZON)
@@ -271,6 +278,8 @@ class GameView(arcade.View):
         # draw minis
         self.mini_shapes.draw()
         self.player_shapes.draw()
+        self.bombs_shapes.draw()
+        self.abandoned_shapes.draw()
 
         drawing_time = time.time() - drawing_time
         # draw bombs
@@ -324,7 +333,24 @@ class GameView(arcade.View):
                     shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
                     self.mini_shapes.append(shape)
 
-            if np.shape(game.view) == (2,2):
+            if game.map['abandoned'] is not None:
+                self.abandoned_shapes = arcade.ShapeElementList()
+                for obj in game.map['abandoned']:
+                    x, y, radius = obj
+                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.BLACK)
+                    self.abandoned_shapes.append(shape)
+
+            if game.map['bombs'] is not None:
+                self.bombs_shapes = arcade.SpriteList()
+                for bomb in game.map['bombs']:
+                    x, y, radius = bomb
+                    shape = arcade.Sprite("bombv3.png",  radius / BOMB_SPRITE_SIZE)
+                    shape.center_x = x
+                    shape.center_y = y
+                    # shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.GREEN_YELLOW)
+                    self.bombs_shapes.append(shape)
+
+            if np.shape(game.view) == (2,2): 
                 
                 self.view_left = copy.deepcopy(game.view[0][0])
                 self.view_right = copy.deepcopy(game.view[1][0])

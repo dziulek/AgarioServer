@@ -42,18 +42,19 @@ def parse(data, game):
                 np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"], playerList[player]["blobs"]["radius"])))
             )
             tempPlayer.addNickname(playerList[player]["nickname"])
-            print(playerList[player]["color"])
             tempPlayer.color = playerList[player]["color"]
             game.appendPlayer(tempPlayer)
         
         #map
         #minis
-        minis = np.array(list(zip(jsonData["map"]["minis"]["x"], jsonData["map"]["minis"]["y"], jsonData["map"]["minis"]["radius"])))
+        minisNo = len(jsonData["map"]["minis"]["x"])
+        minis = np.array(list(zip(jsonData["map"]["minis"]["x"], jsonData["map"]["minis"]["y"], minisNo * [jsonData["map"]["minis"]["radius"]])))
         minis_color = np.array(jsonData["map"]["minis_color"])
         #abandoned
-        abandoned = np.array(list(zip(jsonData["map"]["abandoned"]["x"], jsonData["map"]["abandoned"]["y"])))
+        abandoned = np.array(list(zip(jsonData["map"]["abandoned"]["x"], jsonData["map"]["abandoned"]["y"], jsonData["map"]["abandoned"]["radius"])))
         #bombs
-        bombs = np.array(list(zip(jsonData["map"]["bombs"]["x"], jsonData["map"]["bombs"]["y"])))
+        bombsNo = len(jsonData["map"]["bombs"]["x"])
+        bombs = np.array(list(zip(jsonData["map"]["bombs"]["x"], jsonData["map"]["bombs"]["y"], bombsNo * [jsonData["map"]["bombs"]["radius"]])))
         #view
         view = jsonData["you"]["view"]
         if len(view) == 4:

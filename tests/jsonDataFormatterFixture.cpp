@@ -96,3 +96,10 @@ TEST_F(jsonDataFormatterFixture, request_data_2){
     ASSERT_EQ(true, true);
 }
 
+TEST_F(jsonDataFormatterFixture, round_float){
+
+    ASSERT_FLOAT_EQ(2.23f, JsonDataFormatter::roundFloat(2.23234234));
+    ASSERT_FLOAT_EQ(2.234, JsonDataFormatter::roundFloat(2.234234, 3));
+    ASSERT_FLOAT_EQ(2, JsonDataFormatter::roundFloat(2.22, 0));
+}
+

@@ -20,6 +20,8 @@ private:
     void addStatsInformation(agario::Player * player);
     void addPlayerInformation(agario::Player * player);
 
+
+
 public:
 
     JsonDataFormatter(const char * buf){
@@ -47,7 +49,7 @@ public:
     const std::string getString(){return this->data.dump();}
     long getCharNo(){return this->data.dump().length();}
     json & getBuf(){return this->data;}
-
+    static float roundFloat(float value, int decimal=2);
 };
 
 #endif
