@@ -193,11 +193,14 @@ class InstructionView(arcade.View):
                         #czekamy na dane które ptrzebne są tylko raz, w tym przypadku tylko wysokość i szerokośc mapy
                         confirmation = button.socket.recv(100)
                         data = confirmation.decode()
-                        width, height = parse(data, GameState())
+                        if(int(data[:10]) == len(data)):
+                            data = data[10:]
+                            width, height = parse(data, GameState())
                         
-                        game_view = GameView(float(width), float(height))
-                        game_view.setup(button.socket)
-                        self.window.show_view(game_view)                        
+                            game_view = GameView(float(width), float(height))
+                            game_view.setup(button.socket)
+                            self.window.show_view(game_view)      
+     
                     except BrokenPipeError:
                         self.brokenPipe = True
                 else:

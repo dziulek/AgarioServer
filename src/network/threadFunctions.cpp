@@ -46,7 +46,7 @@ void * clientThread(void * server_client_struct){
         bzero(buf, strlen(buf));
         pthread_mutex_unlock(&sc->server->new_player_mutex);
 
-        status = sc->server->sendDataToClient(client, jsonBuf.getString());
+        status = sc->server->sendDataToClient(client, addHeader(jsonBuf.getString(), 10));
         if(status == -1){
             break;
         }
@@ -159,4 +159,21 @@ void * serverInfoRoutine(void * args){
 
     fprintf(stdout, "exit from infoServerRoutine thread\n");
     pthread_exit(NULL);
+}
+
+std::string addHeader(std::string s, int header_len){
+
+    //dummy header
+
+    int len = s.length() + header_len;
+
+    std::string sValue = std::to_string(len);
+
+    for(int i = sValue.length(); i < header_len; i++){
+        sValue = "0" + sValue;
+    }
+
+    s = sValue + s;
+
+    return s;
 }

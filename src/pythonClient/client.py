@@ -60,10 +60,15 @@ def listenOnSocket(server_socket):
     if len(buf) == 0:
         closeClient = True
     data = buf.decode()
-    # print(len(data))
-    game.clear()
-    # print(data)
-    parse(data, game)
+
+    # check header
+    if int(data[:10]) == len(data):
+        data = data[10:]
+        game.clear()
+        parse(data, game)
+
+    else:
+        print('data invalid')
 
 def connectToServer():
 
