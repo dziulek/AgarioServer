@@ -423,11 +423,20 @@ class GameView(arcade.View):
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
             print(
+<<<<<<< HEAD
                 'ping: ', "{:.6f}".format(ping), 
                 ', logic: ', "{:.4f}".format(logic_time), 
                 ', drawing: ', "{:.4f}".format(drawing_time), 
                 'total: ', "{:.4f}".format(ping + logic_time + drawing_time)
             )
+=======
+                'ping: ', "{:.2f}".format(ping), 
+                ', logic: ', "{:.2f}".format(logic_time), 
+                ', drawing: ', "{:.2f}".format(drawing_time), 
+                'total: ', "{:.2f}".format(ping + logic_time + drawing_time)
+            )
+
+>>>>>>> a1e9bb567903ae66e0907d2f32624e771e7ce6dd
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
