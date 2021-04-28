@@ -27,7 +27,10 @@ STATS = "stats"
 
 def parse(data, game):
 
-    jsonData = json.loads(data)
+    try:
+        jsonData = json.loads(data)
+    except:
+        raise TypeError
 
     if jsonData["type"] == DATA:    
 
@@ -39,7 +42,7 @@ def parse(data, game):
         for player in playerList:
             tempPlayer.clear()
             tempPlayer.setBlobsCoordinates(
-                np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"], playerList[player]["blobs"]["radius"])))
+                np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"], playerList[player]["blobs"]["radius"])), dtype=float)
             )
             tempPlayer.addNickname(playerList[player]["nickname"])
             tempPlayer.color = playerList[player]["color"]
@@ -52,13 +55,15 @@ def parse(data, game):
         minis_color = np.array(jsonData["map"]["minis_color"])
         #abandoned
         abandoned = np.array(list(zip(jsonData["map"]["abandoned"]["x"], jsonData["map"]["abandoned"]["y"], jsonData["map"]["abandoned"]["radius"])))
+        abandoned = np.dot(abandoned, 0.01)
         #bombs
         bombsNo = len(jsonData["map"]["bombs"]["x"])
         bombs = np.array(list(zip(jsonData["map"]["bombs"]["x"], jsonData["map"]["bombs"]["y"], bombsNo * [jsonData["map"]["bombs"]["radius"]])))
         #view
         view = jsonData["you"]["view"]
         if len(view) == 4:
-            view = np.reshape(np.array(view), (2,2))
+            view = np.reshape(np.array(view, dtype=float), (2,2))
+            view = np.dot(view, 0.01)
 
         state = bool(int(chr(jsonData["you"]["state"])))
 
@@ -81,19 +86,18 @@ def parse(data, game):
 
 def fillMyData(myInfo, request_type):
 
-    jsonData = {}
+    jsonData1 = {}
 
-    jsonData["type"] = request_type
-    jsonData["divide"] = bool(myInfo.attributes["divide"])
-    jsonData["eject"] = bool(myInfo.attributes["waction"])
-    jsonData["mouse"] = myInfo.attributes["mouse"]
+    jsonData1["type"] = request_type
+    jsonData1["divide"] = bool(myInfo.attributes["divide"])
+    jsonData1["eject"] = bool(myInfo.attributes["waction"])
+    jsonData1["mouse"] = myInfo.attributes["mouse"]
 
-    return json.dumps(jsonData)
+    return json.dumps(jsonData1)
 
 def main():
 
-    a = False
-
+    pass
 
 if __name__ == "__main__":
 

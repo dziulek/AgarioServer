@@ -14,6 +14,8 @@ class Player:
             coordinates = np.array(__coordinates)
 
         self.coordinates = copy.deepcopy(__coordinates)
+        self.coordinates = np.dot(self.coordinates, 0.01)
+        # print(self.coordinates)
 
     def addCoordinate(self, coord):
         self.coordinates = np.append(self.coordinates, coord)
@@ -39,7 +41,6 @@ class GameState:
     def clear(self):
         self.myPlayer = None
         self.players = []
-        self.map = {'minis' : np.array([]), 'colors' : np.array([], int)}
         self.view = np.array([])
         
     def appendPlayer(self, player):
