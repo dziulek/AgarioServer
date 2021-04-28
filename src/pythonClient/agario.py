@@ -413,7 +413,12 @@ class GameView(arcade.View):
                 self.socket.close()
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
-            # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time, 'total: ', ping + logic_time + drawing_time)
+            print(
+                'ping: ', "{:.2f}".format(ping), 
+                ', logic: ', "{:.2f}".format(logic_time), 
+                ', drawing: ', "{:.2f}".format(drawing_time), 
+                'total: ', "{:.2f}".format(ping + logic_time + drawing_time)
+            )
 
 
     def on_key_press(self, key, modifiers):
