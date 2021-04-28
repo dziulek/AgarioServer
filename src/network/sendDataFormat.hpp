@@ -1,7 +1,7 @@
 #ifndef SEND_DATA_FORMAT_HPP
 #define SENT_DATA_FORMAT_HPP
 
-#include "../lib/AgarioEngine/src/agario_engine.hpp"
+#include "../../lib/AgarioEngine/src/agario_engine.hpp"
 
 #include <string>
 #include <string.h>
@@ -32,15 +32,6 @@
 Klasa SendDataFormat jest po prostu interfejsem który udostępnia funkcje 
 dodawania, usuwania liczb, napisów do ciągu znaków (bufora)
 */
-
-//Struktura zawierająca stan klienta
-struct clientInfo{
-
-    char state;
-    glm::vec2 mousePosition;
-    bool divide_action;
-    bool w_action;
-};
 
 class SendDataFormat{
     

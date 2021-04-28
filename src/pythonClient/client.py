@@ -1,5 +1,6 @@
-from gameState import MyInfo, GameState, Player
-from parseData import parse, fillMyData
+from pythonClient.gameState import MyInfo, GameState, Player
+from pythonClient.parseData import parse, fillMyData
+from constants import MAX_BUF_LEN
 import arcade
 
 import socket
@@ -24,14 +25,18 @@ myInfo_lock = threading.Lock()
 
 SEND_FREQUENCY = 30.0
 
+# buf = '\0' * MAX_BUF_LEN
+
 def writeToServerRoutine(server_socket):
 
     global closeClient
     global myInfo
 
-    buf = fillMyData(myInfo)
+    request_type = 'data'
+    buff = fillMyData(myInfo, request_type)
     try:
-        server_socket.send(bytearray(buf, 'utf-8'))
+        server_socket.send(bytearray(buff + '\0', 'utf-8'))
+        myInfo.clear()
     except BrokenPipeError:
         raise BrokenPipeError
 
@@ -50,18 +55,43 @@ def listenOnSocket(server_socket):
 
     global closeClient
     global game
+
     try:
         buf = server_socket.recv(100000)
     except OSError:
         raise OSError
-    # print(buf)
     
     if len(buf) == 0:
         closeClient = True
+        return
+    
     data = buf.decode()
-    # print(len(data))
-    game.clear()
-    parse(data, game)
+
+
+    try:
+        message_len = int(data[:10])
+    except:
+        return
+
+    while message_len > len(data):
+        try:
+            buf = server_socket.recv(MAX_BUF_LEN)
+        except OSError:
+            raise OSError
+        data += buf.decode()
+
+    if len(data) > message_len:
+        return
+
+    try:
+        if int(data[:10]) == len(data):
+            data = data[10:]
+            parse(data, game)
+    except :
+        print('======================================')
+        print('data invalid')
+        print(data)
+        print('======================================')
 
 def connectToServer():
 

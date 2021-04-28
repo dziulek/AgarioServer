@@ -68,13 +68,15 @@ int Server::disconnectClient(int sockfd){
     close(sockfd);
 }
 
-void Server::createNewGame(){
+agario::Game * Server::createNewGame(){
 
     games.push_back(std::unique_ptr<agario::Game>(new agario::Game()));
+    return games.back().get();
 }
 
 void Server::deleteGame(std::unique_ptr<agario::Game> & game){
 
+    // new_player_mutex.erase(game.get());
     game.reset();
     game = std::move(games.back());
     games.pop_back();
@@ -82,6 +84,8 @@ void Server::deleteGame(std::unique_ptr<agario::Game> & game){
 
 void Server::deleteGame(int gameIndex){
 
+    auto ptr = games[gameIndex].get();
+    // new_player_mutex.erase(ptr);
     games[gameIndex].reset();
     games[gameIndex] = std::move(games.back());
     games.pop_back();
@@ -104,11 +108,11 @@ void * Server::sendDataToClients(void * args){
 
         if(c.get() != nullptr && c.get()->getDisconnect() == false && c.get()->getPlayer()->getSize() > 0){
             
-            int status = sendDataToClient(c.get());
+            // int status = sendDataToClient(c.get(), );
 
-            if(status == -1){
-                fprintf(stdout, "client disconnected: %s\n", c->getIp_addr());
-            }
+            // if(status == -1){
+            //     fprintf(stdout, "client disconnected: %s\n", c->getIp_addr());
+            // }
         }
     }
 }
@@ -127,6 +131,7 @@ void * Server::sendDataThread(void * args){
             continue;
         
         begin = std::chrono::steady_clock::now();
+
         pthread_mutex_lock(&client_creation_mutex);
 
         sendDataToClients(NULL);
@@ -139,39 +144,15 @@ void * Server::sendDataThread(void * args){
     pthread_exit(NULL);
 }
 
-void Server::fillDataToClient(Client * client, DataFormatServer & data){
+void Server::fillDataToClient(Client * client, DataInterface * buf){
 
-    //wyczyść bufor danych
-    data.clearBuf();
-
-    data.appendSeparator();
-
-    //dodanie mini kulek na mapie
-    data.appendMinis(client->getGame(), client->getPlayer());
-    //dodanie wszystkich graczy danej gry 
-    for(int i = 0; i < client->getGame()->getnOfPlayers(); i ++){
-
-        data.appendPlayer(&client->getGame()->getPlayer(i));     
-    }
-    data.appendChar(PLAYER);
-
-    //dodanie widoku gracza
-    data.appendView(client->getPlayer());
-
-    //dodanie stanu gracza
-    data.appendState(client->getPlayer());
+    buf->fillDataForClient(client);
 }
 
-int Server::sendDataToClient(Client * client){
+int Server::sendDataToClient(Client * client, std::string buf){
 
-    DataFormatServer data;
-    pthread_mutex_lock(&new_player_mutex);
-    fillDataToClient(client, data);
-    pthread_mutex_unlock(&new_player_mutex);
-
-    // data.printBuf();
-
-    int status = write(client->getSockfd(), (void *)data.getBuf(), data.getLen());
+    
+    int status = write(client->getSockfd(), buf.c_str(), strlen(buf.c_str()));
 
     if(status == -1){
 
@@ -299,12 +280,14 @@ void Server::findGameForNewClient(Client * client){
 
     if(added == false){
 
+        
+        agario::Game * temp = this->createNewGame();
+
         pthread_mutex_lock(&new_player_mutex);
-        this->createNewGame();
- 
         agario::Player * p = games.back().get()->addPlayer();
+        p->setColor();
         client->setPlayer(p);
-        client->setGame(games.back().get());
+        client->setGame(temp);
         pthread_mutex_unlock(&new_player_mutex);
 
     }

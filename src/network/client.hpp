@@ -1,7 +1,7 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "../lib/AgarioEngine/src/agario_engine.hpp"
+#include "../../lib/AgarioEngine/src/agario_engine.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>

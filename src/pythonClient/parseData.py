@@ -1,5 +1,6 @@
-import gameState
+from pythonClient.gameState import Player, GameState
 import numpy as np
+import json
 
 SEPARATOR = ':'
 
@@ -20,101 +21,83 @@ state_dictionary = {
     'color' : 't'
 }
 
+DATA = "data"
+START_INFO = "want_play"
+STATS = "stats"
+
 def parse(data, game):
 
-    game.clear()
+    try:
+        jsonData = json.loads(data)
+    except:
+        raise TypeError
 
-    player = gameState.Player()
-    words = data.split(':')
+    if jsonData["type"] == DATA:    
 
-    minis = np.array([])
-    colors = np.array([], int)
-    view = np.array([])
-    map_size = np.array([])
+        game.clear()
+        tempPlayer = Player()
+        playerList = jsonData["players"]
 
-    i = 0
-    cmini = 0
+        #players
+        for player in playerList:
+            tempPlayer.clear()
+            tempPlayer.setBlobsCoordinates(
+                np.array(list(zip(playerList[player]["blobs"]["x"], playerList[player]["blobs"]["y"], playerList[player]["blobs"]["radius"])), dtype=float)
+            )
+            tempPlayer.addNickname(playerList[player]["nickname"])
+            tempPlayer.color = playerList[player]["color"]
+            game.appendPlayer(tempPlayer)
+        
+        #map
+        #minis
+        minisNo = len(jsonData["map"]["minis"]["x"])
+        minis = np.array(list(zip(jsonData["map"]["minis"]["x"], jsonData["map"]["minis"]["y"], minisNo * [jsonData["map"]["minis"]["radius"]])))
+        minis_color = np.array(jsonData["map"]["minis_color"])
+        #abandoned
+        abandoned = np.array(list(zip(jsonData["map"]["abandoned"]["x"], jsonData["map"]["abandoned"]["y"], jsonData["map"]["abandoned"]["radius"])))
+        abandoned = np.dot(abandoned, 0.01)
+        #bombs
+        bombsNo = len(jsonData["map"]["bombs"]["x"])
+        bombs = np.array(list(zip(jsonData["map"]["bombs"]["x"], jsonData["map"]["bombs"]["y"], bombsNo * [jsonData["map"]["bombs"]["radius"]])))
+        #view
+        view = jsonData["you"]["view"]
+        if len(view) == 4:
+            view = np.reshape(np.array(view, dtype=float), (2,2))
+            view = np.dot(view, 0.01)
 
-    current_state = '-'
-    for word in words:
-        if word == '':
-            continue
-        elif word == state_dictionary['player']:
-            if i > 0:
-                player.coordinates = np.reshape(player.coordinates, (len(player.coordinates) // 3, 3))
-                # for i in range(len(player.coordinates)):
-                #     player.coordinates[i][1] = -player.coordinates[i][1]
-                game.appendPlayer(player)
+        state = bool(int(chr(jsonData["you"]["state"])))
 
-            player.clear()
-            current_state = word
-            i += 1
-            continue
-        elif word == state_dictionary['color']:
-            current_state = word
-            continue
-        elif word == state_dictionary['minis']:
-            current_state = word
-            continue
-        elif word == state_dictionary['nickname']:
-            current_state = word
-            continue
-        elif word == state_dictionary['coordinates']:
-            current_state = word
-            continue
-        elif word == state_dictionary['view']:
-            current_state = word
-            continue
-        elif word == state_dictionary['state']:
-            current_state = word
-            continue
+        game.addMap(minis, bombs, abandoned, minis_color)
+        game.setView(view)
+        
+        game.playerState = state
 
-        if current_state == state_dictionary['nickname']:
-            player.addNickname(word)
-        elif current_state == state_dictionary['coordinates']:
-            player.addCoordinate(float(word))
-        elif current_state == state_dictionary['minis']:
-            cmini += 1
-            if cmini % 4 == 0:
-                colors = np.append(colors, int(word, 16))
-            else:
-                minis = np.append(minis, float(word))
-        elif current_state == state_dictionary['view']:
-            game.addViewCoord(float(word))
-        elif current_state == state_dictionary['state']:
-            game.playerState = bool(int(word))
-        elif current_state == state_dictionary['color']:
-            player.color = int(word, 16)
-    
-    if minis is not None:
-        minis = np.resize(minis, len(minis) // 3 * 3)
-        game.map['minis'] = np.reshape(minis, (len(minis)//3, 3))
-    if colors is not None:
-        game.map['colors'] = colors
+    if jsonData["type"] == START_INFO:
 
-def fillMyData(myInfo):
+        return jsonData["map"]["width"], jsonData["map"]["height"]
+        
 
-    text = ['data']
-    mouse = SEPARATOR.join(['{:.2f}'.format(myInfo.attributes['mouse'][0]), '{:.2f}'.format(myInfo.attributes['mouse'][1])])   
-    text.append(state_dictionary['mouse'])
-    text.append(mouse)
-    text.append(state_dictionary['w_mass'])
-    text.append(str(myInfo.attributes['waction']))
+    if jsonData["type"] == STATS:
 
-    text.append(state_dictionary['divide_action'])
-    text.append(str(myInfo.attributes['divide']))
+        stats = None
 
-    text.append(state_dictionary['state'])
-    text.append(str(myInfo.attributes['state']))
 
-    text = SEPARATOR + SEPARATOR.join(text) + SEPARATOR
 
-    return text
+
+def fillMyData(myInfo, request_type):
+
+    jsonData1 = {}
+
+    jsonData1["type"] = request_type
+    jsonData1["divide"] = bool(myInfo.attributes["divide"])
+    jsonData1["eject"] = bool(myInfo.attributes["waction"])
+    jsonData1["mouse"] = myInfo.attributes["mouse"]
+
+    return json.dumps(jsonData1)
 
 def main():
 
-    a = False
-
+    pass
 
 if __name__ == "__main__":
 

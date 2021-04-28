@@ -3,6 +3,7 @@
 
 #include "sendDataFormat.hpp"
 #include "client.hpp"
+#include "dataInterface.hpp"
 
 struct clientInfo;
 

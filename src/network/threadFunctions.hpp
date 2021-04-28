@@ -6,10 +6,14 @@
 #include <iostream>
 #include <chrono>
 
+#include "jsonSendFormat.hpp"
+
 void * clientThread(void * server_client);
 
 void * gameThread(void * srv);
 
 void * serverInfoRoutine(void * args);
+
+std::string addHeader(std::string s, int header_len=10);
 
 #endif

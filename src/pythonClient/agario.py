@@ -1,9 +1,15 @@
 import random
 import arcade
+import json
+import sys
+import math
 from arcade.gui import UIManager
 from arcade.gui.ui_style import UIStyle
-from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
-from gameState import Player, GameState, MyInfo
+
+sys.path.insert(1, '..')
+from pythonClient.client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
+from pythonClient.gameState import Player, GameState, MyInfo
+from pythonClient.parseData import parse, fillMyData
 import numpy as np
 import copy
 import time
@@ -13,6 +19,8 @@ import sys
 ping = None
 logic_time = None
 drawing_time = None
+
+BOMB_SPRITE_SIZE = 100
 
 frames_per_second = 0
 second = time.time()
@@ -62,6 +70,9 @@ def mapWindowCoordToView(x, y, view):
 
     view_x = x / width * (view.view_right - view.view_left) + view.view_left
     view_y = y / height * (view.view_top - view.view_bottom) + view.view_bottom
+
+    view_x = int(view_x * 100) / 100
+    view_y = int(view_y * 100) / 100
 
     return view_x, view_y
 
@@ -177,15 +188,22 @@ class InstructionView(arcade.View):
             if button.connection is not None:
                 if button.connection is True:
                     try:
-                        button.socket.send(bytearray('nickname:' + nickname, 'utf-8'))
+                        temp = {}
+                        temp['nickname'] = nickname
+                        temp['type'] = "want_play"
+                        print(json.dumps(temp))
+                        button.socket.send(bytearray(json.dumps(temp), 'utf-8'))
                         #czekamy na dane które ptrzebne są tylko raz, w tym przypadku tylko wysokość i szerokośc mapy
-                        confirmation = button.socket.recv(50)
+                        confirmation = button.socket.recv(100)
                         data = confirmation.decode()
-                        empty, width, height, empty = data.split(':')
+                        if(int(data[:10]) == len(data)):
+                            data = data[10:]
+                            width, height = parse(data, GameState())
                         
-                        game_view = GameView(float(width), float(height))
-                        game_view.setup(button.socket)
-                        self.window.show_view(game_view)                        
+                            game_view = GameView(float(width), float(height))
+                            game_view.setup(button.socket)
+                            self.window.show_view(game_view)      
+     
                     except BrokenPipeError:
                         self.brokenPipe = True
                 else:
@@ -208,6 +226,8 @@ class GameView(arcade.View):
         self.player_shapes = None
         self.mini_shapes = None
         self.players_nicks = None
+        self.bombs_shapes = None
+        self.abandoned_shapes = None
 
         self.map_rectangle = None
 
@@ -233,11 +253,15 @@ class GameView(arcade.View):
         
         self.socket = s
 
-        self.socket.send(bytearray(':data:', 'utf-8'))
-        listenOnSocket(self.socket)
+        # self.socket.send(bytearray(':data:', 'utf-8'))
+        # listenOnSocket(self.socket)
+
+        img_bomb = "test.png"
 
         self.player_shapes = arcade.ShapeElementList()
         self.mini_shapes = arcade.ShapeElementList()
+        self.bombs_shapes = arcade.SpriteList()
+        self.abandoned_shapes = arcade.ShapeElementList()
         self.map_rectangle = arcade.create_rectangle_filled(
             SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 
             SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.AMAZON)
@@ -260,14 +284,16 @@ class GameView(arcade.View):
         # draw minis
         self.mini_shapes.draw()
         self.player_shapes.draw()
+        self.bombs_shapes.draw()
+        self.abandoned_shapes.draw()
 
         drawing_time = time.time() - drawing_time
         # draw bombs
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        self.cursor_x = x
-        self.cursor_y = y
+        self.cursor_x = int(x * 100) / 100
+        self.cursor_y = int(y * 100) / 100
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -308,17 +334,34 @@ class GameView(arcade.View):
 
             if game.map['minis'] is not None:
                 self.mini_shapes = arcade.ShapeElementList()
-                for mini, color in zip(game.map['minis'], game.map['colors']):
+                for mini, color in zip(game.map['minis'], game.map['minis_color']):
                     x, y, radius = mini
                     shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
                     self.mini_shapes.append(shape)
 
-            if len(game.view) == 4:
+            if game.map['abandoned'] is not None:
+                self.abandoned_shapes = arcade.ShapeElementList()
+                for obj in game.map['abandoned']:
+                    x, y, radius = obj
+                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.BLACK)
+                    self.abandoned_shapes.append(shape)
+
+            if game.map['bombs'] is not None:
+                self.bombs_shapes = arcade.SpriteList()
+                for bomb in game.map['bombs']:
+                    x, y, radius = bomb
+                    shape = arcade.Sprite("bombv3.png",  radius / BOMB_SPRITE_SIZE)
+                    shape.center_x = x
+                    shape.center_y = y
+                    # shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.GREEN_YELLOW)
+                    self.bombs_shapes.append(shape)
+
+            if np.shape(game.view) == (2,2): 
                 
-                self.view_left = copy.deepcopy(game.view[0])
-                self.view_right = copy.deepcopy(game.view[2])
-                self.view_bottom = copy.deepcopy(game.view[1])
-                self.view_top = copy.deepcopy(game.view[3])
+                self.view_left = copy.deepcopy(game.view[0][0])
+                self.view_right = copy.deepcopy(game.view[1][0])
+                self.view_bottom = copy.deepcopy(game.view[0][1])
+                self.view_top = copy.deepcopy(game.view[1][1])
 
 
             arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
@@ -370,7 +413,12 @@ class GameView(arcade.View):
                 self.socket.close()
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
-            # print('ping: ', ping, ', logic: ', logic_time, ', drawing: ', drawing_time, 'total: ', ping + logic_time + drawing_time)
+            print(
+                'ping: ', "{:.2f}".format(ping), 
+                ', logic: ', "{:.2f}".format(logic_time), 
+                ', drawing: ', "{:.2f}".format(drawing_time), 
+                'total: ', "{:.2f}".format(ping + logic_time + drawing_time)
+            )
 
 
     def on_key_press(self, key, modifiers):
@@ -378,9 +426,9 @@ class GameView(arcade.View):
         global myInfo
 
         if key == arcade.key.W:
-            myInfo.addWAction(1)
+            myInfo.addWAction(True)
         elif key == arcade.key.SPACE:
-            myInfo.addDivideAction(1)
+            myInfo.addDivideAction(True)
         elif key == arcade.key.ESCAPE:
             self.socket.close()
             game_over = GameOverView("YOU QUIT THE GAME")

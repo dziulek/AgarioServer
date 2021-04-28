@@ -11,64 +11,51 @@ void * clientThread(void * server_client_struct){
     
     Client * client = sc->server->addNewClient(sc->client_sockfd, sc->ip_addr, sc->s);
 
-    DataFormatServer buf;
+    char buf[MAX_LEN_BUFER];
+    bzero(buf, strlen(buf));
+    JsonDataFormatter jsonBuf;
     clientInfo cinfo;
+
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     while(client != nullptr && client->getDisconnect() == false){
 
-        buf.clearBuf();
-
-        int status = read(client->getSockfd(), buf.getBuf(), 150);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    if(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() < SEND_FREQUENCY)
+        continue;
+    else begin = std::chrono::steady_clock::now();
+        int status = read(client->getSockfd(), buf, MAX_LEN_BUFER);
 
         if(status == 0){
             //closed socket
             break;
         }
-        // buf.printBuf();
+        if(strlen(buf) == 0) continue;
 
-        if(buf.getWord(0) == "data"){
-
-            if(client->getPlayer() == nullptr || client->getPlayer()->getSize() == 0){
-                
-                client->getPlayer()->setState(false);
-            }
-
-            buf.extractClientInfo(cinfo);
-            client->getGame()->setPlayerMousePosition(client->getPlayer(), cinfo.mousePosition);
-
-            int status = sc->server->sendDataToClient(client);
-
-            if(status == -1){
-                fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
-            }
-            
-
+        try{
+            jsonBuf.clearCurrentData();
+            jsonBuf.setData(std::string(buf));
         }
-        else if(strcmp("get:score", buf.getBuf()) == 0){
-
+        catch(std::exception & e){
+            e.what();
+            std::cerr<< "received: " << buf << std::endl;
         }
-        else if(buf.getWord(0) == "nickname"){
 
-            int ind = buf.getNextIndexSeparator(0);
-            std::string nick = buf.getWord(ind);
-            std::cout << nick << std::endl;
-
-            client->getPlayer()->setNickname(nick);
-            client->getPlayer()->setColor();
-
-            buf.clearBuf();
-
-            buf.appendSeparator();
-            buf.appendFloat(client->getGame()->getMap()->width);
-            buf.appendFloat(client->getGame()->getMap()->height);
-            
-            int status = write(client->getSockfd(), buf.getBuf(), buf.getLen());
-
-            if(status == -1){
-                fprintf(stdout, "client disconnected: %s\n", client->getIp_addr());
-            }
+        pthread_mutex_lock(&sc->server->new_player_mutex);
+        try{
+            jsonBuf.interpretClientData(client);
         }
-        
+        catch(std::exception & e){
+            e.what();
+            std::cerr << buf << std::endl;
+        }
+        bzero(buf, MAX_LEN_BUFER);
+        pthread_mutex_unlock(&sc->server->new_player_mutex);
+
+        status = sc->server->sendDataToClient(client, addHeader(jsonBuf.getString(), 10));
+        if(status == -1){
+            break;
+        }
     }
 
     pthread_mutex_lock(&sc->server->client_creation_mutex);
@@ -161,7 +148,7 @@ void * serverInfoRoutine(void * args){
 
             std::cout<<std::ctime(&time)<<std::endl;
         }
-        if(s == "closeServer:4rfvbgt5"){
+        if(s == "aa"){
 
             server->close_server = true;
 
@@ -178,4 +165,21 @@ void * serverInfoRoutine(void * args){
 
     fprintf(stdout, "exit from infoServerRoutine thread\n");
     pthread_exit(NULL);
+}
+
+std::string addHeader(std::string s, int header_len){
+
+    //dummy header
+
+    int len = s.length() + header_len;
+
+    std::string sValue = std::to_string(len);
+
+    for(int i = sValue.length(); i < header_len; i++){
+        sValue = "0" + sValue;
+    }
+
+    s = sValue + s;
+
+    return s;
 }

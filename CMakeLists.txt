@@ -13,6 +13,7 @@ include_directories(src)
 add_subdirectory(lib/AgarioEngine/src)
 add_subdirectory(src/network)
 
+
 add_executable(AgarioServer_run main.cpp)
 
 set(C_LIB ${CMAKE_BINARY_DIR}/libcombi.a)
@@ -33,10 +34,6 @@ set_target_properties(combined PROPERTIES IMPORTED_LOCATION ${C_LIB})
 target_link_libraries(AgarioServer_run combined)
 target_link_libraries(AgarioServer_run -pthread)
 
+add_subdirectory(tests)
+add_subdirectory(lib/AgarioEngine/lib/googletest)
 
-
-
-
-# add_subdirectory(tests)
-
-add_subdirectory(lib/json)
