@@ -71,6 +71,9 @@ def mapWindowCoordToView(x, y, view):
     view_x = x / width * (view.view_right - view.view_left) + view.view_left
     view_y = y / height * (view.view_top - view.view_bottom) + view.view_bottom
 
+    view_x = int(view_x * 100) / 100
+    view_y = int(view_y * 100) / 100
+
     return view_x, view_y
 
 
@@ -289,8 +292,8 @@ class GameView(arcade.View):
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        self.cursor_x = x
-        self.cursor_y = y
+        self.cursor_x = int(x * 100) / 100
+        self.cursor_y = int(y * 100) / 100
 
     def on_update(self, delta_time):
         """ Movement and game logic """
