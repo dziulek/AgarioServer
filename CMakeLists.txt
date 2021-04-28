@@ -12,7 +12,6 @@ include_directories(src)
 
 add_subdirectory(lib/AgarioEngine/src)
 add_subdirectory(src/network)
-add_subdirectory(lib/json)
 
 
 add_executable(AgarioServer_run main.cpp)
