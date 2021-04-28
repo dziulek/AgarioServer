@@ -29,8 +29,8 @@ void JsonDataFormatter::addMapInformation(Client * client){
     }
 
     //players
-    std::vector<float> xCoordinates, yCoordinates;
-    std::vector<float> radius;
+    std::vector<int> xCoordinates, yCoordinates;
+    std::vector<int> radius;
 
     for(int i = 0; i < client->getGame()->getnOfPlayers(); i++){
         
@@ -44,9 +44,9 @@ void JsonDataFormatter::addMapInformation(Client * client){
         radius.clear();radius.shrink_to_fit();
 
         for(int j = 0; j < p->getSize(); j++){
-            xCoordinates.push_back(JsonDataFormatter::roundFloat((*p)[j].getPosition().x));
-            yCoordinates.push_back(JsonDataFormatter::roundFloat((*p)[j].getPosition().y));
-            radius.push_back(JsonDataFormatter::roundFloat((*p)[j].getRadius()));
+            xCoordinates.push_back(int((*p)[j].getPosition().x * pow(10, FLOAT_PRECISION)));
+            yCoordinates.push_back(int((*p)[j].getPosition().y * pow(10, FLOAT_PRECISION)));
+            radius.push_back(int((*p)[j].getRadius() * pow(10, FLOAT_PRECISION)));
         }
         this->data["players"][std::to_string(i)]["blobs"]["x"] = xCoordinates;
         this->data["players"][std::to_string(i)]["blobs"]["y"] = yCoordinates;
@@ -71,15 +71,15 @@ void JsonDataFormatter::addMapInformation(Client * client){
     this->data["map"]["bombs"]["y"] = yBomb;
     this->data["map"]["bombs"]["radius"] = BOMB_RADIUS;
 
-    std::vector<float> xAbandoned;
-    std::vector<float> yAbandoned;
+    std::vector<int> xAbandoned;
+    std::vector<int> yAbandoned;
     radius.clear();
     radius.shrink_to_fit();
 
     for(auto & a : client->getGame()->getMap()->abandoned){
-        xAbandoned.emplace_back(JsonDataFormatter::roundFloat(a.get()->getPosition().x));
-        yAbandoned.emplace_back(JsonDataFormatter::roundFloat(a.get()->getPosition().y));
-        radius.push_back(JsonDataFormatter::roundFloat(a.get()->getRadius()));
+        xAbandoned.emplace_back(int(a.get()->getPosition().x * pow(10, FLOAT_PRECISION)));
+        yAbandoned.emplace_back(int(a.get()->getPosition().y * pow(10, FLOAT_PRECISION)));
+        radius.push_back(int(a.get()->getRadius() * pow(10, FLOAT_PRECISION)));
     }
 
     this->data["map"]["abandoned"]["x"] = xAbandoned;
@@ -98,7 +98,12 @@ void JsonDataFormatter::addPlayerInformation(Player * player){
 
     float view_size = std::max(view.second.y - view.first.y, view.second.x - view.first.x);
 
-    this->data["you"]["view"] = {view.first.x, view.first.y, view.first.x + view_size, view.first.y + view_size};
+    this->data["you"]["view"] = {
+        int(view.first.x * pow(10, FLOAT_PRECISION)), 
+        int(view.first.y * pow(10, FLOAT_PRECISION)), 
+        int((view.first.x + view_size) * pow(10, FLOAT_PRECISION)), 
+        int((view.first.y + view_size) * pow(10, FLOAT_PRECISION))
+    };
 
     this->data["you"]["state"] = player->getState();
 }
@@ -163,8 +168,8 @@ void JsonDataFormatter::interpretClientData(Client * client){
     }
     catch(json::type_error & e){
         //invalid request
-        std::cerr << "something wrong" << std::endl;
         std::cerr <<e.what() <<std::endl;
+        std::cerr << "in parse: " << this->data.dump() << std::endl;
     }
 
 

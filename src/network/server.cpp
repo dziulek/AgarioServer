@@ -152,7 +152,7 @@ void Server::fillDataToClient(Client * client, DataInterface * buf){
 int Server::sendDataToClient(Client * client, std::string buf){
 
     
-    int status = write(client->getSockfd(), buf.c_str(), buf.length());
+    int status = write(client->getSockfd(), buf.c_str(), strlen(buf.c_str()));
 
     if(status == -1){
 

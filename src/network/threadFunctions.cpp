@@ -16,8 +16,14 @@ void * clientThread(void * server_client_struct){
     JsonDataFormatter jsonBuf;
     clientInfo cinfo;
 
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     while(client != nullptr && client->getDisconnect() == false){
 
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    if(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() < SEND_FREQUENCY)
+        continue;
+    else begin = std::chrono::steady_clock::now();
         int status = read(client->getSockfd(), buf, MAX_LEN_BUFER);
 
         if(status == 0){
@@ -32,7 +38,7 @@ void * clientThread(void * server_client_struct){
         }
         catch(std::exception & e){
             e.what();
-            std::cerr << buf << std::endl;
+            std::cerr<< "received: " << buf << std::endl;
         }
 
         pthread_mutex_lock(&sc->server->new_player_mutex);
@@ -43,7 +49,7 @@ void * clientThread(void * server_client_struct){
             e.what();
             std::cerr << buf << std::endl;
         }
-        bzero(buf, strlen(buf));
+        bzero(buf, MAX_LEN_BUFER);
         pthread_mutex_unlock(&sc->server->new_player_mutex);
 
         status = sc->server->sendDataToClient(client, addHeader(jsonBuf.getString(), 10));
