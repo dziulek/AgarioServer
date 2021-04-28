@@ -3,9 +3,9 @@ name: Server Tests
 
 on:
   push:
-    branches: [ optimization ]
+    branches: [ main ]
   pull_request:
-    branches: [ optimization ]
+    branches: [ main ]
 
 jobs:
   build:
