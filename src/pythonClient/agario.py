@@ -6,10 +6,9 @@ import math
 from arcade.gui import UIManager
 from arcade.gui.ui_style import UIStyle
 
-sys.path.insert(1, '..')
-from pythonClient.client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
-from pythonClient.gameState import Player, GameState, MyInfo
-from pythonClient.parseData import parse, fillMyData
+from client import myInfo, game, myInfo_lock, game_lock, closeClient, connectToServer, listenOnSocket, writeToServerRoutine
+from gameState import Player, GameState, MyInfo
+from parseData import parse, fillMyData
 import numpy as np
 import copy
 import time
@@ -191,14 +190,13 @@ class InstructionView(arcade.View):
                         temp = {}
                         temp['nickname'] = nickname
                         temp['type'] = "want_play"
-                        print(json.dumps(temp))
                         button.socket.send(bytearray(json.dumps(temp), 'utf-8'))
                         #czekamy na dane które ptrzebne są tylko raz, w tym przypadku tylko wysokość i szerokośc mapy
                         confirmation = button.socket.recv(100)
                         data = confirmation.decode()
                         if(int(data[:10]) == len(data)):
-                            data = data[10:]
-                            width, height = parse(data, GameState())
+                            data = json.loads(data[10:])
+                            width, height = data["map"]["width"], data["map"]["height"]
                         
                             game_view = GameView(float(width), float(height))
                             game_view.setup(button.socket)
@@ -244,17 +242,16 @@ class GameView(arcade.View):
         self.cursor_x = 0
         self.cursor_y = 0
 
+        self.jsonObj = None
+
         self.window.set_mouse_visible(True)
 
-        arcade.set_background_color(arcade.color.DARK_BLUE)
+        arcade.set_background_color(arcade.color.BABY_BLUE_EYES)
 
     def setup(self, s):
         """ Set up the game and initialize the variables. """
         
         self.socket = s
-
-        # self.socket.send(bytearray(':data:', 'utf-8'))
-        # listenOnSocket(self.socket)
 
         img_bomb = "test.png"
 
@@ -264,7 +261,7 @@ class GameView(arcade.View):
         self.abandoned_shapes = arcade.ShapeElementList()
         self.map_rectangle = arcade.create_rectangle_filled(
             SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 
-            SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.AMAZON)
+            SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.BISQUE)
 
         self.hor_points = np.array([])
         self.ver_points = np.array([])
@@ -298,7 +295,6 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         """ Movement and game logic """
         global ping, logic_time, second, frames_per_second
-
         ping = time.time()
 
         if ping - second > 1.0:
@@ -308,7 +304,7 @@ class GameView(arcade.View):
         else:
             frames_per_second += 1
 
-        if game.playerState == False:
+        if self.jsonObj is not None and bool(int(chr(self.jsonObj["you"]["state"]))) == False:
             #lost game
             self.socket.close()
             game_over = GameOverView("YOU LOST")
@@ -321,47 +317,60 @@ class GameView(arcade.View):
             self.map_rectangle = arcade.create_rectangle_filled(
                 self.map_width // 2, self.map_height//2,
                 self.map_width, self.map_height,
-                arcade.color.AMAZON
+                arcade.color.EUCALYPTUS
             )
 
             self.player_shapes = arcade.ShapeElementList()
             self.players_nicks = []
-            if game.players is not None:
-                for player in game.players:
-                    for x, y, radius in player.coordinates:
-                        shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(player.color))
+            if self.jsonObj is not None:
+                for player in self.jsonObj["players"]:
+                    for x, y, radius in zip(
+                        self.jsonObj["players"][player]["blobs"]["x"], 
+                        self.jsonObj["players"][player]["blobs"]["y"], 
+                        self.jsonObj["players"][player]["blobs"]["radius"]
+                    ):
+                        shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(self.jsonObj["players"][player]["color"]))
                         self.player_shapes.append(shape)
 
-            if game.map['minis'] is not None:
+            if self.jsonObj is not None:
                 self.mini_shapes = arcade.ShapeElementList()
-                for mini, color in zip(game.map['minis'], game.map['minis_color']):
-                    x, y, radius = mini
+                for x, y, color in zip(
+                    self.jsonObj["map"]["minis"]["x"],
+                    self.jsonObj["map"]["minis"]["y"],
+                    self.jsonObj["map"]["minis_color"]
+                ):
+                    radius = self.jsonObj["map"]["minis"]["radius"]
                     shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
                     self.mini_shapes.append(shape)
 
-            if game.map['abandoned'] is not None:
+            if self.jsonObj is not None:
                 self.abandoned_shapes = arcade.ShapeElementList()
-                for obj in game.map['abandoned']:
-                    x, y, radius = obj
-                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.BLACK)
+                for x, y, radius, color in zip(
+                    self.jsonObj["map"]["abandoned"]["x"],
+                    self.jsonObj["map"]["abandoned"]["y"],
+                    self.jsonObj["map"]["abandoned"]["radius"],
+                    self.jsonObj["map"]["abandoned"]["colors"]
+                ):
+                    shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(color))
                     self.abandoned_shapes.append(shape)
 
-            if game.map['bombs'] is not None:
+            if self.jsonObj is not None:
                 self.bombs_shapes = arcade.SpriteList()
-                for bomb in game.map['bombs']:
-                    x, y, radius = bomb
+                for x, y in zip(
+                    self.jsonObj["map"]["bombs"]["x"],
+                    self.jsonObj["map"]["bombs"]["y"]
+                ):
+                    radius = self.jsonObj["map"]["bombs"]["radius"]
                     shape = arcade.Sprite("bombv3.png",  radius / BOMB_SPRITE_SIZE)
                     shape.center_x = x
                     shape.center_y = y
-                    # shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.GREEN_YELLOW)
                     self.bombs_shapes.append(shape)
 
-            if np.shape(game.view) == (2,2): 
-                
-                self.view_left = copy.deepcopy(game.view[0][0])
-                self.view_right = copy.deepcopy(game.view[1][0])
-                self.view_bottom = copy.deepcopy(game.view[0][1])
-                self.view_top = copy.deepcopy(game.view[1][1])
+            if self.jsonObj is not None:  
+                self.view_left = copy.deepcopy(self.jsonObj["you"]["view"][0]) * 0.01
+                self.view_right = copy.deepcopy(self.jsonObj["you"]["view"][2]) * 0.01
+                self.view_bottom = copy.deepcopy(self.jsonObj["you"]["view"][1]) * 0.01
+                self.view_top = copy.deepcopy(self.jsonObj["you"]["view"][3]) * 0.01
 
 
             arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
@@ -407,19 +416,19 @@ class GameView(arcade.View):
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
             try:
-                listenOnSocket(self.socket)
+                self.jsonObj = listenOnSocket(self.socket)
+                # print(json.dumps(self.jsonObj))
             except OSError:
                 #bad file descriptor, inactive socket
                 self.socket.close()
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
             print(
-                'ping: ', "{:.2f}".format(ping), 
-                ', logic: ', "{:.2f}".format(logic_time), 
-                ', drawing: ', "{:.2f}".format(drawing_time), 
-                'total: ', "{:.2f}".format(ping + logic_time + drawing_time)
+                'ping: ', "{:.6f}".format(ping), 
+                ', logic: ', "{:.4f}".format(logic_time), 
+                ', drawing: ', "{:.4f}".format(drawing_time), 
+                'total: ', "{:.4f}".format(ping + logic_time + drawing_time)
             )
-
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """

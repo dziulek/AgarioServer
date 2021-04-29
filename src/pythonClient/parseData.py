@@ -1,4 +1,4 @@
-from pythonClient.gameState import Player, GameState
+from gameState import Player, GameState
 import numpy as np
 import json
 

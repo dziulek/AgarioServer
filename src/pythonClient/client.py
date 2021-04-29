@@ -1,7 +1,9 @@
-from pythonClient.gameState import MyInfo, GameState, Player
-from pythonClient.parseData import parse, fillMyData
+from gameState import MyInfo, GameState, Player
+from parseData import parse, fillMyData
 from constants import MAX_BUF_LEN
 import arcade
+import json
+import copy
 
 import socket
 import sys
@@ -24,8 +26,6 @@ game_lock = threading.Lock()
 myInfo_lock = threading.Lock()
 
 SEND_FREQUENCY = 30.0
-
-# buf = '\0' * MAX_BUF_LEN
 
 def writeToServerRoutine(server_socket):
 
@@ -57,7 +57,7 @@ def listenOnSocket(server_socket):
     global game
 
     try:
-        buf = server_socket.recv(100000)
+        buf = server_socket.recv(MAX_BUF_LEN)
     except OSError:
         raise OSError
     
@@ -85,9 +85,8 @@ def listenOnSocket(server_socket):
 
     try:
         if int(data[:10]) == len(data):
-            data = data[10:]
-            parse(data, game)
-    except :
+            return copy.deepcopy(json.loads(data[10:]))
+    except:
         print('======================================')
         print('data invalid')
         print(data)
