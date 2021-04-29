@@ -1,5 +1,7 @@
 # Server and client for Agar.io game
 
+---
+
 ## Overview
 Project includes:
 * simple C++ server
@@ -24,4 +26,4 @@ To run client:
 $ cd src/pythonClient/
 $ python agario.py <ip address> <port number>
 ```
-You should replace `<ip address>` with your ip, and `<port number>` with outcome of  <img src="https://latex.codecogs.com/svg.image?\bg_white&space;\left&space;\lfloor&space;\int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx\right&space;\rfloor" title="\bg_white \left \lfloor \int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx\right \rfloor" />.
+You should replace `<ip address>` with your ip, and `<port number>` with outcome of  <img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\bg_white&space;floor&space;\left&space;[&space;\int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx&space;\right&space;]&space;&space;" title="\bg_white floor \left [ \int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx \right ] " />
