@@ -246,7 +246,7 @@ class GameView(arcade.View):
 
         self.window.set_mouse_visible(True)
 
-        arcade.set_background_color(arcade.color.DARK_BLUE)
+        arcade.set_background_color(arcade.color.BABY_BLUE_EYES)
 
     def setup(self, s):
         """ Set up the game and initialize the variables. """
@@ -261,7 +261,7 @@ class GameView(arcade.View):
         self.abandoned_shapes = arcade.ShapeElementList()
         self.map_rectangle = arcade.create_rectangle_filled(
             SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 
-            SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.AMAZON)
+            SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.BISQUE)
 
         self.hor_points = np.array([])
         self.ver_points = np.array([])
@@ -317,7 +317,7 @@ class GameView(arcade.View):
             self.map_rectangle = arcade.create_rectangle_filled(
                 self.map_width // 2, self.map_height//2,
                 self.map_width, self.map_height,
-                arcade.color.AMAZON
+                arcade.color.EUCALYPTUS
             )
 
             self.player_shapes = arcade.ShapeElementList()
@@ -345,12 +345,13 @@ class GameView(arcade.View):
 
             if self.jsonObj is not None:
                 self.abandoned_shapes = arcade.ShapeElementList()
-                for x, y, radius in zip(
+                for x, y, radius, color in zip(
                     self.jsonObj["map"]["abandoned"]["x"],
                     self.jsonObj["map"]["abandoned"]["y"],
-                    self.jsonObj["map"]["abandoned"]["radius"]
+                    self.jsonObj["map"]["abandoned"]["radius"],
+                    self.jsonObj["map"]["abandoned"]["colors"]
                 ):
-                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, arcade.color.BLACK)
+                    shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(color))
                     self.abandoned_shapes.append(shape)
 
             if self.jsonObj is not None:
@@ -423,20 +424,11 @@ class GameView(arcade.View):
                 game_over = GameOverView("UPS, LOST CONNECTION")
                 self.window.show_view(game_over)
             print(
-<<<<<<< HEAD
                 'ping: ', "{:.6f}".format(ping), 
                 ', logic: ', "{:.4f}".format(logic_time), 
                 ', drawing: ', "{:.4f}".format(drawing_time), 
                 'total: ', "{:.4f}".format(ping + logic_time + drawing_time)
             )
-=======
-                'ping: ', "{:.2f}".format(ping), 
-                ', logic: ', "{:.2f}".format(logic_time), 
-                ', drawing: ', "{:.2f}".format(drawing_time), 
-                'total: ', "{:.2f}".format(ping + logic_time + drawing_time)
-            )
-
->>>>>>> a1e9bb567903ae66e0907d2f32624e771e7ce6dd
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """

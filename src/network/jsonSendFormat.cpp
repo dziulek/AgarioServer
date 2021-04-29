@@ -73,6 +73,7 @@ void JsonDataFormatter::addMapInformation(Client * client){
 
     std::vector<int> xAbandoned;
     std::vector<int> yAbandoned;
+    std::vector<u_int32_t> colorsAbandoned;
     radius.clear();
     radius.shrink_to_fit();
 
@@ -80,11 +81,14 @@ void JsonDataFormatter::addMapInformation(Client * client){
         xAbandoned.emplace_back(int(a.get()->getPosition().x * pow(10, FLOAT_PRECISION)));
         yAbandoned.emplace_back(int(a.get()->getPosition().y * pow(10, FLOAT_PRECISION)));
         radius.push_back(int(a.get()->getRadius() * pow(10, FLOAT_PRECISION)));
+        colorsAbandoned.emplace_back(a.get()->getColor());
     }
 
     this->data["map"]["abandoned"]["x"] = xAbandoned;
     this->data["map"]["abandoned"]["y"] = yAbandoned;
     this->data["map"]["abandoned"]["radius"] = radius;
+    this->data["map"]["abandoned"]["colors"] = colorsAbandoned;
+
 } 
 
 void JsonDataFormatter::addStatsInformation(Player * player){
