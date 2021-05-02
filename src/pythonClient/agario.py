@@ -278,7 +278,6 @@ class GameView(arcade.View):
         
         arcade.draw_lines(self.hor_points, arcade.color.WHITE_SMOKE, 0.25)
         arcade.draw_lines(self.ver_points, arcade.color.WHITE_SMOKE, 0.25)
-        # draw minis
         self.mini_shapes.draw()
         self.player_shapes.draw()
         self.bombs_shapes.draw()
@@ -295,14 +294,6 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         """ Movement and game logic """
         global ping, logic_time, second, frames_per_second
-        ping = time.time()
-
-        if ping - second > 1.0:
-            second = ping
-            # print(frames_per_second)
-            frames_per_second = 1
-        else:
-            frames_per_second += 1
 
         if self.jsonObj is not None and bool(int(chr(self.jsonObj["you"]["state"]))) == False:
             #lost game
@@ -311,7 +302,6 @@ class GameView(arcade.View):
             self.window.show_view(game_over)
         
         else:
-            ping = time.time() - ping
 
             logic_time = time.time()
             self.map_rectangle = arcade.create_rectangle_filled(
@@ -408,7 +398,8 @@ class GameView(arcade.View):
             logic_time = time.time() - logic_time
 
             myInfo.addMousePosition(mapWindowCoordToView(self.cursor_x, self.cursor_y, self))
-            try:
+            ping = time.time()
+            try: 
                 writeToServerRoutine(self.socket)
             except BrokenPipeError:
                 #broken pipe
@@ -417,6 +408,7 @@ class GameView(arcade.View):
                 self.window.show_view(game_over)
             try:
                 self.jsonObj = listenOnSocket(self.socket)
+                ping = time.time() - ping
                 # print(json.dumps(self.jsonObj))
             except OSError:
                 #bad file descriptor, inactive socket
