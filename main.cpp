@@ -17,10 +17,6 @@ int main(){
     Server server;
 
     server.mainLogic();   
-    // std::string testJson = "{ \"happy\": true, \"pi\": 3.141 }";
-    // json j = json::parse(testJson);
-
-    // std::cout << j["happy"].get<bool>() <<std::endl;
 
     return 0;
 }
