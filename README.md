@@ -2,6 +2,7 @@
 
 ![CI status](https://github.com/dziulek/AgarioServer/actions/workflows/build.yml/badge.svg)
 ![CI status](https://github.com/dziulek/AgarioServer/actions/workflows/server_tests.yml/badge.svg)
+![CI status](https://github.com/dziulek/AgarioServer/actions/workflows/clientBuild.yml/badge.svg)
 ---
 
 ## Overview
