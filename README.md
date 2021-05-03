@@ -16,7 +16,7 @@ The aim of the project was to write multithreaded server using BSD sockets in C/
 
 ## Setup 
 To build the project clone repository with all submodules (`recurse-submodules` option). 
-Go to main directory of the project, to build server:
+Go to main directory of the project, to build and run server:
 ```
 $ mkdir build
 $ cd build/
@@ -30,4 +30,6 @@ To run client go to the `src/pythonClient` directory:
 $ pip install -r requirements.txt
 $ python agario.py <ip address> <port number>
 ```
-You should replace `<ip address>` with your ip, and `<port number>` with outcome of  <img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\bg_white&space;floor&space;\left&space;[&space;\int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx&space;\right&space;]&space;&space;" title="\bg_white floor \left [ \int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx \right ] " />
+You should replace `<ip address>` with your ip, and `<port number>` with the outcome of 
+
+ <img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\bg_white&space;floor&space;\left&space;[&space;\int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx&space;\right&space;]&space;&space;" title="\bg_white floor \left [ \int_{2}^{3}\frac{e^{3x}}{2.017}sin(\frac{x}{2})dx \right ] " /> 
