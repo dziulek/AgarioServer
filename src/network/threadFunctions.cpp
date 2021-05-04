@@ -15,10 +15,11 @@ void * clientThread(void * server_client_struct){
     bzero(buf, strlen(buf));
     JsonDataFormatter jsonBuf;
     clientInfo cinfo;
+    bool playerLost = false;
 
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-    while(client != nullptr && client->getDisconnect() == false){
+    while(client != nullptr && client->getDisconnect() == false && playerLost == false){
 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     if(std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() < SEND_FREQUENCY)
@@ -49,6 +50,10 @@ void * clientThread(void * server_client_struct){
             e.what();
             std::cerr << buf << std::endl;
         }
+        if(client->getPlayer()->getState() == '0'){
+            playerLost = true;
+        }
+            
         bzero(buf, MAX_LEN_BUFER);
         pthread_mutex_unlock(&sc->server->new_player_mutex);
 
@@ -57,11 +62,9 @@ void * clientThread(void * server_client_struct){
             break;
         }
     }
-
     pthread_mutex_lock(&sc->server->client_creation_mutex);
 
     pthread_mutex_lock(&sc->server->new_player_mutex);
-
     client->setDisconnect();
     client->getGame()->getMap()->playerObjectAbandoned(client->getPlayer());
     client->getGame()->deletePlayer(client->getPlayer());
@@ -123,7 +126,7 @@ void * serverInfoRoutine(void * args){
             for(int i = 0; i < server->games.size(); i++){
                 std::cout << "Board " << i + 1 << ":\n";
                 pthread_mutex_lock(&server->new_player_mutex);//======================player
-
+                std::cerr << "info";
                 if(server->games[i].get()->getnOfPlayers() == 0)
                     fprintf(stdout, "brak graczy\n");
                 else

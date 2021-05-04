@@ -173,10 +173,7 @@ void JsonDataFormatter::interpretClientData(Client * client){
     catch(json::type_error & e){
         //invalid request
         std::cerr <<e.what() <<std::endl;
-        std::cerr << "in parse: " << this->data.dump() << std::endl;
     }
-
-
 }
 
 const int JsonDataFormatter::getRequestType(){

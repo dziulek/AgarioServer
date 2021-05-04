@@ -294,133 +294,136 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         """ Movement and game logic """
         global ping, logic_time, second, frames_per_second
+        
+        logic_time = time.time()
+        self.map_rectangle = arcade.create_rectangle_filled(
+            self.map_width // 2, self.map_height//2,
+            self.map_width, self.map_height,
+            arcade.color.EUCALYPTUS
+        )
+
+        self.player_shapes = arcade.ShapeElementList()
+        self.players_nicks = []
+        if self.jsonObj is not None:
+            for player in self.jsonObj["players"]:
+                for x, y, radius in zip(
+                    self.jsonObj["players"][player]["blobs"]["x"], 
+                    self.jsonObj["players"][player]["blobs"]["y"], 
+                    self.jsonObj["players"][player]["blobs"]["radius"]
+                ):
+                    shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(self.jsonObj["players"][player]["color"]))
+                    self.player_shapes.append(shape)
+
+        if self.jsonObj is not None:
+            self.mini_shapes = arcade.ShapeElementList()
+            for x, y, color in zip(
+                self.jsonObj["map"]["minis"]["x"],
+                self.jsonObj["map"]["minis"]["y"],
+                self.jsonObj["map"]["minis_color"]
+            ):
+                radius = self.jsonObj["map"]["minis"]["radius"]
+                shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
+                self.mini_shapes.append(shape)
+
+        if self.jsonObj is not None:
+            self.abandoned_shapes = arcade.ShapeElementList()
+            for x, y, radius, color in zip(
+                self.jsonObj["map"]["abandoned"]["x"],
+                self.jsonObj["map"]["abandoned"]["y"],
+                self.jsonObj["map"]["abandoned"]["radius"],
+                self.jsonObj["map"]["abandoned"]["colors"]
+            ):
+                shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(color))
+                self.abandoned_shapes.append(shape)
+
+        if self.jsonObj is not None:
+            self.bombs_shapes = arcade.SpriteList()
+            for x, y in zip(
+                self.jsonObj["map"]["bombs"]["x"],
+                self.jsonObj["map"]["bombs"]["y"]
+            ):
+                radius = self.jsonObj["map"]["bombs"]["radius"]
+                shape = arcade.Sprite("bombv3.png",  radius / BOMB_SPRITE_SIZE)
+                shape.center_x = x
+                shape.center_y = y
+                self.bombs_shapes.append(shape)
+
+        if self.jsonObj is not None:  
+
+            if self.jsonObj["you"]["view"][0] <= self.jsonObj["you"]["view"][2] and self.jsonObj["you"]["view"][1] <= self.jsonObj["you"]["view"][3]:
+                self.view_left = copy.deepcopy(self.jsonObj["you"]["view"][0]) * 0.01
+                self.view_right = copy.deepcopy(self.jsonObj["you"]["view"][2]) * 0.01
+                self.view_bottom = copy.deepcopy(self.jsonObj["you"]["view"][1]) * 0.01
+                self.view_top = copy.deepcopy(self.jsonObj["you"]["view"][3]) * 0.01
+
+        try:
+            arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
+        except ZeroDivisionError:
+            print(self.view_left, self.view_right, self.view_bottom, self.view_top)
+            return
+
+        left, right, bottom, top = self.view_left, self.view_right, self.view_bottom, self.view_top
+
+        left = (left // GRID_WIDTH * GRID_WIDTH)
+        right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+        bottom = bottom // GRID_WIDTH * GRID_WIDTH
+        top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
+
+        self.hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
+        self.ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
+
+        y_coord = bottom
+        for i in range(len(self.hor_points) // 4):
+            self.hor_points[4 * i] = left
+            self.hor_points[4 * i + 2] = right
+            self.hor_points[4 * i + 1] = y_coord
+            self.hor_points[4 * i + 3] = y_coord
+
+            y_coord += GRID_WIDTH
+
+        x_coord = left
+        for i in range(len(self.ver_points) // 4):
+            self.ver_points[4 * i] = x_coord
+            self.ver_points[4 * i + 1] = bottom
+            self.ver_points[4 * i + 2] = x_coord
+            self.ver_points[4 * i + 3] = top
+
+            x_coord += GRID_WIDTH
+        
+        self.hor_points = np.reshape(self.hor_points, (len(self.hor_points) // 2, 2))
+        self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
+        logic_time = time.time() - logic_time
+
+        myInfo.addMousePosition(mapWindowCoordToView(self.cursor_x, self.cursor_y, self))
+        ping = time.time()
+        try: 
+            writeToServerRoutine(self.socket)
+        except BrokenPipeError:
+            #broken pipe
+            self.socket.close()
+            game_over = GameOverView("UPS, LOST CONNECTION")
+            self.window.show_view(game_over)
+        try:
+            self.jsonObj = listenOnSocket(self.socket)
+            ping = time.time() - ping
+            # print(json.dumps(self.jsonObj))
+        except OSError:
+            #bad file descriptor, inactive socket
+            self.socket.close()
+            game_over = GameOverView("UPS, LOST CONNECTION")
+            self.window.show_view(game_over)
+        # print(
+        #     'ping: ', "{:.6f}".format(ping), 
+        #     ', logic: ', "{:.4f}".format(logic_time), 
+        #     ', drawing: ', "{:.4f}".format(drawing_time), 
+        #     'total: ', "{:.4f}".format(ping + logic_time + drawing_time)
+        # )
 
         if self.jsonObj is not None and bool(int(chr(self.jsonObj["you"]["state"]))) == False:
             #lost game
             self.socket.close()
             game_over = GameOverView("YOU LOST")
             self.window.show_view(game_over)
-        
-        else:
-
-            logic_time = time.time()
-            self.map_rectangle = arcade.create_rectangle_filled(
-                self.map_width // 2, self.map_height//2,
-                self.map_width, self.map_height,
-                arcade.color.EUCALYPTUS
-            )
-
-            self.player_shapes = arcade.ShapeElementList()
-            self.players_nicks = []
-            if self.jsonObj is not None:
-                for player in self.jsonObj["players"]:
-                    for x, y, radius in zip(
-                        self.jsonObj["players"][player]["blobs"]["x"], 
-                        self.jsonObj["players"][player]["blobs"]["y"], 
-                        self.jsonObj["players"][player]["blobs"]["radius"]
-                    ):
-                        shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(self.jsonObj["players"][player]["color"]))
-                        self.player_shapes.append(shape)
-
-            if self.jsonObj is not None:
-                self.mini_shapes = arcade.ShapeElementList()
-                for x, y, color in zip(
-                    self.jsonObj["map"]["minis"]["x"],
-                    self.jsonObj["map"]["minis"]["y"],
-                    self.jsonObj["map"]["minis_color"]
-                ):
-                    radius = self.jsonObj["map"]["minis"]["radius"]
-                    shape = arcade.create_ellipse_filled(x, y, 2 * radius, 2 * radius, getColorFromInt(color))
-                    self.mini_shapes.append(shape)
-
-            if self.jsonObj is not None:
-                self.abandoned_shapes = arcade.ShapeElementList()
-                for x, y, radius, color in zip(
-                    self.jsonObj["map"]["abandoned"]["x"],
-                    self.jsonObj["map"]["abandoned"]["y"],
-                    self.jsonObj["map"]["abandoned"]["radius"],
-                    self.jsonObj["map"]["abandoned"]["colors"]
-                ):
-                    shape = arcade.create_ellipse_filled(x * 0.01, y * 0.01, 2 * radius * 0.01, 2 * radius * 0.01, getColorFromInt(color))
-                    self.abandoned_shapes.append(shape)
-
-            if self.jsonObj is not None:
-                self.bombs_shapes = arcade.SpriteList()
-                for x, y in zip(
-                    self.jsonObj["map"]["bombs"]["x"],
-                    self.jsonObj["map"]["bombs"]["y"]
-                ):
-                    radius = self.jsonObj["map"]["bombs"]["radius"]
-                    shape = arcade.Sprite("bombv3.png",  radius / BOMB_SPRITE_SIZE)
-                    shape.center_x = x
-                    shape.center_y = y
-                    self.bombs_shapes.append(shape)
-
-            if self.jsonObj is not None:  
-                self.view_left = copy.deepcopy(self.jsonObj["you"]["view"][0]) * 0.01
-                self.view_right = copy.deepcopy(self.jsonObj["you"]["view"][2]) * 0.01
-                self.view_bottom = copy.deepcopy(self.jsonObj["you"]["view"][1]) * 0.01
-                self.view_top = copy.deepcopy(self.jsonObj["you"]["view"][3]) * 0.01
-
-
-            arcade.set_viewport(self.view_left, self.view_right, self.view_bottom, self.view_top)
-
-            left, right, bottom, top = self.view_left, self.view_right, self.view_bottom, self.view_top
-
-            left = (left // GRID_WIDTH * GRID_WIDTH)
-            right = (right + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
-            bottom = bottom // GRID_WIDTH * GRID_WIDTH
-            top = (top + GRID_WIDTH) // GRID_WIDTH * GRID_WIDTH
-
-            self.hor_points = np.zeros(int((top - bottom) // GRID_WIDTH) * 4 + 4)
-            self.ver_points = np.zeros(int((right - left) // GRID_WIDTH) * 4 + 4)
-
-            y_coord = bottom
-            for i in range(len(self.hor_points) // 4):
-                self.hor_points[4 * i] = left
-                self.hor_points[4 * i + 2] = right
-                self.hor_points[4 * i + 1] = y_coord
-                self.hor_points[4 * i + 3] = y_coord
-
-                y_coord += GRID_WIDTH
-
-            x_coord = left
-            for i in range(len(self.ver_points) // 4):
-                self.ver_points[4 * i] = x_coord
-                self.ver_points[4 * i + 1] = bottom
-                self.ver_points[4 * i + 2] = x_coord
-                self.ver_points[4 * i + 3] = top
-
-                x_coord += GRID_WIDTH
-            
-            self.hor_points = np.reshape(self.hor_points, (len(self.hor_points) // 2, 2))
-            self.ver_points = np.reshape(self.ver_points, (len(self.ver_points) // 2, 2))
-            logic_time = time.time() - logic_time
-
-            myInfo.addMousePosition(mapWindowCoordToView(self.cursor_x, self.cursor_y, self))
-            ping = time.time()
-            try: 
-                writeToServerRoutine(self.socket)
-            except BrokenPipeError:
-                #broken pipe
-                self.socket.close()
-                game_over = GameOverView("UPS, LOST CONNECTION")
-                self.window.show_view(game_over)
-            try:
-                self.jsonObj = listenOnSocket(self.socket)
-                ping = time.time() - ping
-                # print(json.dumps(self.jsonObj))
-            except OSError:
-                #bad file descriptor, inactive socket
-                self.socket.close()
-                game_over = GameOverView("UPS, LOST CONNECTION")
-                self.window.show_view(game_over)
-            print(
-                'ping: ', "{:.6f}".format(ping), 
-                ', logic: ', "{:.4f}".format(logic_time), 
-                ', drawing: ', "{:.4f}".format(drawing_time), 
-                'total: ', "{:.4f}".format(ping + logic_time + drawing_time)
-            )
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
