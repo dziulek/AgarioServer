@@ -12,7 +12,7 @@ Project includes:
 
 The aim of the project was to write multithreaded server using BSD sockets in C/C++. Server uses my own engine for this purpose (you can find it [here](https://github.com/dziulek/AgarioEngine)) and [json library](https://github.com/nlohmann/json) for modern C++.
 
-![](AgarioServerDemo.gif)
+![](AgarioServerDemo2.gif)
 
 ## Setup 
 To build the project clone repository with all submodules (`recurse-submodules` option). 
